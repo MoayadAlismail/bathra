@@ -1,8 +1,11 @@
 
 import { ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
 const HeroSection = () => {
+  const navigate = useNavigate();
+
   return (
     <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden bg-gradient-to-b from-white via-[#F8F9FA] to-white">
       <div className="container mx-auto px-4 py-20 mt-16">
@@ -24,23 +27,23 @@ const HeroSection = () => {
           </p>
           
           <div className="flex flex-col sm:flex-row gap-6 justify-center">
-            <motion.a
+            <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              href="#startup-form"
+              onClick={() => navigate('/pitch')}
               className="inline-flex items-center justify-center px-8 py-4 bg-[#2EC4B6] text-white rounded-lg font-medium transition-all duration-300 hover:bg-[#2D3E50] hover:shadow-lg group"
             >
               Pitch Your Startup
               <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </motion.a>
-            <motion.a
+            </motion.button>
+            <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              href="#investor-form"
+              onClick={() => navigate('/invest')}
               className="inline-flex items-center justify-center px-8 py-4 bg-white text-[#2D3E50] border-2 border-[#2D3E50] rounded-lg font-medium transition-all duration-300 hover:bg-[#F8F9FA] hover:shadow-lg"
             >
               Join as Investor
-            </motion.a>
+            </motion.button>
           </div>
         </motion.div>
       </div>

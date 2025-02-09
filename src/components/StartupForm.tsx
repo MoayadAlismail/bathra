@@ -1,16 +1,39 @@
 
 import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
+import { Upload } from "lucide-react";
+import { useState } from "react";
 
 const StartupForm = () => {
   const { toast } = useToast();
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    // Include file in submission logic
     toast({
       title: "Success!",
-      description: "Your pitch has been submitted successfully. We'll be in touch soon!",
+      description: `Your pitch${selectedFile ? ' and document' : ''} has been submitted successfully. We'll be in touch soon!`,
     });
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+        toast({
+          title: "Error",
+          description: "File size must be less than 5MB",
+          variant: "destructive",
+        });
+        return;
+      }
+      setSelectedFile(file);
+      toast({
+        title: "File selected",
+        description: `${file.name} has been selected`,
+      });
+    }
   };
 
   return (
@@ -85,6 +108,42 @@ const StartupForm = () => {
                 className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
                 placeholder="How much funding are you seeking?"
               />
+            </div>
+
+            <div>
+              <label htmlFor="document" className="block text-sm font-medium text-gray-700 mb-2">
+                Upload Documents (Optional)
+              </label>
+              <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:border-primary transition-colors">
+                <div className="space-y-1 text-center">
+                  <Upload className="mx-auto h-12 w-12 text-gray-400" />
+                  <div className="flex text-sm text-gray-600">
+                    <label
+                      htmlFor="document"
+                      className="relative cursor-pointer rounded-md font-medium text-primary hover:text-primary-dark focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-primary"
+                    >
+                      <span>Upload a file</span>
+                      <input
+                        id="document"
+                        name="document"
+                        type="file"
+                        className="sr-only"
+                        accept=".pdf,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                        onChange={handleFileChange}
+                      />
+                    </label>
+                    <p className="pl-1">or drag and drop</p>
+                  </div>
+                  <p className="text-xs text-gray-500">
+                    PDF or Word up to 5MB
+                  </p>
+                  {selectedFile && (
+                    <p className="text-sm text-primary mt-2">
+                      Selected: {selectedFile.name}
+                    </p>
+                  )}
+                </div>
+              </div>
             </div>
 
             <motion.button

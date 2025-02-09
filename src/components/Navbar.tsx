@@ -2,15 +2,17 @@
 import { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
 const navItems = [
-  { label: "Home", href: "#" },
-  { label: "How It Works", href: "#how-it-works" },
-  { label: "Startups", href: "#startup-form" },
-  { label: "Investors", href: "#investor-form" },
+  { label: "Home", path: "/" },
+  { label: "How It Works", path: "/#how-it-works" },
+  { label: "Startups", path: "/pitch" },
+  { label: "Investors", path: "/invest" },
 ];
 
 const Navbar = () => {
+  const navigate = useNavigate();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -23,6 +25,21 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  const handleNavigation = (path: string) => {
+    if (path.startsWith('/#')) {
+      // Handle anchor links for same page navigation
+      const elementId = path.substring(2);
+      const element = document.getElementById(elementId);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    } else {
+      // Handle route navigation
+      navigate(path);
+    }
+    setIsMobileMenuOpen(false);
+  };
+
   return (
     <>
       <nav
@@ -32,20 +49,23 @@ const Navbar = () => {
       >
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between">
-            <a href="#" className="text-2xl font-bold text-[#2D3E50]">
+            <button 
+              onClick={() => handleNavigation('/')} 
+              className="text-2xl font-bold text-[#2D3E50] hover:text-[#2EC4B6] transition-colors duration-200"
+            >
               PitchConnectly
-            </a>
+            </button>
 
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-8">
               {navItems.map((item) => (
-                <a
+                <button
                   key={item.label}
-                  href={item.href}
+                  onClick={() => handleNavigation(item.path)}
                   className="text-[#2D3E50] hover:text-[#2EC4B6] transition-colors duration-200"
                 >
                   {item.label}
-                </a>
+                </button>
               ))}
             </div>
 
@@ -72,14 +92,13 @@ const Navbar = () => {
             <div className="container mx-auto px-4 py-4">
               <div className="flex flex-col space-y-4">
                 {navItems.map((item) => (
-                  <a
+                  <button
                     key={item.label}
-                    href={item.href}
-                    className="text-[#2D3E50] hover:text-[#2EC4B6] transition-colors duration-200 py-2"
-                    onClick={() => setIsMobileMenuOpen(false)}
+                    onClick={() => handleNavigation(item.path)}
+                    className="text-[#2D3E50] hover:text-[#2EC4B6] transition-colors duration-200 py-2 text-left"
                   >
                     {item.label}
-                  </a>
+                  </button>
                 ))}
               </div>
             </div>

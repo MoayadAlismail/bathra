@@ -6,7 +6,6 @@ import InvestorForm from "@/components/InvestorForm";
 import HowItWorks from "@/components/HowItWorks";
 
 const Index = () => {
-  // Smooth scroll functionality
   useEffect(() => {
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
       anchor.addEventListener('click', function (e) {

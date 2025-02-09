@@ -25,10 +25,10 @@ const HowItWorks = () => {
     <section className="py-20 bg-white">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
-          <span className="inline-block px-4 py-2 bg-primary-light rounded-full text-primary-dark text-sm font-medium mb-4">
+          <span className="inline-block px-4 py-2 bg-[#E7F0FD] rounded-full text-[#1EAEDB] text-sm font-medium mb-4">
             Simple Process
           </span>
-          <h2 className="text-4xl font-bold mb-4">How It Works</h2>
+          <h2 className="text-4xl font-bold mb-4 text-gray-900">How It Works</h2>
           <p className="text-gray-600 max-w-2xl mx-auto">
             Our platform makes it easy for startups and investors to connect and collaborate.
           </p>
@@ -45,8 +45,8 @@ const HowItWorks = () => {
               className="relative p-8 rounded-2xl bg-white border border-gray-100 hover:shadow-lg transition-shadow"
             >
               <div className="absolute -top-6 left-1/2 -translate-x-1/2">
-                <div className="w-12 h-12 rounded-full bg-primary-light flex items-center justify-center">
-                  <step.icon className="w-6 h-6 text-primary" />
+                <div className="w-12 h-12 rounded-full bg-[#E7F0FD] flex items-center justify-center">
+                  <step.icon className="w-6 h-6 text-[#1EAEDB]" />
                 </div>
               </div>
               <div className="mt-8 text-center">

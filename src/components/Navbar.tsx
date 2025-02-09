@@ -27,14 +27,12 @@ const Navbar = () => {
 
   const handleNavigation = (path: string) => {
     if (path.startsWith('/#')) {
-      // Handle anchor links for same page navigation
       const elementId = path.substring(2);
       const element = document.getElementById(elementId);
       if (element) {
         element.scrollIntoView({ behavior: 'smooth' });
       }
     } else {
-      // Handle route navigation
       navigate(path);
     }
     setIsMobileMenuOpen(false);
@@ -44,16 +42,16 @@ const Navbar = () => {
     <>
       <nav
         className={`fixed w-full z-50 transition-all duration-300 ${
-          isScrolled ? "bg-white shadow-md py-2" : "bg-transparent py-4"
+          isScrolled ? "bg-white dark:bg-gray-900 shadow-md py-2" : "bg-transparent py-4"
         }`}
       >
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between">
             <button 
               onClick={() => handleNavigation('/')} 
-              className="text-2xl font-bold text-[#2D3E50] hover:text-[#2EC4B6] transition-colors duration-200"
+              className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors duration-200"
             >
-              PitchConnectly
+              Bathra
             </button>
 
             {/* Desktop Navigation */}
@@ -62,7 +60,8 @@ const Navbar = () => {
                 <button
                   key={item.label}
                   onClick={() => handleNavigation(item.path)}
-                  className="text-[#2D3E50] hover:text-[#2EC4B6] transition-colors duration-200"
+                  className="text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald
+                  -300 transition-colors duration-200"
                 >
                   {item.label}
                 </button>
@@ -71,7 +70,7 @@ const Navbar = () => {
 
             {/* Mobile Menu Button */}
             <button
-              className="md:hidden text-[#2D3E50]"
+              className="md:hidden text-emerald-600 dark:text-emerald-400"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             >
               {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
@@ -87,7 +86,7 @@ const Navbar = () => {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="fixed top-[60px] left-0 right-0 bg-white shadow-lg z-40 md:hidden"
+            className="fixed top-[60px] left-0 right-0 bg-white dark:bg-gray-900 shadow-lg z-40 md:hidden"
           >
             <div className="container mx-auto px-4 py-4">
               <div className="flex flex-col space-y-4">
@@ -95,7 +94,7 @@ const Navbar = () => {
                   <button
                     key={item.label}
                     onClick={() => handleNavigation(item.path)}
-                    className="text-[#2D3E50] hover:text-[#2EC4B6] transition-colors duration-200 py-2 text-left"
+                    className="text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors duration-200 py-2 text-left"
                   >
                     {item.label}
                   </button>
@@ -110,3 +109,4 @@ const Navbar = () => {
 };
 
 export default Navbar;
+

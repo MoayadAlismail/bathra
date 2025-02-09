@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -26,20 +25,12 @@ export default {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         primary: {
-          DEFAULT: "#9b87f5",
-          hover: "#8873e8",
-          light: "#e5deff",
-          dark: "#6e59a5",
+          DEFAULT: "hsl(var(--primary))",
+          foreground: "hsl(var(--primary-foreground))",
         },
         secondary: {
-          DEFAULT: "#8E9196",
-          hover: "#7a7d82",
-          light: "#F1F0FB",
-          dark: "#5c5e62",
-        },
-        success: {
-          DEFAULT: "#4CAF50",
-          hover: "#43A047",
+          DEFAULT: "hsl(var(--secondary))",
+          foreground: "hsl(var(--secondary-foreground))",
         },
         destructive: {
           DEFAULT: "hsl(var(--destructive))",
@@ -60,6 +51,11 @@ export default {
         card: {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
+        },
+        money: {
+          light: "#4CAF50",
+          DEFAULT: "#2E7D32",
+          dark: "#1B5E20",
         },
       },
       keyframes: {

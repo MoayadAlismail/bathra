@@ -1,8 +1,6 @@
 
 import { useEffect } from "react";
 import HeroSection from "@/components/HeroSection";
-import StartupForm from "@/components/StartupForm";
-import InvestorForm from "@/components/InvestorForm";
 import HowItWorks from "@/components/HowItWorks";
 import Navbar from "@/components/Navbar";
 import { motion } from "framer-motion";
@@ -26,7 +24,6 @@ const Index = () => {
       <Navbar />
       <HeroSection />
       <HowItWorks />
-      <StartupForm />
       
       {/* Information Section */}
       <section className="py-20 bg-white">
@@ -77,8 +74,6 @@ const Index = () => {
           </motion.div>
         </div>
       </section>
-
-      <InvestorForm />
     </div>
   );
 };

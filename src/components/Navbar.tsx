@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Sprout } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 
@@ -40,53 +40,52 @@ const Navbar = () => {
 
   return (
     <>
-      <nav
+      <motion.nav
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
         className={`fixed w-full z-50 transition-all duration-300 ${
-          isScrolled ? "bg-white dark:bg-gray-900 shadow-md py-2" : "bg-transparent py-4"
+          isScrolled ? "bg-background/80 backdrop-blur-lg shadow-lg py-2" : "bg-transparent py-4"
         }`}
       >
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between">
             <button 
               onClick={() => handleNavigation('/')} 
-              className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors duration-200"
+              className="flex items-center gap-2 text-2xl font-bold text-primary hover:text-primary/80 transition-colors duration-200"
             >
+              <Sprout className="w-8 h-8" />
               Bathra
             </button>
 
-            {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-8">
               {navItems.map((item) => (
                 <button
                   key={item.label}
                   onClick={() => handleNavigation(item.path)}
-                  className="text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald
-                  -300 transition-colors duration-200"
+                  className="text-foreground hover:text-primary transition-colors duration-200"
                 >
                   {item.label}
                 </button>
               ))}
             </div>
 
-            {/* Mobile Menu Button */}
             <button
-              className="md:hidden text-emerald-600 dark:text-emerald-400"
+              className="md:hidden text-foreground hover:text-primary transition-colors duration-200"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             >
               {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
           </div>
         </div>
-      </nav>
+      </motion.nav>
 
-      {/* Mobile Menu */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="fixed top-[60px] left-0 right-0 bg-white dark:bg-gray-900 shadow-lg z-40 md:hidden"
+            className="fixed top-[60px] left-0 right-0 bg-background/80 backdrop-blur-lg shadow-lg z-40 md:hidden"
           >
             <div className="container mx-auto px-4 py-4">
               <div className="flex flex-col space-y-4">
@@ -94,7 +93,7 @@ const Navbar = () => {
                   <button
                     key={item.label}
                     onClick={() => handleNavigation(item.path)}
-                    className="text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors duration-200 py-2 text-left"
+                    className="text-foreground hover:text-primary transition-colors duration-200 py-2 text-left"
                   >
                     {item.label}
                   </button>
@@ -109,4 +108,3 @@ const Navbar = () => {
 };
 
 export default Navbar;
-

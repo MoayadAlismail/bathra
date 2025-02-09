@@ -4,6 +4,7 @@ import HeroSection from "@/components/HeroSection";
 import StartupForm from "@/components/StartupForm";
 import InvestorForm from "@/components/InvestorForm";
 import HowItWorks from "@/components/HowItWorks";
+import Navbar from "@/components/Navbar";
 
 const Index = () => {
   useEffect(() => {
@@ -19,7 +20,8 @@ const Index = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-[#F8F9FA]">
+      <Navbar />
       <HeroSection />
       <HowItWorks />
       <StartupForm />

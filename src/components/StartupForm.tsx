@@ -10,7 +10,6 @@ const StartupForm = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Include file in submission logic
     toast({
       title: "Success!",
       description: `Your pitch${selectedFile ? ' and document' : ''} has been submitted successfully. We'll be in touch soon!`,

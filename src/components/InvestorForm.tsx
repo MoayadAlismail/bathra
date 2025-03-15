@@ -1,11 +1,13 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/context/AuthContext";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import { AlertTriangle } from "lucide-react";
 
 const InvestorForm = () => {
   const [name, setName] = useState("");
@@ -17,7 +19,7 @@ const InvestorForm = () => {
   const [error, setError] = useState("");
   
   const { toast } = useToast();
-  const { register } = useAuth();
+  const { register, isDemo } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -45,8 +47,10 @@ const InvestorForm = () => {
       });
       
       toast({
-        title: "Registration Successful!",
-        description: "Your investor account has been created.",
+        title: isDemo ? "Registration Successful (Demo Mode)!" : "Registration Successful!",
+        description: isDemo ? 
+          "Your investor account has been created in demo mode. No data is persisted." :
+          "Your investor account has been created.",
       });
       
       navigate("/dashboard");
@@ -74,6 +78,17 @@ const InvestorForm = () => {
               Create your account to connect with promising startups.
             </p>
           </div>
+
+          {isDemo && (
+            <Alert className="mb-6 border-yellow-400 bg-yellow-50 text-yellow-800">
+              <AlertTriangle className="h-4 w-4 text-yellow-600" />
+              <AlertTitle>Demo Mode Active</AlertTitle>
+              <AlertDescription>
+                The application is running in demo mode because Supabase credentials are not configured.
+                Account creation will work, but data is only stored temporarily in memory.
+              </AlertDescription>
+            </Alert>
+          )}
 
           {error && (
             <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-600 rounded-lg">

@@ -7,13 +7,15 @@ import { useAuth } from "@/context/AuthContext";
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import { AlertTriangle } from "lucide-react";
 
 const InvestorLogin = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const { toast } = useToast();
-  const { login } = useAuth();
+  const { login, isDemo } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -23,8 +25,10 @@ const InvestorLogin = () => {
     try {
       await login(email, password);
       toast({
-        title: "Login Successful!",
-        description: "Welcome back to your dashboard.",
+        title: isDemo ? "Login Successful (Demo Mode)!" : "Login Successful!",
+        description: isDemo ? 
+          "You are now logged in with demo credentials." : 
+          "Welcome back to your dashboard.",
       });
       navigate("/dashboard");
     } catch (err) {
@@ -50,6 +54,16 @@ const InvestorLogin = () => {
                 Access your investment dashboard
               </p>
             </div>
+
+            {isDemo && (
+              <Alert className="mb-6 border-yellow-400 bg-yellow-50 text-yellow-800">
+                <AlertTriangle className="h-4 w-4 text-yellow-600" />
+                <AlertTitle>Demo Mode Active</AlertTitle>
+                <AlertDescription>
+                  Enter any email and password to log in with demo credentials.
+                </AlertDescription>
+              </Alert>
+            )}
 
             {error && (
               <div className="mb-6 p-3 bg-red-50 border border-red-200 text-red-600 rounded-lg text-sm">

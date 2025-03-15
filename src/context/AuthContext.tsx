@@ -16,6 +16,7 @@ type AuthContextType = {
   user: User | null;
   profile: InvestorProfile | null;
   isLoading: boolean;
+  isDemo: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (userData: Omit<InvestorProfile, 'id'> & { password: string }) => Promise<void>;
   logout: () => Promise<void>;
@@ -27,6 +28,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<InvestorProfile | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isDemo, setIsDemo] = useState<boolean>(false);
+
+  // Check if we're in demo mode
+  useEffect(() => {
+    if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
+      setIsDemo(true);
+    }
+  }, []);
 
   // Check for user session on initial load
   useEffect(() => {
@@ -85,6 +94,29 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     try {
+      if (isDemo) {
+        // Demo mode login
+        await new Promise(resolve => setTimeout(resolve, 800)); // Simulate network delay
+        
+        // Create a mock user and profile
+        const mockUser = {
+          id: 'demo-user-' + Date.now(),
+          email: email,
+        } as User;
+        
+        setUser(mockUser);
+        setProfile({
+          id: mockUser.id,
+          email: email,
+          name: 'Demo User',
+          investmentFocus: 'Technology',
+          investmentRange: '$50K - $200K (Angel)',
+        });
+        
+        toast.success('Logged in successfully (Demo Mode)');
+        return;
+      }
+
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -108,6 +140,29 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const register = async (userData: Omit<InvestorProfile, 'id'> & { password: string }) => {
     setIsLoading(true);
     try {
+      if (isDemo) {
+        // Demo mode registration
+        await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate network delay
+        
+        // Create a mock user and profile
+        const mockUser = {
+          id: 'demo-user-' + Date.now(),
+          email: userData.email,
+        } as User;
+        
+        setUser(mockUser);
+        setProfile({
+          id: mockUser.id,
+          email: userData.email,
+          name: userData.name,
+          investmentFocus: userData.investmentFocus,
+          investmentRange: userData.investmentRange,
+        });
+        
+        toast.success('Account created successfully (Demo Mode)');
+        return;
+      }
+      
       // Create user in Supabase Auth
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: userData.email,
@@ -150,6 +205,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   // Logout with Supabase
   const logout = async () => {
     try {
+      if (isDemo) {
+        // Demo mode logout
+        await new Promise(resolve => setTimeout(resolve, 500)); // Simulate network delay
+        setUser(null);
+        setProfile(null);
+        toast.success('Logged out successfully (Demo Mode)');
+        return;
+      }
+      
       const { error } = await supabase.auth.signOut();
       if (error) {
         throw error;
@@ -163,7 +227,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, profile, isLoading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, profile, isLoading, isDemo, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   );

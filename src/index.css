@@ -7,38 +7,40 @@
 
 @layer base {
   :root {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
+    /* Light mode colors that match dark mode aesthetic */
+    --background: 0 0% 100%;
+    --foreground: 215 50% 20%;
 
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
+    --card: 0 0% 100%;
+    --card-foreground: 215 50% 20%;
 
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 215 50% 20%;
 
-    --primary: 0 0% 98%;
-    --primary-foreground: 240 5.9% 10%;
+    --primary: 215 100% 45%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
+    --secondary: 215 40% 96%;
+    --secondary-foreground: 215 50% 20%;
 
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
+    --muted: 215 40% 96%;
+    --muted-foreground: 215 40% 40%;
 
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
+    --accent: 215 100% 45%;
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 240 4.9% 83.9%;
+    --border: 215 40% 90%;
+    --input: 215 40% 90%;
+    --ring: 215 100% 45%;
 
     --radius: 1rem;
   }
 
   .light {
+    /* Same light mode colors as above */
     --background: 0 0% 100%;
     --foreground: 215 50% 20%;
 
@@ -67,6 +69,37 @@
     --input: 215 40% 90%;
     --ring: 215 100% 45%;
   }
+
+  .dark {
+    /* Keep existing dark mode colors */
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 0 0% 98%;
+    --primary-foreground: 240 5.9% 10%;
+
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 240 4.9% 83.9%;
+  }
 }
 
 @layer base {
@@ -79,28 +112,78 @@
   }
 
   .glass {
-    @apply bg-black/20 backdrop-blur-lg border border-white/10 rounded-2xl shadow-lg;
+    /* Modified glass styling to work in both modes */
+    @apply backdrop-blur-lg border rounded-2xl shadow-lg;
+  }
+  
+  .light .glass {
+    @apply bg-black/5 border-black/10;
+  }
+  
+  .dark .glass {
+    @apply bg-black/20 border-white/10;
   }
 }
 
 @layer utilities {
   .text-gradient {
-    @apply bg-gradient-to-r from-white/90 via-white to-white/90 bg-clip-text text-transparent;
+    @apply bg-clip-text text-transparent;
+  }
+  
+  .light .text-gradient {
+    @apply bg-gradient-to-r from-primary via-primary/90 to-primary/80;
+  }
+  
+  .dark .text-gradient {
+    @apply bg-gradient-to-r from-white/90 via-white to-white/90;
   }
   
   .tech-gradient {
-    @apply bg-gradient-to-r from-white/20 via-white/30 to-white/20;
+    /* Different gradients for different themes */
+    @apply bg-gradient-to-r;
+  }
+  
+  .light .tech-gradient {
+    @apply from-primary/10 via-primary/20 to-primary/10;
+  }
+  
+  .dark .tech-gradient {
+    @apply from-white/20 via-white/30 to-white/20;
   }
   
   .hero-gradient {
-    @apply bg-gradient-to-r from-white/90 to-white/80;
+    @apply bg-gradient-to-r;
+  }
+  
+  .light .hero-gradient {
+    @apply from-primary/80 to-primary/70;
+  }
+  
+  .dark .hero-gradient {
+    @apply from-white/90 to-white/80;
   }
   
   .card-highlight {
-    @apply bg-gradient-to-br from-secondary to-secondary/80;
+    @apply bg-gradient-to-br;
+  }
+  
+  .light .card-highlight {
+    @apply from-secondary to-secondary/70;
+  }
+  
+  .dark .card-highlight {
+    @apply from-secondary to-secondary/80;
   }
   
   .neo-blur {
-    @apply backdrop-blur-xl bg-black/40 border border-white/10;
+    @apply backdrop-blur-xl border;
+  }
+  
+  .light .neo-blur {
+    @apply bg-white/90 border-black/10;
+  }
+  
+  .dark .neo-blur {
+    @apply bg-black/40 border-white/10;
   }
 }

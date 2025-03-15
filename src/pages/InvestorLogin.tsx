@@ -56,8 +56,9 @@ const InvestorLogin = () => {
             </div>
 
             {isDemo && (
-              <Alert className="mb-6 border-yellow-400 bg-yellow-900/20 text-yellow-300">
-                <AlertTriangle className="h-4 w-4 text-yellow-300" />
+              <Alert className="mb-6 dark:border-yellow-400 dark:bg-yellow-900/20 dark:text-yellow-300 
+                                light:border-yellow-500 light:bg-yellow-50 light:text-yellow-700">
+                <AlertTriangle className="h-4 w-4 dark:text-yellow-300 light:text-yellow-500" />
                 <AlertTitle>Demo Mode Active</AlertTitle>
                 <AlertDescription>
                   Enter any email and password to log in with demo credentials.

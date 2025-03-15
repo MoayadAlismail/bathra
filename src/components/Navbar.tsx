@@ -1,8 +1,10 @@
 
 import { useState, useEffect } from "react";
-import { Menu, X, Sprout } from "lucide-react";
+import { Menu, X, Sprout, LogIn } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
+import { Button } from "@/components/ui/button";
 
 const navItems = [
   { label: "Home", path: "/" },
@@ -13,6 +15,7 @@ const navItems = [
 
 const Navbar = () => {
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -38,6 +41,11 @@ const Navbar = () => {
     setIsMobileMenuOpen(false);
   };
 
+  const handleLogout = () => {
+    logout();
+    navigate("/");
+  };
+
   return (
     <>
       <motion.nav
@@ -57,7 +65,7 @@ const Navbar = () => {
               Bathra
             </button>
 
-            <div className="hidden md:flex items-center space-x-8">
+            <div className="hidden md:flex items-center space-x-6">
               {navItems.map((item) => (
                 <button
                   key={item.label}
@@ -67,6 +75,34 @@ const Navbar = () => {
                   {item.label}
                 </button>
               ))}
+              
+              {user ? (
+                <div className="flex items-center space-x-4">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => navigate('/dashboard')}
+                  >
+                    Dashboard
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={handleLogout}
+                  >
+                    Sign Out
+                  </Button>
+                </div>
+              ) : (
+                <Button 
+                  size="sm" 
+                  onClick={() => navigate('/login')}
+                  className="flex items-center gap-2"
+                >
+                  <LogIn className="w-4 h-4" />
+                  Sign In
+                </Button>
+              )}
             </div>
 
             <button
@@ -98,6 +134,40 @@ const Navbar = () => {
                     {item.label}
                   </button>
                 ))}
+                
+                {user ? (
+                  <>
+                    <button
+                      onClick={() => {
+                        navigate('/dashboard');
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className="text-foreground hover:text-primary transition-colors duration-200 py-2 text-left"
+                    >
+                      Dashboard
+                    </button>
+                    <button
+                      onClick={() => {
+                        handleLogout();
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className="text-foreground hover:text-primary transition-colors duration-200 py-2 text-left"
+                    >
+                      Sign Out
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    onClick={() => {
+                      navigate('/login');
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className="flex items-center gap-2 text-foreground hover:text-primary transition-colors duration-200 py-2 text-left"
+                  >
+                    <LogIn className="w-4 h-4" />
+                    Sign In
+                  </button>
+                )}
               </div>
             </div>
           </motion.div>

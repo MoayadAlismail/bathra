@@ -11,7 +11,7 @@ import InvestorJoin from "./pages/InvestorJoin";
 import InvestorLogin from "./pages/InvestorLogin";
 import InvestorDashboard from "./pages/InvestorDashboard";
 import NotFound from "./pages/NotFound";
-import { Suspense, ErrorBoundary as ReactErrorBoundary } from "react";
+import { Suspense, Component, ReactNode } from "react";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -43,14 +43,32 @@ const ErrorFallback = ({ error }: { error: Error }) => {
   );
 };
 
-// Error Boundary component
-const ErrorBoundary = ({ children }: { children: React.ReactNode }) => {
-  return (
-    <ReactErrorBoundary fallback={<ErrorFallback error={new Error("Unknown error occurred")} />}>
-      {children}
-    </ReactErrorBoundary>
-  );
-};
+// Error Boundary component using class component
+class ErrorBoundary extends Component<{children: ReactNode}, {hasError: boolean; error: Error | null}> {
+  constructor(props: {children: ReactNode}) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    // Update state so the next render will show the fallback UI
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    // You can also log the error to an error reporting service
+    console.error("Error caught by ErrorBoundary:", error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      // You can render any custom fallback UI
+      return <ErrorFallback error={this.state.error || new Error("Unknown error occurred")} />;
+    }
+
+    return this.props.children;
+  }
+}
 
 // Protected route component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {

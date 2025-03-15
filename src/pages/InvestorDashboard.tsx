@@ -66,7 +66,7 @@ const InvestorDashboard = () => {
   if (!user || !profile) return null;
 
   return (
-    <div className="min-h-screen bg-[#F8F9FA]">
+    <div className="min-h-screen bg-background">
       <Navbar />
       <section className="py-16">
         <div className="container mx-auto px-4">
@@ -76,34 +76,34 @@ const InvestorDashboard = () => {
             transition={{ duration: 0.5 }}
             className="max-w-4xl mx-auto"
           >
-            <div className="bg-white rounded-2xl shadow-lg p-8 mb-8">
+            <div className="neo-blur rounded-2xl shadow-lg p-8 mb-8">
               <div className="flex justify-between items-center mb-6">
-                <h1 className="text-3xl font-bold">Investor Dashboard</h1>
+                <h1 className="text-3xl font-bold text-gradient">Investor Dashboard</h1>
                 <Button variant="outline" onClick={handleLogout}>
                   Sign Out
                 </Button>
               </div>
               
-              <div className="p-6 bg-blue-50 rounded-xl mb-8">
+              <div className="p-6 glass rounded-xl mb-8 border border-white/10">
                 <h2 className="text-xl font-semibold mb-2">Welcome back, {profile.name}</h2>
-                <p className="text-gray-700">Your investment profile is active and visible to startups in your focus area.</p>
+                <p className="text-muted-foreground">Your investment profile is active and visible to startups in your focus area.</p>
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                <div className="bg-white p-6 rounded-xl border border-gray-200">
+                <div className="glass p-6 rounded-xl border border-white/10">
                   <h3 className="text-lg font-semibold mb-3">Your Profile</h3>
                   <ul className="space-y-2">
-                    <li><span className="text-gray-600">Investment Focus:</span> {profile.investmentFocus}</li>
-                    <li><span className="text-gray-600">Investment Range:</span> {profile.investmentRange}</li>
-                    <li><span className="text-gray-600">Email:</span> {profile.email}</li>
+                    <li><span className="text-muted-foreground">Investment Focus:</span> <span className="text-foreground">{profile.investmentFocus}</span></li>
+                    <li><span className="text-muted-foreground">Investment Range:</span> <span className="text-foreground">{profile.investmentRange}</span></li>
+                    <li><span className="text-muted-foreground">Email:</span> <span className="text-foreground">{profile.email}</span></li>
                   </ul>
                 </div>
-                <div className="bg-white p-6 rounded-xl border border-gray-200">
+                <div className="glass p-6 rounded-xl border border-white/10">
                   <h3 className="text-lg font-semibold mb-3">Quick Actions</h3>
                   <div className="space-y-2">
                     <Button 
                       variant="outline" 
-                      className="w-full justify-start" 
+                      className="w-full justify-start border-white/10 hover:bg-white/5" 
                       onClick={() => navigate('/startups')}
                     >
                       <FileText className="mr-2 h-4 w-4" />
@@ -114,15 +114,15 @@ const InvestorDashboard = () => {
               </div>
               
               <div>
-                <h3 className="text-xl font-semibold mb-4">Recommended Startups</h3>
+                <h3 className="text-xl font-semibold mb-4 text-gradient">Recommended Startups</h3>
                 {isLoading ? (
-                  <div className="p-8 text-center bg-gray-50 rounded-xl">
-                    <p className="text-gray-500">Loading startups...</p>
+                  <div className="p-8 text-center glass rounded-xl border border-white/10">
+                    <p className="text-muted-foreground">Loading startups...</p>
                   </div>
                 ) : startups.length > 0 ? (
                   <div className="space-y-4">
                     {startups.map((startup) => (
-                      <Card key={startup.id} className="overflow-hidden">
+                      <Card key={startup.id} className="overflow-hidden bg-card border-white/10">
                         <CardHeader className="pb-2">
                           <div className="flex justify-between items-center">
                             <CardTitle className="text-lg">{startup.name}</CardTitle>
@@ -137,14 +137,14 @@ const InvestorDashboard = () => {
                             </Collapsible>
                           </div>
                           <div className="flex gap-2 mt-1">
-                            <span className="bg-blue-100 text-blue-800 text-xs px-2.5 py-0.5 rounded">{startup.industry}</span>
-                            <span className="bg-green-100 text-green-800 text-xs px-2.5 py-0.5 rounded">{startup.stage}</span>
+                            <span className="bg-secondary/30 text-foreground text-xs px-2.5 py-0.5 rounded">{startup.industry}</span>
+                            <span className="bg-primary/10 text-primary text-xs px-2.5 py-0.5 rounded">{startup.stage}</span>
                           </div>
                         </CardHeader>
                         <Collapsible open={openStartup === startup.id}>
                           <CollapsibleContent>
                             <CardContent className="pt-2">
-                              <p className="text-sm text-gray-600">{startup.description}</p>
+                              <p className="text-sm text-muted-foreground">{startup.description}</p>
                               <Button className="mt-3" size="sm">View Details</Button>
                             </CardContent>
                           </CollapsibleContent>
@@ -153,8 +153,8 @@ const InvestorDashboard = () => {
                     ))}
                   </div>
                 ) : (
-                  <div className="p-8 text-center bg-gray-50 rounded-xl">
-                    <p className="text-gray-500">No startups to display yet. Check back soon!</p>
+                  <div className="p-8 text-center glass rounded-xl border border-white/10">
+                    <p className="text-muted-foreground">No startups to display yet. Check back soon!</p>
                   </div>
                 )}
               </div>

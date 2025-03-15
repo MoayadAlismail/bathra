@@ -37,7 +37,7 @@ const InvestorLogin = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8F9FA]">
+    <div className="min-h-screen bg-background">
       <Navbar />
       <section className="py-20">
         <div className="container mx-auto px-4">
@@ -46,18 +46,18 @@ const InvestorLogin = () => {
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="max-w-md mx-auto glass bg-white p-8 rounded-xl shadow-lg"
+            className="max-w-md mx-auto neo-blur p-8 rounded-xl shadow-lg"
           >
             <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold mb-2">Investor Login</h2>
-              <p className="text-gray-600">
+              <h2 className="text-3xl font-bold mb-2 text-gradient">Investor Login</h2>
+              <p className="text-muted-foreground">
                 Access your investment dashboard
               </p>
             </div>
 
             {isDemo && (
-              <Alert className="mb-6 border-yellow-400 bg-yellow-50 text-yellow-800">
-                <AlertTriangle className="h-4 w-4 text-yellow-600" />
+              <Alert className="mb-6 border-yellow-400 bg-yellow-900/20 text-yellow-300">
+                <AlertTriangle className="h-4 w-4 text-yellow-300" />
                 <AlertTitle>Demo Mode Active</AlertTitle>
                 <AlertDescription>
                   Enter any email and password to log in with demo credentials.
@@ -66,14 +66,14 @@ const InvestorLogin = () => {
             )}
 
             {error && (
-              <div className="mb-6 p-3 bg-red-50 border border-red-200 text-red-600 rounded-lg text-sm">
+              <div className="mb-6 p-3 bg-destructive/20 border border-destructive/30 text-destructive-foreground rounded-lg text-sm">
                 {error}
               </div>
             )}
 
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="email" className="block text-sm font-medium text-foreground mb-2">
                   Email
                 </label>
                 <Input
@@ -82,13 +82,13 @@ const InvestorLogin = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="w-full"
+                  className="w-full bg-background border-border"
                   placeholder="your@email.com"
                 />
               </div>
 
               <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="password" className="block text-sm font-medium text-foreground mb-2">
                   Password
                 </label>
                 <Input
@@ -97,7 +97,7 @@ const InvestorLogin = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="w-full"
+                  className="w-full bg-background border-border"
                   placeholder="••••••••"
                 />
               </div>
@@ -106,7 +106,7 @@ const InvestorLogin = () => {
                 Log In
               </Button>
 
-              <div className="text-center text-sm text-gray-600 mt-4">
+              <div className="text-center text-sm text-muted-foreground mt-4">
                 Don't have an account?{" "}
                 <Link to="/invest" className="text-primary hover:underline">
                   Register here

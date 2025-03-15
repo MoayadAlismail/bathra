@@ -4,6 +4,7 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { useTheme } from "@/components/ThemeProvider";
 
 function FloatingPaths({ position }: { position: number }) {
     const paths = Array.from({ length: 36 }, (_, i) => ({
@@ -66,6 +67,7 @@ export function BackgroundPaths({
     buttonLink = "/pitch"
 }: BackgroundPathsProps) {
     const navigate = useNavigate();
+    const { theme } = useTheme();
     const words = title.split(" ");
 
     const handleButtonClick = () => {
@@ -105,8 +107,11 @@ export function BackgroundPaths({
                                             stiffness: 150,
                                             damping: 25,
                                         }}
-                                        className="inline-block text-transparent bg-clip-text 
-                                        bg-gradient-to-r from-white to-white/80"
+                                        className={`inline-block text-transparent bg-clip-text ${
+                                          theme === 'light' 
+                                            ? 'bg-gradient-to-r from-primary to-primary/80' 
+                                            : 'bg-gradient-to-r from-white to-white/80'
+                                        }`}
                                     >
                                         {letter}
                                     </motion.span>
@@ -120,7 +125,7 @@ export function BackgroundPaths({
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 1.5, duration: 0.8 }}
-                            className="text-lg md:text-xl text-muted-foreground mb-12 max-w-2xl mx-auto"
+                            className="text-lg md:text-xl text-foreground mb-12 max-w-2xl mx-auto"
                         >
                             {subtitle}
                         </motion.p>
@@ -132,18 +137,23 @@ export function BackgroundPaths({
                         transition={{ delay: 2, duration: 0.8 }}
                     >
                         <div
-                            className="inline-block group relative bg-gradient-to-b from-white/10 to-black/10 
-                            p-px rounded-2xl backdrop-blur-lg 
-                            overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300"
+                            className={`inline-block group relative p-px rounded-2xl backdrop-blur-lg 
+                            overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 ${
+                              theme === 'light' 
+                                ? 'bg-gradient-to-b from-primary/20 to-primary/10 border border-primary/30' 
+                                : 'bg-gradient-to-b from-white/10 to-black/10 border border-white/10'
+                            }`}
                         >
                             <Button
                                 variant="ghost"
                                 onClick={handleButtonClick}
-                                className="rounded-[1.15rem] px-8 py-6 text-lg font-semibold backdrop-blur-md 
-                                bg-black/95 hover:bg-black/100 
-                                text-white transition-all duration-300 
-                                group-hover:-translate-y-0.5 border border-white/10
-                                hover:shadow-md hover:shadow-white/10"
+                                className={`rounded-[1.15rem] px-8 py-6 text-lg font-semibold backdrop-blur-md 
+                                transition-all duration-300 group-hover:-translate-y-0.5 
+                                hover:shadow-md ${
+                                  theme === 'light'
+                                    ? 'bg-primary/95 hover:bg-primary/100 text-white hover:shadow-primary/20'
+                                    : 'bg-black/95 hover:bg-black/100 text-white hover:shadow-white/10 border border-white/10'
+                                }`}
                             >
                                 <span className="opacity-90 group-hover:opacity-100 transition-opacity">
                                     {buttonText}

@@ -190,7 +190,14 @@
 
 /* Fix for underline visibility in light mode */
 .light a.underline, .light .underline {
-  text-decoration-color: hsl(220, 70%, 50%) !important;
-  text-decoration-thickness: 2px !important;
+  text-decoration-color: #0057B8 !important;
+  text-decoration-thickness: 3px !important;
+  text-underline-offset: 4px !important;
+}
+
+/* Ensure all underlined text is visible in both modes */
+a.underline, .underline {
+  text-decoration-thickness: 2px;
+  text-underline-offset: 2px;
 }
 

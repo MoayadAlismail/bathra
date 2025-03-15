@@ -10,6 +10,7 @@ import StartupPitch from "./pages/StartupPitch";
 import InvestorJoin from "./pages/InvestorJoin";
 import InvestorLogin from "./pages/InvestorLogin";
 import InvestorDashboard from "./pages/InvestorDashboard";
+import VettedStartups from "./pages/VettedStartups";
 import NotFound from "./pages/NotFound";
 import { Suspense, Component, ReactNode } from "react";
 
@@ -100,6 +101,11 @@ const AppRoutes = () => {
         <Route path="/dashboard" element={
           <ProtectedRoute>
             <InvestorDashboard />
+          </ProtectedRoute>
+        } />
+        <Route path="/startups" element={
+          <ProtectedRoute>
+            <VettedStartups />
           </ProtectedRoute>
         } />
         <Route path="*" element={<NotFound />} />

@@ -7,7 +7,7 @@ import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, FileText } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
 // Define startup type for the dashboard
@@ -99,8 +99,17 @@ const InvestorDashboard = () => {
                   </ul>
                 </div>
                 <div className="bg-white p-6 rounded-xl border border-gray-200">
-                  <h3 className="text-lg font-semibold mb-3">Activity</h3>
-                  <p className="text-gray-700">You have no recent activity.</p>
+                  <h3 className="text-lg font-semibold mb-3">Quick Actions</h3>
+                  <div className="space-y-2">
+                    <Button 
+                      variant="outline" 
+                      className="w-full justify-start" 
+                      onClick={() => navigate('/startups')}
+                    >
+                      <FileText className="mr-2 h-4 w-4" />
+                      Browse Vetted Startups
+                    </Button>
+                  </div>
                 </div>
               </div>
               
@@ -148,6 +157,12 @@ const InvestorDashboard = () => {
                     <p className="text-gray-500">No startups to display yet. Check back soon!</p>
                   </div>
                 )}
+              </div>
+              
+              <div className="mt-6 text-center">
+                <Button onClick={() => navigate('/startups')}>
+                  View All Vetted Startups
+                </Button>
               </div>
             </div>
           </motion.div>

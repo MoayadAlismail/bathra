@@ -86,6 +86,13 @@ const Navbar = () => {
                     Dashboard
                   </Button>
                   <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => navigate('/startups')}
+                  >
+                    Vetted Startups
+                  </Button>
+                  <Button 
                     variant="ghost" 
                     size="sm" 
                     onClick={handleLogout}
@@ -145,6 +152,15 @@ const Navbar = () => {
                       className="text-foreground hover:text-primary transition-colors duration-200 py-2 text-left"
                     >
                       Dashboard
+                    </button>
+                    <button
+                      onClick={() => {
+                        navigate('/startups');
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className="text-foreground hover:text-primary transition-colors duration-200 py-2 text-left"
+                    >
+                      Vetted Startups
                     </button>
                     <button
                       onClick={() => {

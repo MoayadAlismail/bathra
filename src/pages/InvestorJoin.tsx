@@ -4,7 +4,7 @@ import Navbar from "@/components/Navbar";
 
 const InvestorJoin = () => {
   return (
-    <div className="min-h-screen bg-[#F8F9FA]">
+    <div className="min-h-screen bg-background">
       <Navbar />
       <InvestorForm />
     </div>

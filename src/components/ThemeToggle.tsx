@@ -13,12 +13,12 @@ export function ThemeToggle() {
       size="icon" 
       onClick={toggleTheme}
       className={`relative w-10 h-10 rounded-full glass ${
-        theme === 'light' ? 'bg-white/20' : 'bg-black/30'
+        theme === 'light' ? 'bg-primary/10' : 'bg-primary/20'
       }`}
       aria-label="Toggle theme"
     >
-      <Sun className={`h-5 w-5 absolute transition-all ${theme === 'dark' ? 'scale-0 opacity-0' : 'scale-100 opacity-100'}`} />
-      <Moon className={`h-5 w-5 absolute transition-all ${theme === 'light' ? 'scale-0 opacity-0' : 'scale-100 opacity-100'}`} />
+      <Sun className={`h-5 w-5 absolute transition-all ${theme === 'dark' ? 'scale-0 opacity-0' : 'scale-100 opacity-100'} text-primary`} />
+      <Moon className={`h-5 w-5 absolute transition-all ${theme === 'light' ? 'scale-0 opacity-0' : 'scale-100 opacity-100'} text-white`} />
       <span className="sr-only">Toggle theme</span>
     </Button>
   );

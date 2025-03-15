@@ -8,66 +8,66 @@
 @layer base {
   :root {
     /* Light mode colors that match dark mode aesthetic */
-    --background: 0 0% 100%;
-    --foreground: 215 50% 20%;
+    --background: 240 10% 95%;
+    --foreground: 240 10% 10%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 215 50% 20%;
+    --card: 240 10% 95%;
+    --card-foreground: 240 10% 10%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 215 50% 20%;
+    --popover: 240 10% 95%;
+    --popover-foreground: 240 10% 10%;
 
-    --primary: 215 100% 45%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 240 10% 10%;
+    --primary-foreground: 240 10% 95%;
 
-    --secondary: 215 40% 96%;
-    --secondary-foreground: 215 50% 20%;
+    --secondary: 240 7% 85%;
+    --secondary-foreground: 240 10% 10%;
 
-    --muted: 215 40% 96%;
-    --muted-foreground: 215 40% 40%;
+    --muted: 240 7% 85%;
+    --muted-foreground: 240 8% 40%;
 
-    --accent: 215 100% 45%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 240 7% 85%;
+    --accent-foreground: 240 10% 10%;
 
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive-foreground: 0 0% 98%;
 
-    --border: 215 40% 90%;
-    --input: 215 40% 90%;
-    --ring: 215 100% 45%;
+    --border: 240 7% 85%;
+    --input: 240 7% 85%;
+    --ring: 240 10% 10%;
 
     --radius: 1rem;
   }
 
   .light {
-    /* Same light mode colors as above */
-    --background: 0 0% 100%;
-    --foreground: 215 50% 20%;
+    /* Updated light mode colors to match dark mode aesthetic */
+    --background: 240 10% 95%;
+    --foreground: 240 10% 10%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 215 50% 20%;
+    --card: 240 10% 95%;
+    --card-foreground: 240 10% 10%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 215 50% 20%;
+    --popover: 240 10% 95%;
+    --popover-foreground: 240 10% 10%;
 
-    --primary: 215 100% 45%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 240 10% 10%;
+    --primary-foreground: 240 10% 95%;
 
-    --secondary: 215 40% 96%;
-    --secondary-foreground: 215 50% 20%;
+    --secondary: 240 7% 85%;
+    --secondary-foreground: 240 10% 10%;
 
-    --muted: 215 40% 96%;
-    --muted-foreground: 215 40% 40%;
+    --muted: 240 7% 85%;
+    --muted-foreground: 240 8% 40%;
 
-    --accent: 215 100% 45%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 240 7% 85%;
+    --accent-foreground: 240 10% 10%;
 
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive-foreground: 0 0% 98%;
 
-    --border: 215 40% 90%;
-    --input: 215 40% 90%;
-    --ring: 215 100% 45%;
+    --border: 240 7% 85%;
+    --input: 240 7% 85%;
+    --ring: 240 10% 10%;
   }
 
   .dark {
@@ -112,7 +112,7 @@
   }
 
   .glass {
-    /* Modified glass styling to work in both modes */
+    /* Updated glass styling to work in both modes */
     @apply backdrop-blur-lg border rounded-2xl shadow-lg;
   }
   

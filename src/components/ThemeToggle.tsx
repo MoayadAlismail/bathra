@@ -12,8 +12,8 @@ export function ThemeToggle() {
       variant="ghost" 
       size="icon" 
       onClick={toggleTheme}
-      className={`relative w-10 h-10 rounded-full bg-transparent ${
-        theme === 'light' ? 'border border-black/10' : 'border border-white/10'
+      className={`relative w-10 h-10 rounded-full glass ${
+        theme === 'light' ? 'bg-white/20' : 'bg-black/30'
       }`}
       aria-label="Toggle theme"
     >

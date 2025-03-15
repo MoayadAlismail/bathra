@@ -184,7 +184,7 @@
   }
   
   .dark .neo-blur {
-    @apply bg-black/40 border-primary/30;
+    @apply bg-black/40 border-white/10;
   }
 }
 
@@ -200,4 +200,3 @@ a.underline, .underline {
   text-decoration-thickness: 2px;
   text-underline-offset: 2px;
 }
-

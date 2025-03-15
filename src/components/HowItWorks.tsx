@@ -22,7 +22,7 @@ const steps = [
 
 const HowItWorks = () => {
   return (
-    <section id="how-it-works" className="py-20 bg-white">
+    <section id="how-it-works" className="py-20 bg-background">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
           <span className="inline-block px-4 py-2 bg-secondary rounded-full text-primary text-sm font-medium mb-4">
@@ -42,7 +42,7 @@ const HowItWorks = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: index * 0.2 }}
-              className="relative p-8 rounded-2xl bg-white border border-secondary hover:shadow-lg transition-all duration-300 group"
+              className="relative p-8 rounded-2xl glass hover:shadow-lg transition-all duration-300 group"
             >
               <div className="absolute -top-6 left-1/2 -translate-x-1/2">
                 <div className="w-12 h-12 rounded-full bg-secondary flex items-center justify-center group-hover:tech-gradient transition-colors duration-300">

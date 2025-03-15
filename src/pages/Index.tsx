@@ -20,13 +20,13 @@ const Index = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#F8F9FA]">
+    <div className="min-h-screen bg-background">
       <Navbar />
       <HeroSection />
       <HowItWorks />
       
       {/* Information Section */}
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-background">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0 }}
@@ -37,11 +37,11 @@ const Index = () => {
           >
             {/* Startup Success Stats */}
             <div className="text-center">
-              <div className="inline-flex items-center justify-center w-16 h-16 mb-6 rounded-full bg-[#E7F0FD]">
-                <ChartBarIcon className="w-8 h-8 text-[#2EC4B6]" />
+              <div className="inline-flex items-center justify-center w-16 h-16 mb-6 rounded-full bg-secondary">
+                <ChartBarIcon className="w-8 h-8 text-primary" />
               </div>
-              <h2 className="text-3xl font-bold mb-6 text-[#2D3E50]">The Startup Reality</h2>
-              <p className="text-lg text-gray-600 mb-8">
+              <h2 className="text-3xl font-bold mb-6 text-foreground">The Startup Reality</h2>
+              <p className="text-lg text-muted-foreground mb-8">
                 90% of startups fail, and a significant factor is the lack of proper funding and strategic investors. 
                 We're here to change that by connecting promising startups with the right investors.
               </p>
@@ -49,11 +49,11 @@ const Index = () => {
 
             {/* About Us */}
             <div className="text-center">
-              <div className="inline-flex items-center justify-center w-16 h-16 mb-6 rounded-full bg-[#E7F0FD]">
-                <UsersIcon className="w-8 h-8 text-[#2EC4B6]" />
+              <div className="inline-flex items-center justify-center w-16 h-16 mb-6 rounded-full bg-secondary">
+                <UsersIcon className="w-8 h-8 text-primary" />
               </div>
-              <h2 className="text-3xl font-bold mb-6 text-[#2D3E50]">About Us</h2>
-              <p className="text-lg text-gray-600 mb-8">
+              <h2 className="text-3xl font-bold mb-6 text-foreground">About Us</h2>
+              <p className="text-lg text-muted-foreground mb-8">
                 We're a team of entrepreneurs, investors, and industry experts who understand the challenges of building a successful startup.
                 Our platform is designed to bridge the gap between innovative startups and strategic investors,
                 creating meaningful connections that drive growth and success.
@@ -62,11 +62,11 @@ const Index = () => {
 
             {/* Our Mission */}
             <div className="text-center">
-              <div className="inline-flex items-center justify-center w-16 h-16 mb-6 rounded-full bg-[#E7F0FD]">
-                <InfoIcon className="w-8 h-8 text-[#2EC4B6]" />
+              <div className="inline-flex items-center justify-center w-16 h-16 mb-6 rounded-full bg-secondary">
+                <InfoIcon className="w-8 h-8 text-primary" />
               </div>
-              <h2 className="text-3xl font-bold mb-6 text-[#2D3E50]">Our Mission</h2>
-              <p className="text-lg text-gray-600">
+              <h2 className="text-3xl font-bold mb-6 text-foreground">Our Mission</h2>
+              <p className="text-lg text-muted-foreground">
                 To democratize access to funding and expertise, enabling more startups to succeed and innovate.
                 We believe that great ideas deserve the chance to become reality, and we're here to make that happen.
               </p>

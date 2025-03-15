@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
+import { ThemeProvider } from "./components/ThemeProvider";
 import Index from "./pages/Index";
 import StartupPitch from "./pages/StartupPitch";
 import InvestorJoin from "./pages/InvestorJoin";
@@ -117,13 +118,15 @@ const AppRoutes = () => {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <AuthProvider>
-        <Toaster />
-        <Sonner />
-        <Suspense fallback={<div className="flex h-screen items-center justify-center">Loading...</div>}>
-          <AppRoutes />
-        </Suspense>
-      </AuthProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <Toaster />
+          <Sonner />
+          <Suspense fallback={<div className="flex h-screen items-center justify-center">Loading...</div>}>
+            <AppRoutes />
+          </Suspense>
+        </AuthProvider>
+      </ThemeProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );

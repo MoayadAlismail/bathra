@@ -1,26 +1,138 @@
-
 import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { Upload, Target, Globe, Lightbulb, DollarSign, Users, BarChart } from "lucide-react";
-import { useState } from "react";
+import { useState, FormEvent } from "react";
+import { supabase } from "@/lib/supabase";
 
 const StartupForm = () => {
-  const { toast } = useToast();
+  const { toast: uiToast } = useToast();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  const [formData, setFormData] = useState({
+    startupName: "",
+    website: "",
+    founded: "",
+    founders: "",
+    teamSize: "",
+    industry: "",
+    stage: "",
+    targetMarket: "",
+    pitch: "",
+    problem: "",
+    usp: "",
+    traction: "",
+    keyMetrics: "",
+    previousFunding: "",
+    funding: "",
+    valuation: "",
+    useOfFunds: "",
+    roadmap: "",
+    exitStrategy: ""
+  });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { id, value } = e.target;
+    setFormData(prev => ({ ...prev, [id]: value }));
+  };
+
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    toast({
-      title: "Success!",
-      description: `Your pitch${selectedFile ? ' and document' : ''} has been submitted successfully. We'll be in touch soon!`,
-    });
+    
+    try {
+      setIsSubmitting(true);
+      
+      // Submit startup data to Supabase
+      const { data, error } = await supabase
+        .from('startups')
+        .insert({
+          name: formData.startupName,
+          website: formData.website,
+          founded_date: formData.founded,
+          founders: formData.founders,
+          team_size: formData.teamSize,
+          industry: formData.industry,
+          stage: formData.stage,
+          target_market: formData.targetMarket,
+          description: formData.pitch,
+          problem_solved: formData.problem,
+          usp: formData.usp,
+          traction: formData.traction,
+          key_metrics: formData.keyMetrics,
+          previous_funding: formData.previousFunding,
+          funding_required: formData.funding,
+          valuation: formData.valuation,
+          use_of_funds: formData.useOfFunds,
+          roadmap: formData.roadmap,
+          exit_strategy: formData.exitStrategy
+        })
+        .select()
+        .single();
+      
+      if (error) throw error;
+      
+      // Handle file upload if a file is selected
+      if (selectedFile && data) {
+        const fileExt = selectedFile.name.split('.').pop();
+        const fileName = `${data.id}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+        const filePath = `pitch-docs/${fileName}`;
+        
+        const { error: uploadError } = await supabase
+          .storage
+          .from('startup-documents')
+          .upload(filePath, selectedFile);
+          
+        if (uploadError) throw uploadError;
+        
+        // Update startup record with document path
+        const { error: updateError } = await supabase
+          .from('startups')
+          .update({ document_path: filePath })
+          .eq('id', data.id);
+          
+        if (updateError) throw updateError;
+      }
+      
+      toast.success("Your pitch has been submitted successfully!");
+      
+      // Reset form
+      setFormData({
+        startupName: "",
+        website: "",
+        founded: "",
+        founders: "",
+        teamSize: "",
+        industry: "",
+        stage: "",
+        targetMarket: "",
+        pitch: "",
+        problem: "",
+        usp: "",
+        traction: "",
+        keyMetrics: "",
+        previousFunding: "",
+        funding: "",
+        valuation: "",
+        useOfFunds: "",
+        roadmap: "",
+        exitStrategy: ""
+      });
+      setSelectedFile(null);
+      
+    } catch (error: any) {
+      console.error('Error submitting pitch:', error);
+      toast.error(error.message || "Failed to submit your pitch. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) { // 5MB limit
-        toast({
+        uiToast({
           title: "Error",
           description: "File size must be less than 5MB",
           variant: "destructive",
@@ -28,7 +140,7 @@ const StartupForm = () => {
         return;
       }
       setSelectedFile(file);
-      toast({
+      uiToast({
         title: "File selected",
         description: `${file.name} has been selected`,
       });
@@ -84,6 +196,8 @@ const StartupForm = () => {
                     required
                     className="w-full px-4 py-3 rounded-lg border border-border focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
                     placeholder="Enter your startup name"
+                    value={formData.startupName}
+                    onChange={handleChange}
                   />
                 </div>
 
@@ -96,6 +210,8 @@ const StartupForm = () => {
                     id="website"
                     className="w-full px-4 py-3 rounded-lg border border-border focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
                     placeholder="https://example.com"
+                    value={formData.website}
+                    onChange={handleChange}
                   />
                 </div>
 
@@ -107,6 +223,8 @@ const StartupForm = () => {
                     type="month"
                     id="founded"
                     className="w-full px-4 py-3 rounded-lg border border-border focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
+                    value={formData.founded}
+                    onChange={handleChange}
                   />
                 </div>
 
@@ -120,6 +238,8 @@ const StartupForm = () => {
                     required
                     className="w-full px-4 py-3 rounded-lg border border-border focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
                     placeholder="Founder names"
+                    value={formData.founders}
+                    onChange={handleChange}
                   />
                 </div>
 
@@ -130,6 +250,8 @@ const StartupForm = () => {
                   <select
                     id="teamSize"
                     className="w-full px-4 py-3 rounded-lg border border-border focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
+                    value={formData.teamSize}
+                    onChange={handleChange}
                   >
                     <option value="">Select team size</option>
                     <option value="1-5">1-5 employees</option>
@@ -156,6 +278,8 @@ const StartupForm = () => {
                     id="industry"
                     required
                     className="w-full px-4 py-3 rounded-lg border border-border focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
+                    value={formData.industry}
+                    onChange={handleChange}
                   >
                     <option value="">Select industry</option>
                     <option value="fintech">Fintech</option>
@@ -177,6 +301,8 @@ const StartupForm = () => {
                     id="stage"
                     required
                     className="w-full px-4 py-3 rounded-lg border border-border focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
+                    value={formData.stage}
+                    onChange={handleChange}
                   >
                     <option value="">Select stage</option>
                     <option value="idea">Idea/Concept</option>
@@ -197,6 +323,8 @@ const StartupForm = () => {
                     required
                     className="w-full px-4 py-3 rounded-lg border border-border focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
                     placeholder="Describe your target customers"
+                    value={formData.targetMarket}
+                    onChange={handleChange}
                   />
                 </div>
 
@@ -211,6 +339,8 @@ const StartupForm = () => {
                     className="w-full px-4 py-3 rounded-lg border border-border focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
                     placeholder="Describe your startup and what makes it unique (max 500 characters)"
                     maxLength={500}
+                    value={formData.pitch}
+                    onChange={handleChange}
                   />
                 </div>
 
@@ -224,6 +354,8 @@ const StartupForm = () => {
                     rows={3}
                     className="w-full px-4 py-3 rounded-lg border border-border focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
                     placeholder="What problem does your startup solve?"
+                    value={formData.problem}
+                    onChange={handleChange}
                   />
                 </div>
 
@@ -237,6 +369,8 @@ const StartupForm = () => {
                     rows={3}
                     className="w-full px-4 py-3 rounded-lg border border-border focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
                     placeholder="What makes your solution better than competitors?"
+                    value={formData.usp}
+                    onChange={handleChange}
                   />
                 </div>
               </div>
@@ -257,6 +391,8 @@ const StartupForm = () => {
                     rows={3}
                     className="w-full px-4 py-3 rounded-lg border border-border focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
                     placeholder="Users, customers, revenue, growth rate, etc."
+                    value={formData.traction}
+                    onChange={handleChange}
                   />
                 </div>
 
@@ -269,6 +405,8 @@ const StartupForm = () => {
                     id="keyMetrics"
                     className="w-full px-4 py-3 rounded-lg border border-border focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
                     placeholder="CAC, LTV, Churn Rate, etc."
+                    value={formData.keyMetrics}
+                    onChange={handleChange}
                   />
                 </div>
               </div>
@@ -289,6 +427,8 @@ const StartupForm = () => {
                     id="previousFunding"
                     className="w-full px-4 py-3 rounded-lg border border-border focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
                     placeholder="e.g., $100K Angel, $500K Seed"
+                    value={formData.previousFunding}
+                    onChange={handleChange}
                   />
                 </div>
 
@@ -302,6 +442,8 @@ const StartupForm = () => {
                     required
                     className="w-full px-4 py-3 rounded-lg border border-border focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
                     placeholder="How much funding are you seeking?"
+                    value={formData.funding}
+                    onChange={handleChange}
                   />
                 </div>
 
@@ -314,6 +456,8 @@ const StartupForm = () => {
                     id="valuation"
                     className="w-full px-4 py-3 rounded-lg border border-border focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
                     placeholder="Estimated valuation of your startup"
+                    value={formData.valuation}
+                    onChange={handleChange}
                   />
                 </div>
 
@@ -327,6 +471,8 @@ const StartupForm = () => {
                     rows={3}
                     className="w-full px-4 py-3 rounded-lg border border-border focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
                     placeholder="How will you use the investment?"
+                    value={formData.useOfFunds}
+                    onChange={handleChange}
                   />
                 </div>
               </div>
@@ -347,6 +493,8 @@ const StartupForm = () => {
                     rows={3}
                     className="w-full px-4 py-3 rounded-lg border border-border focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
                     placeholder="Key milestones for the next 12-24 months"
+                    value={formData.roadmap}
+                    onChange={handleChange}
                   />
                 </div>
 
@@ -359,6 +507,8 @@ const StartupForm = () => {
                     rows={2}
                     className="w-full px-4 py-3 rounded-lg border border-border focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
                     placeholder="Potential exits (acquisition, IPO, etc.)"
+                    value={formData.exitStrategy}
+                    onChange={handleChange}
                   />
                 </div>
               </div>
@@ -413,9 +563,10 @@ const StartupForm = () => {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               type="submit"
-              className="w-full py-4 bg-primary text-white rounded-lg font-medium transition-colors hover:bg-primary/90"
+              disabled={isSubmitting}
+              className="w-full py-4 bg-primary text-white rounded-lg font-medium transition-colors hover:bg-primary/90 disabled:opacity-50 disabled:pointer-events-none"
             >
-              Submit Pitch
+              {isSubmitting ? "Submitting..." : "Submit Pitch"}
             </motion.button>
           </form>
         </motion.div>

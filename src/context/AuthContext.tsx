@@ -1,7 +1,10 @@
 
 import React, { createContext, useState, useContext, useEffect } from 'react';
+import { supabase } from '@/lib/supabase';
+import { User } from '@supabase/supabase-js';
+import { toast } from 'sonner';
 
-type User = {
+type InvestorProfile = {
   id: string;
   email: string;
   name: string;
@@ -11,96 +14,156 @@ type User = {
 
 type AuthContextType = {
   user: User | null;
+  profile: InvestorProfile | null;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (user: Omit<User, 'id'> & { password: string }) => Promise<void>;
-  logout: () => void;
+  register: (userData: Omit<InvestorProfile, 'id'> & { password: string }) => Promise<void>;
+  logout: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [profile, setProfile] = useState<InvestorProfile | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
+  // Check for user session on initial load
   useEffect(() => {
-    // Check for saved user in localStorage
-    const savedUser = localStorage.getItem('user');
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-    }
-    setIsLoading(false);
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user || null);
+      if (session?.user) {
+        fetchUserProfile(session.user.id);
+      }
+      setIsLoading(false);
+    });
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user || null);
+      if (session?.user) {
+        fetchUserProfile(session.user.id);
+      } else {
+        setProfile(null);
+      }
+      setIsLoading(false);
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
+  // Fetch the user's profile data from the database
+  const fetchUserProfile = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('investors')
+        .select('*')
+        .eq('id', userId)
+        .single();
+
+      if (error) {
+        throw error;
+      }
+
+      if (data) {
+        setProfile({
+          id: data.id,
+          email: data.email,
+          name: data.name,
+          investmentFocus: data.investment_focus,
+          investmentRange: data.investment_range,
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
+    }
+  };
+
+  // Login with Supabase
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      // In a real app, you would call an API here
-      // For now, let's mock a successful login
-      const savedUser = localStorage.getItem('users');
-      const users = savedUser ? JSON.parse(savedUser) : [];
-      
-      const user = users.find((u: any) => u.email === email && u.password === password);
-      
-      if (!user) {
-        throw new Error('Invalid credentials');
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        throw error;
       }
-      
-      const { password: _, ...userWithoutPassword } = user;
-      
-      localStorage.setItem('user', JSON.stringify(userWithoutPassword));
-      setUser(userWithoutPassword);
-    } catch (error) {
+
+      toast.success('Logged in successfully');
+    } catch (error: any) {
       console.error('Login failed:', error);
+      toast.error(error.message || 'Failed to login');
       throw error;
     } finally {
       setIsLoading(false);
     }
   };
 
-  const register = async (userData: Omit<User, 'id'> & { password: string }) => {
+  // Register with Supabase
+  const register = async (userData: Omit<InvestorProfile, 'id'> & { password: string }) => {
     setIsLoading(true);
     try {
-      // In a real app, you would call an API here
-      // For now, let's use localStorage to simulate user registration
-      const savedUsers = localStorage.getItem('users');
-      const users = savedUsers ? JSON.parse(savedUsers) : [];
-      
-      // Check if user already exists
-      const existingUser = users.find((u: any) => u.email === userData.email);
-      if (existingUser) {
-        throw new Error('User already exists');
+      // Create user in Supabase Auth
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: userData.email,
+        password: userData.password,
+      });
+
+      if (authError) {
+        throw authError;
       }
-      
-      // Create new user with ID
-      const newUser = {
-        ...userData,
-        id: crypto.randomUUID(),
-      };
-      
-      // Save to "database"
-      users.push(newUser);
-      localStorage.setItem('users', JSON.stringify(users));
-      
-      // Log user in
-      const { password: _, ...userWithoutPassword } = newUser;
-      localStorage.setItem('user', JSON.stringify(userWithoutPassword));
-      setUser(userWithoutPassword);
-    } catch (error) {
+
+      if (!authData.user) {
+        throw new Error('Registration failed');
+      }
+
+      // Store additional user data in the database
+      const { error: profileError } = await supabase
+        .from('investors')
+        .insert({
+          id: authData.user.id,
+          email: userData.email,
+          name: userData.name,
+          investment_focus: userData.investmentFocus,
+          investment_range: userData.investmentRange,
+        });
+
+      if (profileError) {
+        throw profileError;
+      }
+
+      toast.success('Account created successfully');
+    } catch (error: any) {
       console.error('Registration failed:', error);
+      toast.error(error.message || 'Failed to create account');
       throw error;
     } finally {
       setIsLoading(false);
     }
   };
 
-  const logout = () => {
-    localStorage.removeItem('user');
-    setUser(null);
+  // Logout with Supabase
+  const logout = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        throw error;
+      }
+      setProfile(null);
+      toast.success('Logged out successfully');
+    } catch (error: any) {
+      console.error('Logout failed:', error);
+      toast.error(error.message || 'Failed to logout');
+    }
   };
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, profile, isLoading, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   );

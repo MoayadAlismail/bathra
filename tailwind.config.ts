@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -57,6 +58,9 @@ export default {
           DEFAULT: "#004C9E",
           dark: "#003C7E",
         },
+      },
+      fontFamily: {
+        sora: ['Sora', 'sans-serif'],
       },
       keyframes: {
         "accordion-down": {

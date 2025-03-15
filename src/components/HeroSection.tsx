@@ -18,9 +18,9 @@ const HeroSection = () => {
           <span className="inline-block px-6 py-2 rounded-full bg-secondary text-primary text-sm font-medium mb-6 shadow-sm">
             Transform Your Vision Into Reality
           </span>
-          <h1 className="text-5xl md:text-6xl font-bold mb-6 text-gradient">
+          <h1 className="text-5xl md:text-6xl font-bold mb-6">
             Connecting Startups with Investors—
-            <span className="text-primary">Seamlessly</span>
+            <span className="hero-gradient bg-clip-text text-transparent">Seamlessly</span>
           </h1>
           <p className="text-lg md:text-xl text-muted-foreground mb-12 max-w-2xl mx-auto">
             Get funded. Invest wisely. Build the future together with strategic partners who believe in your potential.
@@ -49,8 +49,8 @@ const HeroSection = () => {
       </div>
       
       <div className="absolute inset-0 overflow-hidden -z-10">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/5 rounded-full filter blur-3xl opacity-50 animate-float"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-primary/5 rounded-full filter blur-3xl opacity-50 animate-float" style={{ animationDelay: "-3s" }}></div>
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full filter blur-3xl opacity-50 animate-float"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-indigo-500/10 rounded-full filter blur-3xl opacity-50 animate-float" style={{ animationDelay: "-3s" }}></div>
       </div>
     </section>
   );

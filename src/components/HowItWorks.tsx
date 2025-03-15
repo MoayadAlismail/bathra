@@ -28,7 +28,7 @@ const HowItWorks = () => {
           <span className="inline-block px-4 py-2 bg-secondary rounded-full text-primary text-sm font-medium mb-4">
             Simple Process
           </span>
-          <h2 className="text-4xl font-bold mb-4 text-foreground">How It Works</h2>
+          <h2 className="text-4xl font-bold mb-4 text-foreground">How It <span className="text-gradient">Works</span></h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
             Our platform makes it easy for startups and investors to connect and collaborate.
           </p>
@@ -45,7 +45,7 @@ const HowItWorks = () => {
               className="relative p-8 rounded-2xl bg-white border border-secondary hover:shadow-lg transition-all duration-300 group"
             >
               <div className="absolute -top-6 left-1/2 -translate-x-1/2">
-                <div className="w-12 h-12 rounded-full bg-secondary flex items-center justify-center group-hover:bg-primary transition-colors duration-300">
+                <div className="w-12 h-12 rounded-full bg-secondary flex items-center justify-center group-hover:tech-gradient transition-colors duration-300">
                   <step.icon className="w-6 h-6 text-primary group-hover:text-white transition-colors duration-300" />
                 </div>
               </div>

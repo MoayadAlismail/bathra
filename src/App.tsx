@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -14,6 +13,7 @@ import InvestorDashboard from "./pages/InvestorDashboard";
 import VettedStartups from "./pages/VettedStartups";
 import NotFound from "./pages/NotFound";
 import { Suspense, Component, ReactNode } from "react";
+import "./App.css";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -24,7 +24,6 @@ const queryClient = new QueryClient({
   },
 });
 
-// Error Fallback component
 const ErrorFallback = ({ error }: { error: Error }) => {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4">
@@ -45,7 +44,6 @@ const ErrorFallback = ({ error }: { error: Error }) => {
   );
 };
 
-// Error Boundary component using class component
 class ErrorBoundary extends Component<{children: ReactNode}, {hasError: boolean; error: Error | null}> {
   constructor(props: {children: ReactNode}) {
     super(props);
@@ -53,18 +51,15 @@ class ErrorBoundary extends Component<{children: ReactNode}, {hasError: boolean;
   }
 
   static getDerivedStateFromError(error: Error) {
-    // Update state so the next render will show the fallback UI
     return { hasError: true, error };
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    // You can also log the error to an error reporting service
     console.error("Error caught by ErrorBoundary:", error, errorInfo);
   }
 
   render() {
     if (this.state.hasError) {
-      // You can render any custom fallback UI
       return <ErrorFallback error={this.state.error || new Error("Unknown error occurred")} />;
     }
 
@@ -72,7 +67,6 @@ class ErrorBoundary extends Component<{children: ReactNode}, {hasError: boolean;
   }
 }
 
-// Protected route component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, isLoading } = useAuth();
 

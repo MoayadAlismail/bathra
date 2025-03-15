@@ -112,16 +112,16 @@
   }
 
   .glass {
-    /* Updated glass styling to work in both modes */
+    /* Glass styling that works in both modes */
     @apply backdrop-blur-lg border rounded-2xl shadow-lg;
   }
   
   .light .glass {
-    @apply bg-primary/5 border-primary/10;
+    @apply bg-white/80 border-primary/10 shadow-blue-100;
   }
   
   .dark .glass {
-    @apply bg-primary/10 border-white/10;
+    @apply bg-primary/10 border-white/10 shadow-none;
   }
 }
 

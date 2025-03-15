@@ -18,7 +18,7 @@ export function ThemeToggle() {
       aria-label="Toggle theme"
     >
       <Sun className={`h-5 w-5 absolute transition-all ${theme === 'dark' ? 'scale-0 opacity-0' : 'scale-100 opacity-100'} text-primary`} />
-      <Moon className={`h-5 w-5 absolute transition-all ${theme === 'light' ? 'scale-0 opacity-0' : 'scale-100 opacity-100'} text-white`} />
+      <Moon className={`h-5 w-5 absolute transition-all ${theme === 'light' ? 'scale-0 opacity-0' : 'scale-100 opacity-100'} text-primary-foreground`} />
       <span className="sr-only">Toggle theme</span>
     </Button>
   );

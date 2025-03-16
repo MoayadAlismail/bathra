@@ -7,15 +7,13 @@ import { useAuth } from "@/context/AuthContext";
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
-import { AlertTriangle } from "lucide-react";
 
 const InvestorLogin = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const { toast } = useToast();
-  const { login, isDemo } = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -25,10 +23,8 @@ const InvestorLogin = () => {
     try {
       await login(email, password);
       toast({
-        title: isDemo ? "Login Successful (Demo Mode)!" : "Login Successful!",
-        description: isDemo ? 
-          "You are now logged in with demo credentials." : 
-          "Welcome back to your dashboard.",
+        title: "Login Successful!",
+        description: "Welcome back to your dashboard.",
       });
       navigate("/dashboard");
     } catch (err) {
@@ -54,17 +50,6 @@ const InvestorLogin = () => {
                 Access your investment dashboard
               </p>
             </div>
-
-            {isDemo && (
-              <Alert className="mb-6 dark:border-yellow-400 dark:bg-yellow-900/20 dark:text-yellow-300 
-                                light:border-yellow-500 light:bg-yellow-50 light:text-yellow-700">
-                <AlertTriangle className="h-4 w-4 dark:text-yellow-300 light:text-yellow-500" />
-                <AlertTitle>Demo Mode Active</AlertTitle>
-                <AlertDescription>
-                  Enter any email and password to log in with demo credentials.
-                </AlertDescription>
-              </Alert>
-            )}
 
             {error && (
               <div className="mb-6 p-3 bg-destructive/20 border border-destructive/30 text-destructive-foreground rounded-lg text-sm">

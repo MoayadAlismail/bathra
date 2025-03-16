@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -114,11 +115,11 @@ const InvestorForm = () => {
 
           <form onSubmit={handleSubmit} className={`space-y-6 p-8 rounded-xl ${
             theme === 'dark' 
-              ? 'glass border border-primary/20' 
+              ? 'bg-background/30 backdrop-blur-xl border border-primary/20 shadow-lg shadow-primary/5' 
               : 'bg-white shadow-lg'
           }`}>
             <div>
-              <Label htmlFor="name" className="mb-2">
+              <Label htmlFor="name" className={`mb-2 ${theme === 'dark' ? 'text-foreground' : ''}`}>
                 Full Name *
               </Label>
               <Input
@@ -127,13 +128,13 @@ const InvestorForm = () => {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
-                className={`w-full ${theme === 'dark' ? 'bg-background/70 border-primary/20' : ''}`}
+                className={`w-full ${theme === 'dark' ? 'bg-background/80 border-primary/20 text-foreground' : ''}`}
                 placeholder="Enter your full name"
               />
             </div>
 
             <div>
-              <Label htmlFor="email" className="mb-2">
+              <Label htmlFor="email" className={`mb-2 ${theme === 'dark' ? 'text-foreground' : ''}`}>
                 Email *
               </Label>
               <Input
@@ -142,14 +143,14 @@ const InvestorForm = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className={`w-full ${theme === 'dark' ? 'bg-background/70 border-primary/20' : ''}`}
+                className={`w-full ${theme === 'dark' ? 'bg-background/80 border-primary/20 text-foreground' : ''}`}
                 placeholder="your@email.com"
               />
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <Label htmlFor="password" className="mb-2">
+                <Label htmlFor="password" className={`mb-2 ${theme === 'dark' ? 'text-foreground' : ''}`}>
                   Password *
                 </Label>
                 <Input
@@ -158,14 +159,14 @@ const InvestorForm = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className={`w-full ${theme === 'dark' ? 'bg-background/70 border-primary/20' : ''}`}
+                  className={`w-full ${theme === 'dark' ? 'bg-background/80 border-primary/20 text-foreground' : ''}`}
                   placeholder="••••••••"
                   minLength={6}
                 />
               </div>
               
               <div>
-                <Label htmlFor="confirmPassword" className="mb-2">
+                <Label htmlFor="confirmPassword" className={`mb-2 ${theme === 'dark' ? 'text-foreground' : ''}`}>
                   Confirm Password *
                 </Label>
                 <Input
@@ -174,14 +175,14 @@ const InvestorForm = () => {
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
-                  className={`w-full ${theme === 'dark' ? 'bg-background/70 border-primary/20' : ''}`}
+                  className={`w-full ${theme === 'dark' ? 'bg-background/80 border-primary/20 text-foreground' : ''}`}
                   placeholder="••••••••"
                 />
               </div>
             </div>
 
             <div>
-              <Label htmlFor="focus" className="mb-2">
+              <Label htmlFor="focus" className={`mb-2 ${theme === 'dark' ? 'text-foreground' : ''}`}>
                 Investment Focus *
               </Label>
               <select
@@ -189,9 +190,9 @@ const InvestorForm = () => {
                 value={investmentFocus}
                 onChange={(e) => setInvestmentFocus(e.target.value)}
                 required
-                className={`w-full px-4 py-2 rounded-lg border transition-colors ${
+                className={`w-full px-4 py-2 rounded-lg border ${
                   theme === 'dark'
-                    ? 'bg-background/70 border-primary/20 focus:border-primary text-foreground'
+                    ? 'bg-background/80 border-primary/20 text-foreground focus:border-primary focus:ring-1 focus:ring-primary'
                     : 'border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent'
                 }`}
               >
@@ -206,7 +207,7 @@ const InvestorForm = () => {
             </div>
 
             <div>
-              <Label htmlFor="investmentRange" className="mb-2">
+              <Label htmlFor="investmentRange" className={`mb-2 ${theme === 'dark' ? 'text-foreground' : ''}`}>
                 Typical Investment Range *
               </Label>
               <select
@@ -214,9 +215,9 @@ const InvestorForm = () => {
                 value={investmentRange}
                 onChange={(e) => setInvestmentRange(e.target.value)}
                 required
-                className={`w-full px-4 py-2 rounded-lg border transition-colors ${
+                className={`w-full px-4 py-2 rounded-lg border ${
                   theme === 'dark'
-                    ? 'bg-background/70 border-primary/20 focus:border-primary text-foreground'
+                    ? 'bg-background/80 border-primary/20 text-foreground focus:border-primary focus:ring-1 focus:ring-primary'
                     : 'border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent'
                 }`}
               >
@@ -231,7 +232,7 @@ const InvestorForm = () => {
             <div className="pt-2">
               <Button 
                 type="submit" 
-                className={`w-full ${theme === 'dark' ? 'bg-primary hover:bg-primary/90' : ''}`}
+                className={`w-full ${theme === 'dark' ? 'bg-primary hover:bg-primary/90 text-primary-foreground' : ''}`}
               >
                 Create Investor Account
               </Button>

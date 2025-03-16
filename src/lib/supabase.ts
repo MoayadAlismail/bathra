@@ -1,23 +1,14 @@
-
 import { createClient } from '@supabase/supabase-js';
 
-// Try to get credentials from localStorage first, then fallback to env vars
-const getSupabaseCredentials = () => {
-  const localUrl = typeof window !== 'undefined' ? localStorage.getItem('supabase_url') : null;
-  const localKey = typeof window !== 'undefined' ? localStorage.getItem('supabase_anon_key') : null;
-  
-  return {
-    url: localUrl || import.meta.env.VITE_SUPABASE_URL || 'https://placeholder-url.supabase.co',
-    key: localKey || import.meta.env.VITE_SUPABASE_ANON_KEY || 'placeholder-key'
-  };
-};
+// Hardcoded Supabase credentials
+// IMPORTANT: Replace these with your actual Supabase project credentials
+const SUPABASE_URL = 'https://your-actual-project-url.supabase.co';
+const SUPABASE_ANON_KEY = 'your-actual-anon-key';
 
-const { url: supabaseUrl, key: supabaseAnonKey } = getSupabaseCredentials();
-
-// Create a Supabase client with better handling for missing configuration
+// Create a Supabase client with the hardcoded credentials
 export const supabase = createClient(
-  supabaseUrl,
-  supabaseAnonKey,
+  SUPABASE_URL,
+  SUPABASE_ANON_KEY,
   {
     auth: {
       autoRefreshToken: true,
@@ -29,15 +20,7 @@ export const supabase = createClient(
   }
 );
 
-// Log warning if using placeholder values
-const isUsingPlaceholders = supabaseUrl === 'https://placeholder-url.supabase.co' || 
-                           supabaseAnonKey === 'placeholder-key';
-
-if (isUsingPlaceholders) {
-  console.warn('Using placeholder Supabase credentials. Authentication and database operations will not work. Please configure Supabase credentials.');
-}
-
-// Function to create a new client with updated credentials
+// Function to create a new client with updated credentials (kept for compatibility)
 export const updateSupabaseClient = (url: string, key: string) => {
   // Return a new client instance with the updated credentials
   return createClient(url, key, {
@@ -51,8 +34,8 @@ export const updateSupabaseClient = (url: string, key: string) => {
   });
 };
 
-// Export the flag for checking if using placeholders
-export const isSupabaseConfigured = !isUsingPlaceholders;
+// Set isSupabaseConfigured to true since we're using hardcoded credentials
+export const isSupabaseConfigured = true;
 
 // Define database types to use with Supabase
 export type Tables = {

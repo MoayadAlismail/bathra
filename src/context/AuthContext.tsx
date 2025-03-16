@@ -1,6 +1,5 @@
-
 import React, { createContext, useState, useContext, useEffect, useRef } from 'react';
-import { supabase, updateSupabaseClient, isSupabaseConfigured } from '@/lib/supabase';
+import { supabase, updateSupabaseClient } from '@/lib/supabase';
 import { User, SupabaseClient } from '@supabase/supabase-js';
 import { toast } from 'sonner';
 
@@ -29,16 +28,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<InvestorProfile | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [isConfigured, setIsConfigured] = useState<boolean>(isSupabaseConfigured);
+  const [isConfigured, setIsConfigured] = useState<boolean>(true);
   const supabaseClientRef = useRef<SupabaseClient>(supabase);
   
-  // Update Supabase client with new configuration
   const updateSupabaseConfig = (url: string, key: string) => {
-    // Update the client reference
     supabaseClientRef.current = updateSupabaseClient(url, key);
-    setIsConfigured(true);
     
-    // Check for existing session with new client
     supabaseClientRef.current.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user || null);
       if (session?.user) {
@@ -47,12 +42,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }).catch(error => {
       console.error('Session fetch error:', error);
     });
-    
-    // Force reload the page to ensure all Supabase instances are refreshed
-    window.location.reload();
   };
 
-  // Fetch the user's profile data from the database
   const fetchUserProfile = async (userId: string) => {
     if (!isConfigured) return;
     
@@ -81,13 +72,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  // Check for user session on initial load
   useEffect(() => {
-    if (!isConfigured) {
-      setIsLoading(false);
-      return;
-    }
-    
     supabaseClientRef.current.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user || null);
       if (session?.user) {
@@ -99,7 +84,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setIsLoading(false);
     });
 
-    // Listen for auth changes
     const { data: { subscription } } = supabaseClientRef.current.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user || null);
       if (session?.user) {
@@ -113,9 +97,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return () => {
       subscription.unsubscribe();
     };
-  }, [isConfigured]);
+  }, []);
 
-  // Login with Supabase
   const login = async (email: string, password: string) => {
     if (!isConfigured) {
       toast.error('Authentication is not configured. Please set up Supabase credentials.');
@@ -147,7 +130,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  // Register with Supabase
   const register = async (userData: Omit<InvestorProfile, 'id'> & { password: string }) => {
     if (!isConfigured) {
       toast.error('Authentication is not configured. Please set up Supabase credentials.');
@@ -156,7 +138,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     
     setIsLoading(true);
     try {      
-      // Create user in Supabase Auth
       const { data: authData, error: authError } = await supabaseClientRef.current.auth.signUp({
         email: userData.email,
         password: userData.password,
@@ -170,7 +151,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         throw new Error('Registration failed');
       }
 
-      // Store additional user data in the database
       const { error: profileError } = await supabaseClientRef.current
         .from('investors')
         .insert({
@@ -199,7 +179,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  // Logout with Supabase
   const logout = async () => {
     if (!isConfigured) return;
     

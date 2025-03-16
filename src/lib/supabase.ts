@@ -1,3 +1,4 @@
+
 import { createClient } from '@supabase/supabase-js';
 
 // Real Supabase credentials
@@ -5,16 +6,19 @@ const SUPABASE_URL = 'https://jufkihpszuolzsreecrs.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp1ZmtpaHBzenVvbHpzcmVlY3JzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDcyNDEyMDIsImV4cCI6MjAyMjgxNzIwMn0.Y01Qh1lN7HjzeVapI1IZxqJXU5lglF_vrpW3W6RXtEg';
 
 // Create a more resilient fetch function with timeout
-const customFetch = async (...args: Parameters<typeof fetch>) => {
+const customFetch = async (input: RequestInfo | URL, init?: RequestInit) => {
   try {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 seconds timeout
     
-    const response = await fetch(...args, { 
+    // Merge the signal from AbortController with any existing init options
+    const fetchOptions = {
+      ...init,
       signal: controller.signal,
-      // Ensure credentials are included for cross-origin requests
-      credentials: 'include'
-    });
+      credentials: 'include' as RequestCredentials
+    };
+    
+    const response = await fetch(input, fetchOptions);
     
     clearTimeout(timeoutId);
     return response;

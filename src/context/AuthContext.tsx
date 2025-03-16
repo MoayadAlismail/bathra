@@ -1,3 +1,4 @@
+
 import React, { createContext, useState, useContext, useEffect, useRef } from 'react';
 import { supabase, updateSupabaseClient, SUPABASE_URL } from '@/lib/supabase';
 import { User, SupabaseClient } from '@supabase/supabase-js';
@@ -151,18 +152,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setIsLoading(true);
     
     try {
-      try {
-        const healthCheck = await fetch(`${SUPABASE_URL}/rest/v1/`);
-        if (!healthCheck.ok) {
-          toast.error('Supabase service is currently unavailable. Please try again later.');
-          throw new Error('Supabase service unavailable');
-        }
-      } catch (connectError) {
-        console.error('Supabase health check failed:', connectError);
-        toast.error('Unable to connect to Supabase. Please check your network connection.');
-        throw new Error('Connection error');
-      }
-        
+      // Skip the health check and directly try to register the user
+      // The customFetch in the Supabase client will handle retries and timeouts
       const { data: authData, error: authError } = await supabaseClientRef.current.auth.signUp({
         email: userData.email,
         password: userData.password,
@@ -200,7 +191,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       toast.success('Account created successfully');
     } catch (error: any) {
       console.error('Registration failed:', error);
-      if (error.message === 'Failed to fetch' || error.message === 'Connection error' || error.message === 'Supabase service unavailable') {
+      if (error.message && (
+          error.message.includes('Failed to fetch') || 
+          error.message.includes('NetworkError') || 
+          error.message.includes('network') ||
+          error.message.includes('timeout')
+        )) {
         toast.error('Connection error. Please check your internet connection or try again later.');
       } else {
         toast.error(error.message || 'Failed to create account');

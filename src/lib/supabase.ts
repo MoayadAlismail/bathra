@@ -2,16 +2,28 @@
 import { createClient } from '@supabase/supabase-js';
 
 // Using environment variables for Supabase URL and key
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://placeholder-url.supabase.co';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'placeholder-key';
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 
-// Check if environment variables are set and log a warning
-if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
-  console.warn('Missing Supabase environment variables. The app will run in demo mode with limited functionality. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your environment variables.');
+// Check if environment variables are set
+if (!supabaseUrl || !supabaseAnonKey) {
+  console.warn('Missing Supabase environment variables. Please add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to your environment.');
 }
 
-// Create a Supabase client
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// Create a Supabase client with better network error handling
+export const supabase = createClient(
+  supabaseUrl,
+  supabaseAnonKey,
+  {
+    auth: {
+      autoRefreshToken: true,
+      persistSession: true
+    },
+    global: {
+      fetch: (...args) => fetch(...args)
+    }
+  }
+);
 
 // Define database types to use with Supabase
 export type Tables = {

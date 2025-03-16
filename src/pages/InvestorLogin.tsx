@@ -7,13 +7,15 @@ import { useAuth } from "@/context/AuthContext";
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 
 const InvestorLogin = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const { toast } = useToast();
-  const { login } = useAuth();
+  const { login, isConfigured } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -50,6 +52,15 @@ const InvestorLogin = () => {
                 Access your investment dashboard
               </p>
             </div>
+
+            {!isConfigured && (
+              <Alert variant="destructive" className="mb-6">
+                <ExclamationTriangleIcon className="h-4 w-4" />
+                <AlertDescription>
+                  The authentication system is not configured. Please set up Supabase URL and anonymous key in environment variables.
+                </AlertDescription>
+              </Alert>
+            )}
 
             {error && (
               <div className="mb-6 p-3 bg-destructive/20 border border-destructive/30 text-destructive-foreground rounded-lg text-sm">

@@ -19,6 +19,7 @@ type AuthContextType = {
   login: (email: string, password: string) => Promise<void>;
   register: (userData: Omit<InvestorProfile, 'id'> & { password: string }) => Promise<void>;
   logout: () => Promise<void>;
+  isConfigured: boolean;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -27,14 +28,34 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<InvestorProfile | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isConfigured, setIsConfigured] = useState<boolean>(true);
+  
+  // Check if Supabase is configured
+  useEffect(() => {
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+    const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+    
+    if (!supabaseUrl || !supabaseAnonKey || 
+        supabaseUrl === '' || supabaseAnonKey === '' ||
+        supabaseUrl.includes('placeholder') || supabaseAnonKey.includes('placeholder')) {
+      setIsConfigured(false);
+      setIsLoading(false);
+      console.warn('Supabase is not properly configured. Authentication will not work.');
+    }
+  }, []);
 
   // Check for user session on initial load
   useEffect(() => {
+    if (!isConfigured) return;
+    
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user || null);
       if (session?.user) {
         fetchUserProfile(session.user.id);
       }
+      setIsLoading(false);
+    }).catch(error => {
+      console.error('Session fetch error:', error);
       setIsLoading(false);
     });
 
@@ -52,10 +73,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return () => {
       subscription.unsubscribe();
     };
-  }, []);
+  }, [isConfigured]);
 
   // Fetch the user's profile data from the database
   const fetchUserProfile = async (userId: string) => {
+    if (!isConfigured) return;
+    
     try {
       const { data, error } = await supabase
         .from('investors')
@@ -83,6 +106,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   // Login with Supabase
   const login = async (email: string, password: string) => {
+    if (!isConfigured) {
+      toast.error('Authentication is not configured. Please set up Supabase credentials.');
+      throw new Error('Authentication is not configured');
+    }
+    
     setIsLoading(true);
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
@@ -97,7 +125,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       toast.success('Logged in successfully');
     } catch (error: any) {
       console.error('Login failed:', error);
-      toast.error(error.message || 'Failed to login');
+      if (error.message === 'Failed to fetch') {
+        toast.error('Connection error. Please check your internet connection or Supabase configuration.');
+      } else {
+        toast.error(error.message || 'Failed to login');
+      }
       throw error;
     } finally {
       setIsLoading(false);
@@ -106,6 +138,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   // Register with Supabase
   const register = async (userData: Omit<InvestorProfile, 'id'> & { password: string }) => {
+    if (!isConfigured) {
+      toast.error('Authentication is not configured. Please set up Supabase credentials.');
+      throw new Error('Authentication is not configured');
+    }
+    
     setIsLoading(true);
     try {      
       // Create user in Supabase Auth
@@ -140,7 +177,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       toast.success('Account created successfully');
     } catch (error: any) {
       console.error('Registration failed:', error);
-      toast.error(error.message || 'Failed to create account');
+      if (error.message === 'Failed to fetch') {
+        toast.error('Connection error. Please check your internet connection or Supabase configuration.');
+      } else {
+        toast.error(error.message || 'Failed to create account');
+      }
       throw error;
     } finally {
       setIsLoading(false);
@@ -149,6 +190,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   // Logout with Supabase
   const logout = async () => {
+    if (!isConfigured) return;
+    
     try {
       const { error } = await supabase.auth.signOut();
       if (error) {
@@ -163,7 +206,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, profile, isLoading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, profile, isLoading, login, register, logout, isConfigured }}>
       {children}
     </AuthContext.Provider>
   );

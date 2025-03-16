@@ -8,6 +8,8 @@ import { useTheme } from "@/components/ThemeProvider";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 
 const InvestorForm = () => {
   const [name, setName] = useState("");
@@ -19,7 +21,7 @@ const InvestorForm = () => {
   const [error, setError] = useState("");
   
   const { toast } = useToast();
-  const { register } = useAuth();
+  const { register, isConfigured } = useAuth();
   const { theme } = useTheme();
   const navigate = useNavigate();
 
@@ -81,6 +83,15 @@ const InvestorForm = () => {
               Create your account to connect with promising startups.
             </p>
           </div>
+
+          {!isConfigured && (
+            <Alert variant="destructive" className="mb-6">
+              <ExclamationTriangleIcon className="h-4 w-4" />
+              <AlertDescription>
+                Supabase is not properly configured. Authentication will not work. Please configure Supabase URL and anonymous key in environment variables.
+              </AlertDescription>
+            </Alert>
+          )}
 
           {error && (
             <div className={`mb-6 p-4 border rounded-lg ${

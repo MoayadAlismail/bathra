@@ -120,6 +120,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     
     setIsLoading(true);
     try {
+      // Check internet connection first
+      if (typeof navigator !== 'undefined' && !navigator.onLine) {
+        throw new Error('You are currently offline. Please check your internet connection.');
+      }
+
       const { data, error } = await supabaseClientRef.current.auth.signInWithPassword({
         email,
         password,
@@ -132,8 +137,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       toast.success('Logged in successfully');
     } catch (error: any) {
       console.error('Login failed:', error);
-      if (error.message === 'Failed to fetch') {
-        toast.error('Connection error. Please check your internet connection or try again later.');
+      // Handle specific network errors
+      if (
+        error.message?.includes('Failed to fetch') ||
+        error.message?.includes('NetworkError') ||
+        error.message?.includes('network') ||
+        error.message?.includes('timeout') ||
+        error.message?.includes('offline')
+      ) {
+        toast.error('Connection error. Please check your internet connection and try again.');
       } else {
         toast.error(error.message || 'Failed to login');
       }
@@ -152,8 +164,25 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setIsLoading(true);
     
     try {
-      // Skip the health check and directly try to register the user
-      // The customFetch in the Supabase client will handle retries and timeouts
+      // Check internet connection first
+      if (typeof navigator !== 'undefined' && !navigator.onLine) {
+        throw new Error('You are currently offline. Please check your internet connection.');
+      }
+
+      // Try an initial lightweight request to verify connectivity
+      try {
+        const response = await fetch(SUPABASE_URL, { 
+          method: 'HEAD', 
+          mode: 'no-cors',
+          cache: 'no-store'
+        });
+        console.log('Connectivity test response:', response);
+      } catch (connError) {
+        console.error('Initial connectivity test failed:', connError);
+        // Continue anyway as this is just a test, the real request might still work
+      }
+      
+      // Proceed with registration
       const { data: authData, error: authError } = await supabaseClientRef.current.auth.signUp({
         email: userData.email,
         password: userData.password,
@@ -191,12 +220,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       toast.success('Account created successfully');
     } catch (error: any) {
       console.error('Registration failed:', error);
-      if (error.message && (
-          error.message.includes('Failed to fetch') || 
-          error.message.includes('NetworkError') || 
-          error.message.includes('network') ||
-          error.message.includes('timeout')
-        )) {
+      
+      // Enhanced network error detection
+      if (
+        error.message?.includes('Failed to fetch') || 
+        error.message?.includes('NetworkError') || 
+        error.message?.includes('network') ||
+        error.message?.includes('offline') ||
+        error.message?.includes('timeout') ||
+        error.name === 'AbortError' ||
+        error.code === 20 || // Chromium timeout error code
+        error.code === 'ECONNABORTED' ||
+        error.__isAuthError === true && error.status === 0
+      ) {
         toast.error('Connection error. Please check your internet connection or try again later.');
       } else {
         toast.error(error.message || 'Failed to create account');

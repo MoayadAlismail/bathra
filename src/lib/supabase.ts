@@ -9,21 +9,29 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 const customFetch = async (input: RequestInfo | URL, init?: RequestInit) => {
   // Maximum number of retries
   const MAX_RETRIES = 3;
+  const TIMEOUT_MS = 15000; // Increase timeout to 15 seconds
   let retries = 0;
   let lastError;
+
+  // If we're running in a browser environment, check network status first
+  if (typeof navigator !== 'undefined' && !navigator.onLine) {
+    throw new Error('You are currently offline. Please check your internet connection.');
+  }
 
   while (retries < MAX_RETRIES) {
     try {
       const controller = new AbortController();
-      // Set a timeout of 10 seconds
-      const timeoutId = setTimeout(() => controller.abort(), 10000);
+      // Set a longer timeout
+      const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
       
-      // Merge the signal from AbortController with any existing init options
+      // Enhanced fetch options
       const fetchOptions = {
         ...init,
         signal: controller.signal,
-        // Don't include credentials for cross-origin requests to avoid CORS issues
-        mode: 'cors' as RequestMode
+        // Use 'no-cors' as fallback if needed for certain environments
+        mode: 'cors' as RequestMode,
+        // Enable credentials if same origin
+        credentials: 'same-origin' as RequestCredentials
       };
       
       const response = await fetch(input, fetchOptions);
@@ -31,22 +39,30 @@ const customFetch = async (input: RequestInfo | URL, init?: RequestInit) => {
       
       // If successful, return the response
       return response;
-    } catch (error) {
+    } catch (error: any) {
       lastError = error;
       console.warn(`Fetch attempt ${retries + 1} failed:`, error);
       retries++;
       
-      // Wait before retrying (exponential backoff)
+      // If abort error (timeout), provide clearer message
+      if (error.name === 'AbortError') {
+        lastError = new Error('Request timed out. The server took too long to respond.');
+      }
+      
+      // Wait before retrying (exponential backoff with jitter)
       if (retries < MAX_RETRIES) {
-        const delay = Math.min(1000 * 2 ** retries, 5000);
+        const baseDelay = Math.min(1000 * 2 ** retries, 5000);
+        // Add random jitter (±20%)
+        const jitter = baseDelay * 0.2 * (Math.random() * 2 - 1);
+        const delay = baseDelay + jitter;
         await new Promise(resolve => setTimeout(resolve, delay));
       }
     }
   }
 
-  // If all retries failed, throw the last error
+  // If all retries failed, throw the last error with a clearer message
   console.error('All fetch attempts failed:', lastError);
-  throw lastError;
+  throw new Error(lastError?.message || 'Network request failed after multiple attempts. Please check your connection.');
 };
 
 // Create a Supabase client with the credentials and improved fetch
@@ -59,12 +75,20 @@ export const supabase = createClient(
       persistSession: true
     },
     global: {
-      fetch: customFetch
-    }
+      fetch: customFetch,
+      headers: {
+        // Add custom headers that might help with CORS
+        'X-Client-Info': 'supabase-js-client',
+      }
+    },
+    // Add more aggressive retry options
+    db: {
+      schema: 'public',
+    },
   }
 );
 
-// Function to create a new client with updated credentials (kept for compatibility)
+// Function to create a new client with updated credentials
 export const updateSupabaseClient = (url: string, key: string) => {
   return createClient(url, key, {
     auth: {
@@ -72,7 +96,10 @@ export const updateSupabaseClient = (url: string, key: string) => {
       persistSession: true
     },
     global: {
-      fetch: customFetch
+      fetch: customFetch,
+      headers: {
+        'X-Client-Info': 'supabase-js-client',
+      }
     }
   });
 };

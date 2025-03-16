@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
@@ -9,7 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
+import { ExclamationTriangleIcon, WifiOffIcon } from "@radix-ui/react-icons";
+import { toast } from "sonner";
 
 const InvestorForm = () => {
   const [name, setName] = useState("");
@@ -19,15 +20,42 @@ const InvestorForm = () => {
   const [investmentFocus, setInvestmentFocus] = useState("");
   const [investmentRange, setInvestmentRange] = useState("");
   const [error, setError] = useState("");
+  const [isOnline, setIsOnline] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
-  const { toast } = useToast();
+  const { toast: uiToast } = useToast();
   const { register, isConfigured } = useAuth();
   const { theme } = useTheme();
   const navigate = useNavigate();
 
+  // Check online status
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+
+    // Set initial online status
+    setIsOnline(navigator.onLine);
+
+    // Add event listeners
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    // Clean up
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    
+    // Check if online
+    if (!isOnline) {
+      setError("You are currently offline. Please check your internet connection.");
+      return;
+    }
     
     // Validate form
     if (password !== confirmPassword) {
@@ -41,6 +69,11 @@ const InvestorForm = () => {
     }
     
     try {
+      setIsSubmitting(true);
+      
+      // Show an immediate toast that we're processing
+      toast.loading("Creating your account...", { id: "register-toast" });
+      
       await register({
         name,
         email,
@@ -49,14 +82,32 @@ const InvestorForm = () => {
         investmentRange
       });
       
-      toast({
-        title: "Registration Successful!",
+      // Dismiss the loading toast and show success
+      toast.dismiss("register-toast");
+      toast.success("Registration Successful!", {
         description: "Your investor account has been created.",
+        duration: 5000
       });
       
       navigate("/dashboard");
     } catch (err: any) {
-      setError(err.message || "Registration failed");
+      // Dismiss loading toast
+      toast.dismiss("register-toast");
+      
+      console.error("Registration error:", err);
+      if (
+        err.message?.includes('Failed to fetch') || 
+        err.message?.includes('NetworkError') || 
+        err.message?.includes('network') ||
+        err.message?.includes('timeout') ||
+        err.name === 'AbortError'
+      ) {
+        setError("Connection error. Please check your internet connection or try again later.");
+      } else {
+        setError(err.message || "Registration failed");
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -83,6 +134,15 @@ const InvestorForm = () => {
               Create your account to connect with promising startups.
             </p>
           </div>
+
+          {!isOnline && (
+            <Alert variant="destructive" className="mb-6">
+              <WifiOffIcon className="h-4 w-4" />
+              <AlertDescription>
+                You are currently offline. Please check your internet connection to create an account.
+              </AlertDescription>
+            </Alert>
+          )}
 
           {!isConfigured && (
             <Alert variant="destructive" className="mb-6">
@@ -223,8 +283,9 @@ const InvestorForm = () => {
               <Button 
                 type="submit" 
                 className={`w-full ${theme === 'dark' ? 'bg-primary hover:bg-primary/90 text-primary-foreground' : ''}`}
+                disabled={isSubmitting || !isOnline}
               >
-                Create Investor Account
+                {isSubmitting ? "Creating Account..." : "Create Investor Account"}
               </Button>
               
               <div className={`text-center mt-4 text-sm ${

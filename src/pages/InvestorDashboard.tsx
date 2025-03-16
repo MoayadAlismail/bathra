@@ -85,7 +85,7 @@ const InvestorDashboard = () => {
               </div>
               
               <div className="p-6 glass rounded-xl mb-8 border border-white/10">
-                <h2 className="text-xl font-semibold mb-2">Welcome back, {profile.name}</h2>
+                <h2 className="text-xl font-semibold mb-2">Welcome back, {profile.name || "Investor"}</h2>
                 <p className="text-muted-foreground">Your investment profile is active and visible to startups in your focus area.</p>
               </div>
               

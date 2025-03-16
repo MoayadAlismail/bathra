@@ -8,7 +8,7 @@ const InvestorJoin = () => {
   const { theme } = useTheme();
   
   return (
-    <div className="min-h-screen bg-background">
+    <div className={`min-h-screen bg-background ${theme === 'dark' ? 'neo-blur' : ''}`}>
       <Navbar />
       
       {/* Hero section */}

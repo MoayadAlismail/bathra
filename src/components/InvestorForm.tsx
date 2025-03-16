@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -9,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { AlertTriangle } from "lucide-react";
+import { Label } from "@/components/ui/label";
 
 const InvestorForm = () => {
   const [name, setName] = useState("");
@@ -118,90 +118,80 @@ const InvestorForm = () => {
               : 'bg-white shadow-lg'
           }`}>
             <div>
-              <label htmlFor="name" className={`block text-sm font-medium mb-2 ${
-                theme === 'dark' ? 'text-foreground' : 'text-gray-700'
-              }`}>
+              <Label htmlFor="name" className="mb-2">
                 Full Name *
-              </label>
+              </Label>
               <Input
                 type="text"
                 id="name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
-                className="w-full"
+                className={`w-full ${theme === 'dark' ? 'bg-background/70 border-primary/20' : ''}`}
                 placeholder="Enter your full name"
               />
             </div>
 
             <div>
-              <label htmlFor="email" className={`block text-sm font-medium mb-2 ${
-                theme === 'dark' ? 'text-foreground' : 'text-gray-700'
-              }`}>
+              <Label htmlFor="email" className="mb-2">
                 Email *
-              </label>
+              </Label>
               <Input
                 type="email"
                 id="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full"
+                className={`w-full ${theme === 'dark' ? 'bg-background/70 border-primary/20' : ''}`}
                 placeholder="your@email.com"
               />
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label htmlFor="password" className={`block text-sm font-medium mb-2 ${
-                  theme === 'dark' ? 'text-foreground' : 'text-gray-700'
-                }`}>
+                <Label htmlFor="password" className="mb-2">
                   Password *
-                </label>
+                </Label>
                 <Input
                   type="password"
                   id="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="w-full"
+                  className={`w-full ${theme === 'dark' ? 'bg-background/70 border-primary/20' : ''}`}
                   placeholder="••••••••"
                   minLength={6}
                 />
               </div>
               
               <div>
-                <label htmlFor="confirmPassword" className={`block text-sm font-medium mb-2 ${
-                  theme === 'dark' ? 'text-foreground' : 'text-gray-700'
-                }`}>
+                <Label htmlFor="confirmPassword" className="mb-2">
                   Confirm Password *
-                </label>
+                </Label>
                 <Input
                   type="password"
                   id="confirmPassword"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
-                  className="w-full"
+                  className={`w-full ${theme === 'dark' ? 'bg-background/70 border-primary/20' : ''}`}
                   placeholder="••••••••"
                 />
               </div>
             </div>
 
             <div>
-              <label htmlFor="focus" className={`block text-sm font-medium mb-2 ${
-                theme === 'dark' ? 'text-foreground' : 'text-gray-700'
-              }`}>
+              <Label htmlFor="focus" className="mb-2">
                 Investment Focus *
-              </label>
+              </Label>
               <select
                 id="focus"
                 value={investmentFocus}
                 onChange={(e) => setInvestmentFocus(e.target.value)}
                 required
-                className={`w-full px-4 py-3 rounded-lg border transition-colors ${
+                className={`w-full px-4 py-2 rounded-lg border transition-colors ${
                   theme === 'dark'
-                    ? 'bg-background border-primary/20 focus:border-primary focus:ring-primary text-foreground'
+                    ? 'bg-background/70 border-primary/20 focus:border-primary text-foreground'
                     : 'border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent'
                 }`}
               >
@@ -216,19 +206,17 @@ const InvestorForm = () => {
             </div>
 
             <div>
-              <label htmlFor="investmentRange" className={`block text-sm font-medium mb-2 ${
-                theme === 'dark' ? 'text-foreground' : 'text-gray-700'
-              }`}>
+              <Label htmlFor="investmentRange" className="mb-2">
                 Typical Investment Range *
-              </label>
+              </Label>
               <select
                 id="investmentRange"
                 value={investmentRange}
                 onChange={(e) => setInvestmentRange(e.target.value)}
                 required
-                className={`w-full px-4 py-3 rounded-lg border transition-colors ${
+                className={`w-full px-4 py-2 rounded-lg border transition-colors ${
                   theme === 'dark'
-                    ? 'bg-background border-primary/20 focus:border-primary focus:ring-primary text-foreground'
+                    ? 'bg-background/70 border-primary/20 focus:border-primary text-foreground'
                     : 'border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent'
                 }`}
               >
@@ -241,7 +229,10 @@ const InvestorForm = () => {
             </div>
 
             <div className="pt-2">
-              <Button type="submit" className="w-full">
+              <Button 
+                type="submit" 
+                className={`w-full ${theme === 'dark' ? 'bg-primary hover:bg-primary/90' : ''}`}
+              >
                 Create Investor Account
               </Button>
               

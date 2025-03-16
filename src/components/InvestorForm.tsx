@@ -7,8 +7,6 @@ import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/components/ThemeProvider";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
-import { AlertTriangle } from "lucide-react";
 import { Label } from "@/components/ui/label";
 
 const InvestorForm = () => {
@@ -21,7 +19,7 @@ const InvestorForm = () => {
   const [error, setError] = useState("");
   
   const { toast } = useToast();
-  const { register, isDemo } = useAuth();
+  const { register } = useAuth();
   const { theme } = useTheme();
   const navigate = useNavigate();
 
@@ -50,10 +48,8 @@ const InvestorForm = () => {
       });
       
       toast({
-        title: isDemo ? "Registration Successful (Demo Mode)!" : "Registration Successful!",
-        description: isDemo ? 
-          "Your investor account has been created in demo mode. No data is persisted." :
-          "Your investor account has been created.",
+        title: "Registration Successful!",
+        description: "Your investor account has been created.",
       });
       
       navigate("/dashboard");
@@ -85,23 +81,6 @@ const InvestorForm = () => {
               Create your account to connect with promising startups.
             </p>
           </div>
-
-          {isDemo && (
-            <Alert className={`mb-6 ${
-              theme === 'dark'
-                ? 'border-yellow-500/50 bg-yellow-500/10 text-yellow-300'
-                : 'border-yellow-400 bg-yellow-50 text-yellow-800'
-            }`}>
-              <AlertTriangle className={`h-4 w-4 ${
-                theme === 'dark' ? 'text-yellow-300' : 'text-yellow-600'
-              }`} />
-              <AlertTitle>Demo Mode Active</AlertTitle>
-              <AlertDescription>
-                The application is running in demo mode because Supabase credentials are not configured.
-                Account creation will work, but data is only stored temporarily in memory.
-              </AlertDescription>
-            </Alert>
-          )}
 
           {error && (
             <div className={`mb-6 p-4 border rounded-lg ${

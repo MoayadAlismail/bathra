@@ -1,25 +1,16 @@
 import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 import { toast } from "sonner";
-import { Upload, Target, Globe, Lightbulb, DollarSign, Users, BarChart, AlertTriangle } from "lucide-react";
-import { useState, FormEvent, useEffect } from "react";
+import { Upload, Target, Globe, Lightbulb, DollarSign, Users, BarChart } from "lucide-react";
+import { useState, FormEvent } from "react";
 import { supabase } from "@/lib/supabase";
-import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { useTheme } from "@/components/ThemeProvider";
 
 const StartupForm = () => {
   const { toast: uiToast } = useToast();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isDemo, setIsDemo] = useState(false);
   const { theme } = useTheme();
-  
-  useEffect(() => {
-    // Check if we're in demo mode (no Supabase credentials)
-    if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
-      setIsDemo(true);
-    }
-  }, []);
   
   const [formData, setFormData] = useState({
     startupName: "",
@@ -53,38 +44,6 @@ const StartupForm = () => {
     
     try {
       setIsSubmitting(true);
-      
-      // In demo mode, just simulate a submission
-      if (isDemo) {
-        // Simulate network delay
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        toast.success("Demo mode: Your pitch would be submitted in a real environment!");
-        
-        // Reset form in demo mode too
-        setFormData({
-          startupName: "",
-          website: "",
-          founded: "",
-          founders: "",
-          teamSize: "",
-          industry: "",
-          stage: "",
-          targetMarket: "",
-          pitch: "",
-          problem: "",
-          usp: "",
-          traction: "",
-          keyMetrics: "",
-          previousFunding: "",
-          funding: "",
-          valuation: "",
-          useOfFunds: "",
-          roadmap: "",
-          exitStrategy: ""
-        });
-        setSelectedFile(null);
-        return;
-      }
       
       // Real submission to Supabase
       const { data, error } = await supabase
@@ -209,17 +168,6 @@ const StartupForm = () => {
               Share your vision with potential investors and take the first step towards growth.
             </p>
           </div>
-          
-          {isDemo && (
-            <Alert className={`mb-8 ${theme === 'dark' ? 'border-yellow-400 bg-yellow-950/30 text-yellow-300' : 'border-yellow-400 bg-yellow-50 text-yellow-800'}`}>
-              <AlertTriangle className={`h-4 w-4 ${theme === 'dark' ? 'text-yellow-300' : 'text-yellow-600'}`} />
-              <AlertTitle>Demo Mode Active</AlertTitle>
-              <AlertDescription>
-                The application is running in demo mode because Supabase credentials are not configured. 
-                Form submissions will be simulated but not saved to a database.
-              </AlertDescription>
-            </Alert>
-          )}
 
           <div className={`mb-10 p-6 ${theme === 'dark' ? 'bg-secondary/30' : 'bg-secondary/50'} rounded-xl`}>
             <h3 className="flex items-center text-lg font-semibold mb-3">

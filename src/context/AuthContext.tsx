@@ -151,19 +151,31 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
     
     setIsLoading(true);
+    
     try {
-      // First, check if we can connect to Supabase
+      // First, do a simple health check to Supabase before attempting registration
       try {
-        await supabaseClientRef.current.from('investors').select('count').limit(1);
+        const healthCheck = await fetch(`${SUPABASE_URL}/rest/v1/`);
+        if (!healthCheck.ok) {
+          toast.error('Supabase service is currently unavailable. Please try again later.');
+          throw new Error('Supabase service unavailable');
+        }
       } catch (connectError) {
-        console.error('Supabase connection test failed:', connectError);
-        toast.error('Unable to connect to the database. Please try again later.');
+        console.error('Supabase health check failed:', connectError);
+        toast.error('Unable to connect to Supabase. Please check your network connection.');
         throw new Error('Connection error');
       }
         
       const { data: authData, error: authError } = await supabaseClientRef.current.auth.signUp({
         email: userData.email,
         password: userData.password,
+        options: {
+          data: {
+            name: userData.name,
+            investment_focus: userData.investmentFocus,
+            investment_range: userData.investmentRange,
+          }
+        }
       });
 
       if (authError) {
@@ -174,6 +186,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         throw new Error('Registration failed');
       }
 
+      // Since user metadata is already stored in auth, we'll only create a profile record
+      // if additional data needs to be stored
       const { error: profileError } = await supabaseClientRef.current
         .from('investors')
         .insert({
@@ -185,13 +199,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         });
 
       if (profileError) {
-        throw profileError;
+        console.warn('Profile creation had an issue, but user was created:', profileError);
+        // We don't throw here since the user was created successfully
       }
 
       toast.success('Account created successfully');
     } catch (error: any) {
       console.error('Registration failed:', error);
-      if (error.message === 'Failed to fetch' || error.message === 'Connection error') {
+      if (error.message === 'Failed to fetch' || error.message === 'Connection error' || error.message === 'Supabase service unavailable') {
         toast.error('Connection error. Please check your internet connection or try again later.');
       } else {
         toast.error(error.message || 'Failed to create account');

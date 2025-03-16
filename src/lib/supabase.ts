@@ -5,27 +5,48 @@ import { createClient } from '@supabase/supabase-js';
 const SUPABASE_URL = 'https://jufkihpszuolzsreecrs.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp1ZmtpaHBzenVvbHpzcmVlY3JzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDcyNDEyMDIsImV4cCI6MjAyMjgxNzIwMn0.Y01Qh1lN7HjzeVapI1IZxqJXU5lglF_vrpW3W6RXtEg';
 
-// Create a more resilient fetch function with timeout
+// Create a more resilient fetch function with timeout and retries
 const customFetch = async (input: RequestInfo | URL, init?: RequestInit) => {
-  try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 seconds timeout
-    
-    // Merge the signal from AbortController with any existing init options
-    const fetchOptions = {
-      ...init,
-      signal: controller.signal,
-      credentials: 'include' as RequestCredentials
-    };
-    
-    const response = await fetch(input, fetchOptions);
-    
-    clearTimeout(timeoutId);
-    return response;
-  } catch (error) {
-    console.error('Fetch error:', error);
-    throw error;
+  // Maximum number of retries
+  const MAX_RETRIES = 3;
+  let retries = 0;
+  let lastError;
+
+  while (retries < MAX_RETRIES) {
+    try {
+      const controller = new AbortController();
+      // Set a timeout of 10 seconds
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
+      
+      // Merge the signal from AbortController with any existing init options
+      const fetchOptions = {
+        ...init,
+        signal: controller.signal,
+        // Don't include credentials for cross-origin requests to avoid CORS issues
+        mode: 'cors' as RequestMode
+      };
+      
+      const response = await fetch(input, fetchOptions);
+      clearTimeout(timeoutId);
+      
+      // If successful, return the response
+      return response;
+    } catch (error) {
+      lastError = error;
+      console.warn(`Fetch attempt ${retries + 1} failed:`, error);
+      retries++;
+      
+      // Wait before retrying (exponential backoff)
+      if (retries < MAX_RETRIES) {
+        const delay = Math.min(1000 * 2 ** retries, 5000);
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+    }
   }
+
+  // If all retries failed, throw the last error
+  console.error('All fetch attempts failed:', lastError);
+  throw lastError;
 };
 
 // Create a Supabase client with the credentials and improved fetch

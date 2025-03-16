@@ -2,15 +2,10 @@
 import { createClient } from '@supabase/supabase-js';
 
 // Using environment variables for Supabase URL and key
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://placeholder-url.supabase.co';
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'placeholder-key';
 
-// Check if environment variables are set
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn('Missing Supabase environment variables. Please add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to your environment.');
-}
-
-// Create a Supabase client with better network error handling
+// Create a Supabase client with better handling for missing configuration
 export const supabase = createClient(
   supabaseUrl,
   supabaseAnonKey,
@@ -24,6 +19,12 @@ export const supabase = createClient(
     }
   }
 );
+
+// Log warning if using placeholder values
+if (supabaseUrl === 'https://placeholder-url.supabase.co' || 
+    supabaseAnonKey === 'placeholder-key') {
+  console.warn('Using placeholder Supabase credentials. Authentication and database operations will not work. Please add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to your environment.');
+}
 
 // Define database types to use with Supabase
 export type Tables = {

@@ -20,7 +20,7 @@ export const supabase = createClient(
       persistSession: true
     },
     global: {
-      fetch: (...args) => fetch(...args)
+      fetch: (...args: Parameters<typeof fetch>) => fetch(...args)
     }
   }
 );

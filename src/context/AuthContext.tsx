@@ -1,6 +1,5 @@
-
 import React, { createContext, useState, useContext, useEffect, useRef } from 'react';
-import { supabase, updateSupabaseClient } from '@/lib/supabase';
+import { supabase, updateSupabaseClient, SUPABASE_URL } from '@/lib/supabase';
 import { User, SupabaseClient } from '@supabase/supabase-js';
 import { toast } from 'sonner';
 
@@ -29,7 +28,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<InvestorProfile | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [isConfigured, setIsConfigured] = useState<boolean>(true); // Always true now
+  const [isConfigured, setIsConfigured] = useState<boolean>(true);
   const supabaseClientRef = useRef<SupabaseClient>(supabase);
   
   const updateSupabaseConfig = (url: string, key: string) => {
@@ -74,7 +73,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   useEffect(() => {
-    // Initialize Supabase auth session
     const initSession = async () => {
       try {
         const { data, error } = await supabaseClientRef.current.auth.getSession();
@@ -153,7 +151,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setIsLoading(true);
     
     try {
-      // First, do a simple health check to Supabase before attempting registration
       try {
         const healthCheck = await fetch(`${SUPABASE_URL}/rest/v1/`);
         if (!healthCheck.ok) {
@@ -186,8 +183,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         throw new Error('Registration failed');
       }
 
-      // Since user metadata is already stored in auth, we'll only create a profile record
-      // if additional data needs to be stored
       const { error: profileError } = await supabaseClientRef.current
         .from('investors')
         .insert({
@@ -200,7 +195,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       if (profileError) {
         console.warn('Profile creation had an issue, but user was created:', profileError);
-        // We don't throw here since the user was created successfully
       }
 
       toast.success('Account created successfully');

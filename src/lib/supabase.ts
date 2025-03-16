@@ -2,7 +2,7 @@
 import { createClient } from '@supabase/supabase-js';
 
 // Real Supabase credentials
-const SUPABASE_URL = 'https://jufkihpszuolzsreecrs.supabase.co';
+export const SUPABASE_URL = 'https://jufkihpszuolzsreecrs.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp1ZmtpaHBzenVvbHpzcmVlY3JzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDcyNDEyMDIsImV4cCI6MjAyMjgxNzIwMn0.Y01Qh1lN7HjzeVapI1IZxqJXU5lglF_vrpW3W6RXtEg';
 
 // Create a more resilient fetch function with timeout and retries

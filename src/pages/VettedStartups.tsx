@@ -1,8 +1,8 @@
-
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useAuth } from "@/context/AuthContext";
+import { useTheme } from "@/components/ThemeProvider";
 import Navbar from "@/components/Navbar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -44,6 +44,7 @@ type VettedStartup = {
 
 const VettedStartups = () => {
   const { user, profile, isDemo } = useAuth();
+  const { theme } = useTheme();
   const navigate = useNavigate();
   const [startups, setStartups] = useState<VettedStartup[]>([]);
   const [filteredStartups, setFilteredStartups] = useState<VettedStartup[]>([]);
@@ -238,7 +239,7 @@ const VettedStartups = () => {
   const stages = Array.from(new Set(startups.map(s => s.stage)));
 
   return (
-    <div className="min-h-screen bg-[#F8F9FA]">
+    <div className={`min-h-screen ${theme === 'dark' ? 'neo-blur' : 'bg-[#F8F9FA]'}`}>
       <Navbar />
       <section className="py-20">
         <div className="container mx-auto px-4">
@@ -249,25 +250,25 @@ const VettedStartups = () => {
             className="mb-8"
           >
             <h1 className="text-3xl font-bold mb-4">Vetted Startups</h1>
-            <p className="text-gray-600 max-w-3xl">
+            <p className={`max-w-3xl ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
               Exclusive access to our curated list of promising startups seeking investment. 
               All startups have been vetted by our team for viability and growth potential.
             </p>
             
             {isDemo && (
-              <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                <h3 className="font-medium text-yellow-800">Demo Mode Active</h3>
-                <p className="text-sm text-yellow-700">
+              <div className={`mt-4 p-4 rounded-lg ${theme === 'dark' ? 'bg-yellow-900/20 border border-yellow-800/50' : 'bg-yellow-50 border border-yellow-200'}`}>
+                <h3 className={`font-medium ${theme === 'dark' ? 'text-yellow-400' : 'text-yellow-800'}`}>Demo Mode Active</h3>
+                <p className={`text-sm ${theme === 'dark' ? 'text-yellow-300' : 'text-yellow-700'}`}>
                   You are viewing mock startup data. In production, this page would display real vetted startups from the database.
                 </p>
               </div>
             )}
           </motion.div>
 
-          <div className="bg-white rounded-xl shadow-md p-6 mb-8">
+          <div className={`rounded-xl shadow-md p-6 mb-8 ${theme === 'dark' ? 'glass border border-white/10' : 'bg-white'}`}>
             <div className="flex flex-col md:flex-row md:items-center gap-4 mb-6">
               <div className="relative flex-grow">
-                <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <SearchIcon className={`absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-400'}`} />
                 <Input 
                   className="pl-10" 
                   placeholder="Search startups..." 
@@ -378,7 +379,7 @@ const VettedStartups = () => {
                 ) : viewMode === "grid" ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {filteredStartups.map((startup) => (
-                      <Card key={startup.id} className="overflow-hidden flex flex-col">
+                      <Card key={startup.id} className={`overflow-hidden flex flex-col ${theme === 'dark' ? 'border-primary/20' : ''}`}>
                         <CardHeader>
                           <div className="flex justify-between items-start">
                             <CardTitle className="text-xl">{startup.name}</CardTitle>
@@ -394,30 +395,40 @@ const VettedStartups = () => {
                             </Button>
                           </div>
                           <div className="flex flex-wrap gap-2 mt-2">
-                            <span className="bg-blue-100 text-blue-800 text-xs px-2.5 py-0.5 rounded-full">
+                            <span className={`text-xs px-2.5 py-0.5 rounded-full ${
+                              theme === 'dark' ? 'bg-blue-900/30 text-blue-300' : 'bg-blue-100 text-blue-800'
+                            }`}>
                               {startup.industry}
                             </span>
-                            <span className="bg-purple-100 text-purple-800 text-xs px-2.5 py-0.5 rounded-full">
+                            <span className={`text-xs px-2.5 py-0.5 rounded-full ${
+                              theme === 'dark' ? 'bg-purple-900/30 text-purple-300' : 'bg-purple-100 text-purple-800'
+                            }`}>
                               {startup.stage}
                             </span>
                           </div>
                         </CardHeader>
                         <CardContent className="flex-grow">
                           <div className="space-y-2 text-sm">
-                            <p className="text-gray-700">{startup.description?.substring(0, 120)}...</p>
+                            <p className={theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}>
+                              {startup.description?.substring(0, 120)}...
+                            </p>
                             <div className="grid grid-cols-2 gap-x-4 gap-y-2 mt-4">
                               <div>
-                                <p className="text-gray-500 text-xs">Funding Sought</p>
+                                <p className={`text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
+                                  Funding Sought
+                                </p>
                                 <p className="font-medium">{startup.funding_required}</p>
                               </div>
                               <div>
-                                <p className="text-gray-500 text-xs">Valuation</p>
+                                <p className={`text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
+                                  Valuation
+                                </p>
                                 <p className="font-medium">{startup.valuation}</p>
                               </div>
                             </div>
                           </div>
                         </CardContent>
-                        <CardFooter className="flex justify-between border-t pt-4">
+                        <CardFooter className={`flex justify-between pt-4 ${theme === 'dark' ? 'border-t border-primary/20' : 'border-t'}`}>
                           <Button
                             variant="outline"
                             size="sm"
@@ -544,7 +555,7 @@ const VettedStartups = () => {
                     {filteredStartups
                       .filter(s => savedStartups.includes(s.id))
                       .map((startup) => (
-                        <Card key={startup.id} className="overflow-hidden flex flex-col">
+                        <Card key={startup.id} className={`overflow-hidden flex flex-col ${theme === 'dark' ? 'border-primary/20' : ''}`}>
                           <CardHeader>
                             <div className="flex justify-between items-start">
                               <CardTitle className="text-xl">{startup.name}</CardTitle>
@@ -558,10 +569,14 @@ const VettedStartups = () => {
                               </Button>
                             </div>
                             <div className="flex flex-wrap gap-2 mt-2">
-                              <span className="bg-blue-100 text-blue-800 text-xs px-2.5 py-0.5 rounded-full">
+                              <span className={`text-xs px-2.5 py-0.5 rounded-full ${
+                                theme === 'dark' ? 'bg-blue-900/30 text-blue-300' : 'bg-blue-100 text-blue-800'
+                              }`}>
                                 {startup.industry}
                               </span>
-                              <span className="bg-purple-100 text-purple-800 text-xs px-2.5 py-0.5 rounded-full">
+                              <span className={`text-xs px-2.5 py-0.5 rounded-full ${
+                                theme === 'dark' ? 'bg-purple-900/30 text-purple-300' : 'bg-purple-100 text-purple-800'
+                              }`}>
                                 {startup.stage}
                               </span>
                             </div>
@@ -581,7 +596,7 @@ const VettedStartups = () => {
                               </div>
                             </div>
                           </CardContent>
-                          <CardFooter className="flex justify-between border-t pt-4">
+                          <CardFooter className={`flex justify-between pt-4 ${theme === 'dark' ? 'border-t border-primary/20' : 'border-t'}`}>
                             <Button
                               variant="outline"
                               size="sm"
@@ -696,9 +711,9 @@ const VettedStartups = () => {
               </TabsContent>
             </Tabs>
             
-            <div className="mt-8 p-4 bg-gray-50 rounded-lg">
-              <h3 className="text-sm font-medium text-gray-800 mb-2">Disclaimer</h3>
-              <p className="text-xs text-gray-600">
+            <div className={`mt-8 p-4 rounded-lg ${theme === 'dark' ? 'bg-secondary/50' : 'bg-gray-50'}`}>
+              <h3 className={`text-sm font-medium ${theme === 'dark' ? 'text-gray-200' : 'text-gray-800'} mb-2`}>Disclaimer</h3>
+              <p className={`text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
                 The information provided is for informational purposes only and does not constitute investment advice. 
                 Past performance is not indicative of future results. All investments involve risk, and the past performance 
                 of a security, industry, sector, market, or financial product does not guarantee future results or returns.

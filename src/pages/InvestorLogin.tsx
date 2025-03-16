@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
+import SupabaseConfig from "@/components/SupabaseConfig";
 
 const InvestorLogin = () => {
   const [email, setEmail] = useState("");
@@ -54,12 +55,18 @@ const InvestorLogin = () => {
             </div>
 
             {!isConfigured && (
-              <Alert variant="destructive" className="mb-6">
-                <ExclamationTriangleIcon className="h-4 w-4" />
-                <AlertDescription>
-                  The authentication system is not configured. Please set up Supabase URL and anonymous key in environment variables.
-                </AlertDescription>
-              </Alert>
+              <>
+                <Alert variant="destructive" className="mb-6">
+                  <ExclamationTriangleIcon className="h-4 w-4" />
+                  <AlertDescription>
+                    The authentication system is not configured. Please set up Supabase credentials below.
+                  </AlertDescription>
+                </Alert>
+                
+                <div className="mb-8">
+                  <SupabaseConfig />
+                </div>
+              </>
             )}
 
             {error && (
@@ -99,7 +106,7 @@ const InvestorLogin = () => {
                 />
               </div>
 
-              <Button type="submit" className="w-full">
+              <Button type="submit" className="w-full" disabled={!isConfigured}>
                 Log In
               </Button>
 

@@ -6,6 +6,7 @@ import { useTheme } from "@/components/ThemeProvider";
 import { useAuth } from "@/context/AuthContext";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
+import SupabaseConfig from "@/components/SupabaseConfig";
 
 const InvestorJoin = () => {
   const { theme } = useTheme();
@@ -34,7 +35,7 @@ const InvestorJoin = () => {
             <Alert variant="destructive" className="mt-6 max-w-2xl mx-auto bg-destructive/20 border-destructive text-white">
               <ExclamationTriangleIcon className="h-4 w-4" />
               <AlertDescription>
-                The authentication system is not configured. Please set up Supabase URL and anonymous key in environment variables.
+                The authentication system is not configured. Please set up Supabase credentials below.
               </AlertDescription>
             </Alert>
           )}
@@ -42,6 +43,13 @@ const InvestorJoin = () => {
       </motion.div>
       
       <div className="container mx-auto px-4 py-10">
+        {/* Show Supabase configuration component when not configured */}
+        {!isConfigured && (
+          <div className="max-w-xl mx-auto mb-10">
+            <SupabaseConfig />
+          </div>
+        )}
+        
         <InvestorForm />
       </div>
     </div>

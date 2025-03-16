@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -9,7 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { ExclamationTriangleIcon, WifiOffIcon } from "@radix-ui/react-icons";
+import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
+import { WifiOff } from "lucide-react";
 import { toast } from "sonner";
 
 const InvestorForm = () => {
@@ -28,19 +28,15 @@ const InvestorForm = () => {
   const { theme } = useTheme();
   const navigate = useNavigate();
 
-  // Check online status
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
 
-    // Set initial online status
     setIsOnline(navigator.onLine);
 
-    // Add event listeners
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
 
-    // Clean up
     return () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
@@ -51,13 +47,11 @@ const InvestorForm = () => {
     e.preventDefault();
     setError("");
     
-    // Check if online
     if (!isOnline) {
       setError("You are currently offline. Please check your internet connection.");
       return;
     }
     
-    // Validate form
     if (password !== confirmPassword) {
       setError("Passwords don't match");
       return;
@@ -71,7 +65,6 @@ const InvestorForm = () => {
     try {
       setIsSubmitting(true);
       
-      // Show an immediate toast that we're processing
       toast.loading("Creating your account...", { id: "register-toast" });
       
       await register({
@@ -82,7 +75,6 @@ const InvestorForm = () => {
         investmentRange
       });
       
-      // Dismiss the loading toast and show success
       toast.dismiss("register-toast");
       toast.success("Registration Successful!", {
         description: "Your investor account has been created.",
@@ -91,7 +83,6 @@ const InvestorForm = () => {
       
       navigate("/dashboard");
     } catch (err: any) {
-      // Dismiss loading toast
       toast.dismiss("register-toast");
       
       console.error("Registration error:", err);
@@ -137,7 +128,7 @@ const InvestorForm = () => {
 
           {!isOnline && (
             <Alert variant="destructive" className="mb-6">
-              <WifiOffIcon className="h-4 w-4" />
+              <WifiOff className="h-4 w-4" />
               <AlertDescription>
                 You are currently offline. Please check your internet connection to create an account.
               </AlertDescription>

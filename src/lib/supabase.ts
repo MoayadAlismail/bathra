@@ -1,11 +1,30 @@
-
 import { createClient } from '@supabase/supabase-js';
 
-// Real Supabase credentials (instead of placeholders)
+// Real Supabase credentials
 const SUPABASE_URL = 'https://jufkihpszuolzsreecrs.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp1ZmtpaHBzenVvbHpzcmVlY3JzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDcyNDEyMDIsImV4cCI6MjAyMjgxNzIwMn0.Y01Qh1lN7HjzeVapI1IZxqJXU5lglF_vrpW3W6RXtEg';
 
-// Create a Supabase client with the credentials
+// Create a more resilient fetch function with timeout
+const customFetch = async (...args: Parameters<typeof fetch>) => {
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 seconds timeout
+    
+    const response = await fetch(...args, { 
+      signal: controller.signal,
+      // Ensure credentials are included for cross-origin requests
+      credentials: 'include'
+    });
+    
+    clearTimeout(timeoutId);
+    return response;
+  } catch (error) {
+    console.error('Fetch error:', error);
+    throw error;
+  }
+};
+
+// Create a Supabase client with the credentials and improved fetch
 export const supabase = createClient(
   SUPABASE_URL,
   SUPABASE_ANON_KEY,
@@ -15,21 +34,20 @@ export const supabase = createClient(
       persistSession: true
     },
     global: {
-      fetch: (...args: Parameters<typeof fetch>) => fetch(...args)
+      fetch: customFetch
     }
   }
 );
 
 // Function to create a new client with updated credentials (kept for compatibility)
 export const updateSupabaseClient = (url: string, key: string) => {
-  // Return a new client instance with the updated credentials
   return createClient(url, key, {
     auth: {
       autoRefreshToken: true,
       persistSession: true
     },
     global: {
-      fetch: (...args: Parameters<typeof fetch>) => fetch(...args)
+      fetch: customFetch
     }
   });
 };

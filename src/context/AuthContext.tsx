@@ -1,3 +1,4 @@
+
 import React, { createContext, useState, useContext, useEffect, useRef } from 'react';
 import { supabase, updateSupabaseClient } from '@/lib/supabase';
 import { User, SupabaseClient } from '@supabase/supabase-js';
@@ -28,7 +29,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<InvestorProfile | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [isConfigured, setIsConfigured] = useState<boolean>(true);
+  const [isConfigured, setIsConfigured] = useState<boolean>(true); // Always true now
   const supabaseClientRef = useRef<SupabaseClient>(supabase);
   
   const updateSupabaseConfig = (url: string, key: string) => {
@@ -73,16 +74,29 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   useEffect(() => {
-    supabaseClientRef.current.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user || null);
-      if (session?.user) {
-        fetchUserProfile(session.user.id);
+    // Initialize Supabase auth session
+    const initSession = async () => {
+      try {
+        const { data, error } = await supabaseClientRef.current.auth.getSession();
+        
+        if (error) {
+          console.error('Session fetch error:', error);
+          setIsLoading(false);
+          return;
+        }
+        
+        setUser(data.session?.user || null);
+        if (data.session?.user) {
+          fetchUserProfile(data.session.user.id);
+        }
+      } catch (error) {
+        console.error('Session initialization error:', error);
+      } finally {
+        setIsLoading(false);
       }
-      setIsLoading(false);
-    }).catch(error => {
-      console.error('Session fetch error:', error);
-      setIsLoading(false);
-    });
+    };
+    
+    initSession();
 
     const { data: { subscription } } = supabaseClientRef.current.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user || null);
@@ -120,7 +134,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     } catch (error: any) {
       console.error('Login failed:', error);
       if (error.message === 'Failed to fetch') {
-        toast.error('Connection error. Please check your internet connection or Supabase configuration.');
+        toast.error('Connection error. Please check your internet connection or try again later.');
       } else {
         toast.error(error.message || 'Failed to login');
       }
@@ -137,7 +151,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
     
     setIsLoading(true);
-    try {      
+    try {
+      // First, check if we can connect to Supabase
+      try {
+        await supabaseClientRef.current.from('investors').select('count').limit(1);
+      } catch (connectError) {
+        console.error('Supabase connection test failed:', connectError);
+        toast.error('Unable to connect to the database. Please try again later.');
+        throw new Error('Connection error');
+      }
+        
       const { data: authData, error: authError } = await supabaseClientRef.current.auth.signUp({
         email: userData.email,
         password: userData.password,
@@ -168,8 +191,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       toast.success('Account created successfully');
     } catch (error: any) {
       console.error('Registration failed:', error);
-      if (error.message === 'Failed to fetch') {
-        toast.error('Connection error. Please check your internet connection or Supabase configuration.');
+      if (error.message === 'Failed to fetch' || error.message === 'Connection error') {
+        toast.error('Connection error. Please check your internet connection or try again later.');
       } else {
         toast.error(error.message || 'Failed to create account');
       }

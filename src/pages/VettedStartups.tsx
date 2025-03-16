@@ -43,7 +43,7 @@ type VettedStartup = {
 };
 
 const VettedStartups = () => {
-  const { user, profile, isDemo } = useAuth();
+  const { user, profile } = useAuth();
   const { theme } = useTheme();
   const navigate = useNavigate();
   const [startups, setStartups] = useState<VettedStartup[]>([]);
@@ -57,7 +57,7 @@ const VettedStartups = () => {
   const [savedStartups, setSavedStartups] = useState<string[]>([]);
   const [selectedStartup, setSelectedStartup] = useState<VettedStartup | null>(null);
   
-  // Mock data for demo mode
+  // Mock data for when no real data is available
   const mockStartups: VettedStartup[] = [
     {
       id: "1",
@@ -189,22 +189,24 @@ const VettedStartups = () => {
     setIsLoading(true);
     
     try {
-      if (isDemo) {
-        // In demo mode, use mock data
-        await new Promise(resolve => setTimeout(resolve, 800)); // Simulate loading
-        setStartups(mockStartups);
+      // Fetch data from Supabase
+      const { data, error } = await supabase
+        .from('startups')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      
+      if (data && data.length > 0) {
+        setStartups(data);
       } else {
-        // Fetch real data from Supabase
-        const { data, error } = await supabase
-          .from('startups')
-          .select('*')
-          .order('created_at', { ascending: false });
-        
-        if (error) throw error;
-        setStartups(data || []);
+        // If no data in database, use mock data
+        setStartups(mockStartups);
       }
     } catch (error) {
       console.error('Error fetching vetted startups:', error);
+      // Fallback to mock data on error
+      setStartups(mockStartups);
     } finally {
       setIsLoading(false);
     }
@@ -254,15 +256,6 @@ const VettedStartups = () => {
               Exclusive access to our curated list of promising startups seeking investment. 
               All startups have been vetted by our team for viability and growth potential.
             </p>
-            
-            {isDemo && (
-              <div className={`mt-4 p-4 rounded-lg ${theme === 'dark' ? 'bg-yellow-900/20 border border-yellow-800/50' : 'bg-yellow-50 border border-yellow-200'}`}>
-                <h3 className={`font-medium ${theme === 'dark' ? 'text-yellow-400' : 'text-yellow-800'}`}>Demo Mode Active</h3>
-                <p className={`text-sm ${theme === 'dark' ? 'text-yellow-300' : 'text-yellow-700'}`}>
-                  You are viewing mock startup data. In production, this page would display real vetted startups from the database.
-                </p>
-              </div>
-            )}
           </motion.div>
 
           <div className={`rounded-xl shadow-md p-6 mb-8 ${theme === 'dark' ? 'glass border border-white/10' : 'bg-white'}`}>

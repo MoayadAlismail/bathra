@@ -38,68 +38,6 @@
 
     --radius: 1rem;
   }
-
-  .light {
-    /* Light mode colors - white and blue with better contrast */
-    --background: 0 0% 100%;
-    --foreground: 220 70% 30%;
-
-    --card: 0 0% 100%;
-    --card-foreground: 220 70% 30%;
-
-    --popover: 0 0% 100%;
-    --popover-foreground: 220 70% 30%;
-
-    --primary: 220 70% 50%;
-    --primary-foreground: 0 0% 100%;
-
-    --secondary: 220 20% 92%;
-    --secondary-foreground: 220 70% 30%;
-
-    --muted: 220 20% 92%;
-    --muted-foreground: 220 40% 50%;
-
-    --accent: 220 70% 55%;
-    --accent-foreground: 0 0% 100%;
-
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-
-    --border: 220 20% 85%;
-    --input: 220 20% 85%;
-    --ring: 220 70% 50%;
-  }
-
-  .dark {
-    /* Dark mode colors - black and blue */
-    --background: 220 20% 6%;
-    --foreground: 0 0% 98%;
-
-    --card: 220 20% 6%;
-    --card-foreground: 0 0% 98%;
-
-    --popover: 220 20% 6%;
-    --popover-foreground: 0 0% 98%;
-
-    --primary: 220 70% 50%;
-    --primary-foreground: 0 0% 98%;
-
-    --secondary: 220 20% 15%;
-    --secondary-foreground: 0 0% 98%;
-
-    --muted: 220 20% 15%;
-    --muted-foreground: 220 30% 65%;
-
-    --accent: 220 70% 45%;
-    --accent-foreground: 0 0% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-
-    --border: 220 20% 18%;
-    --input: 220 20% 18%;
-    --ring: 220 70% 60%;
-  }
 }
 
 @layer base {
@@ -112,90 +50,41 @@
   }
 
   .glass {
-    /* Glass styling that works in both modes */
-    @apply backdrop-blur-lg border rounded-2xl shadow-lg;
-  }
-  
-  .light .glass {
-    @apply bg-white/80 border-primary/10 shadow-blue-100;
-  }
-  
-  .dark .glass {
-    @apply bg-primary/10 border-white/10 shadow-none;
+    /* Glass styling for light mode */
+    @apply bg-white/80 backdrop-blur-lg border border-primary/10 shadow-blue-100 rounded-2xl shadow-lg;
   }
 }
 
 @layer utilities {
   .text-gradient {
-    @apply bg-clip-text text-transparent;
-  }
-  
-  .light .text-gradient {
-    @apply bg-gradient-to-r from-primary via-primary/90 to-primary/80;
-  }
-  
-  .dark .text-gradient {
-    @apply bg-gradient-to-r from-primary/90 via-primary to-primary/90;
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary via-primary/90 to-primary/80;
   }
   
   .tech-gradient {
-    /* Different gradients for different themes */
-    @apply bg-gradient-to-r;
-  }
-  
-  .light .tech-gradient {
-    @apply from-primary/10 via-primary/20 to-primary/10;
-  }
-  
-  .dark .tech-gradient {
-    @apply from-primary/20 via-primary/30 to-primary/20;
+    @apply bg-gradient-to-r from-primary/10 via-primary/20 to-primary/10;
   }
   
   .hero-gradient {
-    @apply bg-gradient-to-r;
-  }
-  
-  .light .hero-gradient {
-    @apply from-primary/80 to-primary/70;
-  }
-  
-  .dark .hero-gradient {
-    @apply from-primary/90 to-primary/80;
+    @apply bg-gradient-to-r from-primary/80 to-primary/70;
   }
   
   .card-highlight {
-    @apply bg-gradient-to-br;
-  }
-  
-  .light .card-highlight {
-    @apply from-secondary to-secondary/70;
-  }
-  
-  .dark .card-highlight {
-    @apply from-secondary to-secondary/80;
+    @apply bg-gradient-to-br from-secondary to-secondary/70;
   }
   
   .neo-blur {
-    @apply backdrop-blur-xl border;
-  }
-  
-  .light .neo-blur {
-    @apply bg-white/90 border-primary/10;
-  }
-  
-  .dark .neo-blur {
-    @apply bg-black/40 border-white/10;
+    @apply backdrop-blur-xl bg-white/90 border border-primary/10;
   }
 }
 
-/* Fix for underline visibility in light mode */
-.light a.underline, .light .underline {
+/* Fix for underline visibility */
+a.underline, .underline {
   text-decoration-color: #0057B8 !important;
   text-decoration-thickness: 3px !important;
   text-underline-offset: 4px !important;
 }
 
-/* Ensure all underlined text is visible in both modes */
+/* Ensure all underlined text is visible */
 a.underline, .underline {
   text-decoration-thickness: 2px;
   text-underline-offset: 2px;

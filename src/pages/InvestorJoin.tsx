@@ -2,13 +2,10 @@
 import { motion } from "framer-motion";
 import InvestorForm from "@/components/InvestorForm";
 import Navbar from "@/components/Navbar";
-import { useTheme } from "@/components/ThemeProvider";
 
 const InvestorJoin = () => {
-  const { theme } = useTheme();
-  
   return (
-    <div className={`min-h-screen ${theme === 'dark' ? 'neo-blur bg-background' : 'bg-background'}`}>
+    <div className="min-h-screen bg-background">
       <Navbar />
       
       {/* Hero section */}
@@ -16,7 +13,7 @@ const InvestorJoin = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
-        className={`py-16 ${theme === 'dark' ? 'hero-gradient border-b border-primary/20' : 'bg-primary text-primary-foreground'}`}
+        className="py-16 bg-primary text-primary-foreground"
       >
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-4xl md:text-5xl font-bold mb-6 text-white">

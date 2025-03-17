@@ -5,7 +5,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
-import { ThemeToggle } from "@/components/ThemeToggle";
 
 const navItems = [
   { label: "Home", path: "/" },
@@ -77,8 +76,6 @@ const Navbar = () => {
                 </button>
               ))}
               
-              <ThemeToggle />
-              
               {user ? (
                 <div className="flex items-center space-x-4">
                   <Button 
@@ -115,8 +112,7 @@ const Navbar = () => {
               )}
             </div>
 
-            <div className="md:hidden flex items-center gap-2">
-              <ThemeToggle />
+            <div className="md:hidden flex items-center">
               <button
                 className="text-foreground hover:text-primary transition-colors duration-200"
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}

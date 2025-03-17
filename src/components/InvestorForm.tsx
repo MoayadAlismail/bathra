@@ -1,9 +1,9 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/context/AuthContext";
-import { useTheme } from "@/components/ThemeProvider";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -25,7 +25,6 @@ const InvestorForm = () => {
   
   const { toast: uiToast } = useToast();
   const { register, isConfigured } = useAuth();
-  const { theme } = useTheme();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -113,15 +112,11 @@ const InvestorForm = () => {
           className="max-w-2xl mx-auto"
         >
           <div className="text-center mb-12">
-            <span className={`inline-block px-4 py-2 rounded-full font-medium mb-4 ${
-              theme === 'dark' 
-                ? 'bg-primary/20 text-primary-foreground' 
-                : 'bg-white text-primary'
-            }`}>
+            <span className="inline-block px-4 py-2 rounded-full font-medium mb-4 bg-white text-primary">
               For Investors
             </span>
             <h2 className="text-4xl font-bold mb-4">Join Our Investor Network</h2>
-            <p className={theme === 'dark' ? 'text-muted-foreground' : 'text-gray-600'}>
+            <p className="text-gray-600">
               Create your account to connect with promising startups.
             </p>
           </div>
@@ -145,22 +140,14 @@ const InvestorForm = () => {
           )}
 
           {error && (
-            <div className={`mb-6 p-4 border rounded-lg ${
-              theme === 'dark'
-                ? 'bg-red-500/10 border-red-500/30 text-red-300'
-                : 'bg-red-50 border-red-200 text-red-600'
-            }`}>
+            <div className="mb-6 p-4 border rounded-lg bg-red-50 border-red-200 text-red-600">
               {error}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className={`space-y-6 p-8 rounded-xl ${
-            theme === 'dark' 
-              ? 'bg-background/30 backdrop-blur-xl border border-primary/20 shadow-lg shadow-primary/5' 
-              : 'bg-white shadow-lg'
-          }`}>
+          <form onSubmit={handleSubmit} className="space-y-6 p-8 rounded-xl bg-white shadow-lg">
             <div>
-              <Label htmlFor="name" className={`mb-2 ${theme === 'dark' ? 'text-foreground' : ''}`}>
+              <Label htmlFor="name" className="mb-2">
                 Full Name *
               </Label>
               <Input
@@ -169,13 +156,13 @@ const InvestorForm = () => {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
-                className={`w-full ${theme === 'dark' ? 'bg-background/80 border-primary/20 text-foreground' : ''}`}
+                className="w-full"
                 placeholder="Enter your full name"
               />
             </div>
 
             <div>
-              <Label htmlFor="email" className={`mb-2 ${theme === 'dark' ? 'text-foreground' : ''}`}>
+              <Label htmlFor="email" className="mb-2">
                 Email *
               </Label>
               <Input
@@ -184,14 +171,14 @@ const InvestorForm = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className={`w-full ${theme === 'dark' ? 'bg-background/80 border-primary/20 text-foreground' : ''}`}
+                className="w-full"
                 placeholder="your@email.com"
               />
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <Label htmlFor="password" className={`mb-2 ${theme === 'dark' ? 'text-foreground' : ''}`}>
+                <Label htmlFor="password" className="mb-2">
                   Password *
                 </Label>
                 <Input
@@ -200,14 +187,14 @@ const InvestorForm = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className={`w-full ${theme === 'dark' ? 'bg-background/80 border-primary/20 text-foreground' : ''}`}
+                  className="w-full"
                   placeholder="••••••••"
                   minLength={6}
                 />
               </div>
               
               <div>
-                <Label htmlFor="confirmPassword" className={`mb-2 ${theme === 'dark' ? 'text-foreground' : ''}`}>
+                <Label htmlFor="confirmPassword" className="mb-2">
                   Confirm Password *
                 </Label>
                 <Input
@@ -216,14 +203,14 @@ const InvestorForm = () => {
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
-                  className={`w-full ${theme === 'dark' ? 'bg-background/80 border-primary/20 text-foreground' : ''}`}
+                  className="w-full"
                   placeholder="••••••••"
                 />
               </div>
             </div>
 
             <div>
-              <Label htmlFor="focus" className={`mb-2 ${theme === 'dark' ? 'text-foreground' : ''}`}>
+              <Label htmlFor="focus" className="mb-2">
                 Investment Focus *
               </Label>
               <select
@@ -231,11 +218,7 @@ const InvestorForm = () => {
                 value={investmentFocus}
                 onChange={(e) => setInvestmentFocus(e.target.value)}
                 required
-                className={`w-full px-4 py-2 rounded-lg border ${
-                  theme === 'dark'
-                    ? 'bg-background/80 border-primary/20 text-foreground focus:border-primary focus:ring-1 focus:ring-primary'
-                    : 'border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent'
-                }`}
+                className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent"
               >
                 <option value="">Select your investment focus</option>
                 <option value="Technology">Technology</option>
@@ -248,7 +231,7 @@ const InvestorForm = () => {
             </div>
 
             <div>
-              <Label htmlFor="investmentRange" className={`mb-2 ${theme === 'dark' ? 'text-foreground' : ''}`}>
+              <Label htmlFor="investmentRange" className="mb-2">
                 Typical Investment Range *
               </Label>
               <select
@@ -256,11 +239,7 @@ const InvestorForm = () => {
                 value={investmentRange}
                 onChange={(e) => setInvestmentRange(e.target.value)}
                 required
-                className={`w-full px-4 py-2 rounded-lg border ${
-                  theme === 'dark'
-                    ? 'bg-background/80 border-primary/20 text-foreground focus:border-primary focus:ring-1 focus:ring-primary'
-                    : 'border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent'
-                }`}
+                className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent"
               >
                 <option value="">Select investment range</option>
                 <option value="$10K - $50K (Seed)">$10K - $50K (Seed)</option>
@@ -273,15 +252,13 @@ const InvestorForm = () => {
             <div className="pt-2">
               <Button 
                 type="submit" 
-                className={`w-full ${theme === 'dark' ? 'bg-primary hover:bg-primary/90 text-primary-foreground' : ''}`}
+                className="w-full"
                 disabled={isSubmitting || !isOnline}
               >
                 {isSubmitting ? "Creating Account..." : "Create Investor Account"}
               </Button>
               
-              <div className={`text-center mt-4 text-sm ${
-                theme === 'dark' ? 'text-muted-foreground' : 'text-gray-600'
-              }`}>
+              <div className="text-center mt-4 text-sm text-gray-600">
                 Already have an account? <a href="/login" className="text-primary hover:underline">Log in</a>
               </div>
             </div>

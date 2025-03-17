@@ -4,10 +4,8 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { useTheme } from "@/components/ThemeProvider";
 
 function FloatingPaths({ position }: { position: number }) {
-    const { theme } = useTheme();
     const paths = Array.from({ length: 36 }, (_, i) => ({
         id: i,
         d: `M-${380 - i * 5 * position} -${189 + i * 6}C-${
@@ -23,7 +21,7 @@ function FloatingPaths({ position }: { position: number }) {
     return (
         <div className="absolute inset-0 pointer-events-none">
             <svg
-                className={`w-full h-full ${theme === 'light' ? 'text-primary/30' : 'text-white/30'}`}
+                className="w-full h-full text-primary/30"
                 viewBox="0 0 696 316"
                 fill="none"
             >
@@ -67,7 +65,6 @@ export function BackgroundPaths({
     buttonLink = "/pitch"
 }: BackgroundPathsProps) {
     const navigate = useNavigate();
-    const { theme } = useTheme();
     const words = title.split(" ");
 
     const handleButtonClick = () => {
@@ -133,23 +130,17 @@ export function BackgroundPaths({
                         transition={{ delay: 2, duration: 0.8 }}
                     >
                         <div
-                            className={`inline-block group relative p-px rounded-2xl backdrop-blur-lg 
-                            overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 ${
-                              theme === 'light' 
-                                ? 'bg-gradient-to-b from-primary/20 to-primary/10 border border-primary/30' 
-                                : 'bg-gradient-to-b from-white/10 to-black/10 border border-white/10'
-                            }`}
+                            className="inline-block group relative p-px rounded-2xl backdrop-blur-lg 
+                            overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300
+                            bg-gradient-to-b from-primary/20 to-primary/10 border border-primary/30"
                         >
                             <Button
                                 variant="ghost"
                                 onClick={handleButtonClick}
-                                className={`rounded-[1.15rem] px-8 py-6 text-lg font-semibold backdrop-blur-md 
+                                className="rounded-[1.15rem] px-8 py-6 text-lg font-semibold backdrop-blur-md 
                                 transition-all duration-300 group-hover:-translate-y-0.5 
-                                hover:shadow-md ${
-                                  theme === 'light'
-                                    ? 'bg-primary/95 hover:bg-primary/100 text-white hover:shadow-primary/20'
-                                    : 'bg-black/95 hover:bg-black/100 text-white hover:shadow-white/10 border border-white/10'
-                                }`}
+                                bg-primary/95 hover:bg-primary/100 text-white hover:shadow-primary/20
+                                hover:shadow-md"
                             >
                                 <span className="opacity-90 group-hover:opacity-100 transition-opacity">
                                     {buttonText}

@@ -1,8 +1,7 @@
-
 import React from "react";
 import { cn } from "@/lib/utils";
 import { LucideIcon, ArrowRight } from "lucide-react";
-import { Link } from "react-router-dom";
+import Link from 'next/link';
 import { Button } from "@/components/ui/button";
 
 type BackgroundPathsProps = {
@@ -23,7 +22,7 @@ export function BackgroundPaths({
   secondaryButtonLink
 }: BackgroundPathsProps) {
   return (
-    <div className="relative min-h-screen">
+    <div className="relative">
       <svg
         className="absolute inset-0 w-full h-full"
         width="800"
@@ -58,7 +57,7 @@ export function BackgroundPaths({
           </p>
           <div className="flex flex-wrap justify-center gap-4 mt-8">
             <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-base sm:text-lg py-6">
-              <Link to={buttonLink}>
+              <Link href={buttonLink}>
                 {buttonText}
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Link>

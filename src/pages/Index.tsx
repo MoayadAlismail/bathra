@@ -23,21 +23,13 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      
-      {/* Hero Section */}
-      <section className="min-h-screen">
-        <HeroSection />
-      </section>
-      
-      {/* How It Works Section */}
-      <section className="pt-20">
-        <HowItWorks />
-      </section>
+      <HeroSection />
+      <HowItWorks />
       
       {/* Investor Registration Section */}
-      <section id="investor-registration">
+      <div id="investor-registration">
         <InvestorRegistration />
-      </section>
+      </div>
       
       {/* Information Section */}
       <section className="py-20 bg-background">

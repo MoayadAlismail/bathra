@@ -125,10 +125,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         throw new Error('You are currently offline. Please check your internet connection.');
       }
 
-      const { data, error } = await supabaseClientRef.current.auth.signInWithPassword({
+      // Add a timeout for the login attempt
+      const loginPromise = supabaseClientRef.current.auth.signInWithPassword({
         email,
         password,
       });
+      
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error("Login timed out. Please try again.")), 15000);
+      });
+      
+      const { data, error } = await Promise.race([loginPromise, timeoutPromise]) as any;
 
       if (error) {
         throw error;
@@ -137,19 +144,27 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       toast.success('Logged in successfully');
     } catch (error: any) {
       console.error('Login failed:', error);
-      // Handle specific network errors
+      
+      // Create a more user-friendly error message
+      let errorMessage = error.message || 'Failed to login';
+      
       if (
         error.message?.includes('Failed to fetch') ||
         error.message?.includes('NetworkError') ||
         error.message?.includes('network') ||
         error.message?.includes('timeout') ||
-        error.message?.includes('offline')
+        error.message?.includes('offline') ||
+        error.name === 'AbortError' ||
+        (error.__isAuthError === true && error.status === 0) ||
+        !navigator.onLine
       ) {
-        toast.error('Connection error. Please check your internet connection and try again.');
-      } else {
-        toast.error(error.message || 'Failed to login');
+        errorMessage = 'Connection error. Please check your internet connection and try again.';
+      } else if (error.status === 400 || error.status === 401) {
+        errorMessage = 'Invalid email or password';
       }
-      throw error;
+      
+      toast.error(errorMessage);
+      throw new Error(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -169,20 +184,25 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         throw new Error('You are currently offline. Please check your internet connection.');
       }
 
-      // Attempt registration with error handling
+      // Attempt registration with error handling and timeout
       try {
-        // First create the auth user
-        const { data: authData, error: authError } = await supabaseClientRef.current.auth.signUp({
+        const registrationPromise = supabaseClientRef.current.auth.signUp({
           email: userData.email,
           password: userData.password,
         });
+        
+        const timeoutPromise = new Promise((_, reject) => {
+          setTimeout(() => reject(new Error("Registration timed out. Please try again.")), 15000);
+        });
+        
+        const { data: authData, error: authError } = await Promise.race([registrationPromise, timeoutPromise]) as any;
 
         if (authError) {
           console.error('Auth signup error:', authError);
           throw authError;
         }
 
-        if (!authData.user) {
+        if (!authData?.user) {
           throw new Error('Registration failed - no user was returned');
         }
 
@@ -210,7 +230,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       } catch (innerError: any) {
         console.error('Inner registration error:', innerError);
         
-        // Check if it's a network-related error
+        // Create better error messages
         if (
           innerError.message?.includes('Failed to fetch') ||
           innerError.message?.includes('NetworkError') ||
@@ -218,11 +238,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           innerError.message?.includes('offline') ||
           innerError.message?.includes('timeout') ||
           innerError.name === 'AbortError' ||
-          innerError.code === 20 ||
-          innerError.code === 'ECONNABORTED' ||
-          innerError.__isAuthError === true && innerError.status === 0
+          (innerError.__isAuthError === true && innerError.status === 0) ||
+          !navigator.onLine
         ) {
           throw new Error('Connection error. Please check your internet connection or try again later.');
+        } else if (innerError.message?.includes('User already registered')) {
+          throw new Error('This email is already registered. Please log in instead.');
         }
         
         throw innerError;

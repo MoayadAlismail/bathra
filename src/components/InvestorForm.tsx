@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -9,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
-import { WifiOff, RefreshCw } from "lucide-react";
+import { WifiOff, RefreshCw, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 const InvestorForm = () => {
@@ -39,18 +38,15 @@ const InvestorForm = () => {
       setError("You are currently offline. Please check your internet connection.");
     };
 
-    // Set initial online status
     setIsOnline(navigator.onLine);
 
-    // Add event listeners
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
 
-    // Perform a quick connectivity check
     const checkConnectivity = async () => {
       try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 5000);
+        const timeoutId = setTimeout(() => controller.abort(), 3000);
         
         const response = await fetch('https://www.google.com/favicon.ico', {
           method: 'HEAD',
@@ -61,9 +57,13 @@ const InvestorForm = () => {
         
         clearTimeout(timeoutId);
         setIsOnline(true);
+        setError("");
       } catch (err) {
-        console.warn('Connectivity check failed:', err);
-        // Don't set offline just based on this test
+        console.warn('Initial connectivity check failed:', err);
+        if (!navigator.onLine) {
+          setIsOnline(false);
+          setError("You appear to be offline. Please check your internet connection.");
+        }
       }
     };
     
@@ -99,17 +99,23 @@ const InvestorForm = () => {
       setSubmissionAttempts(prevAttempts => prevAttempts + 1);
       
       const toastId = "register-toast-" + Date.now();
-      toast.loading("Creating your account...", { id: toastId });
+      toast.loading("Creating your account...", { id: toastId, duration: 30000 });
       
       console.log("Starting registration process...");
       
-      await register({
+      const registrationPromise = register({
         name,
         email,
         password,
         investmentFocus,
         investmentRange
       });
+      
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error("Registration timed out. Please try again.")), 25000);
+      });
+      
+      await Promise.race([registrationPromise, timeoutPromise]);
       
       console.log("Registration successful!");
       toast.dismiss(toastId);
@@ -124,7 +130,6 @@ const InvestorForm = () => {
       
       let errorMessage = err.message || "Registration failed";
       
-      // Check for connection issues
       if (
         errorMessage.includes('Failed to fetch') || 
         errorMessage.includes('NetworkError') || 
@@ -132,9 +137,11 @@ const InvestorForm = () => {
         errorMessage.includes('Connection error') ||
         errorMessage.includes('timeout') ||
         errorMessage.includes('offline') ||
-        err.name === 'AbortError'
+        err.name === 'AbortError' ||
+        !navigator.onLine
       ) {
         errorMessage = "Connection error. Please check your internet connection or try again later.";
+        setIsOnline(false);
       }
       
       setError(errorMessage);
@@ -147,12 +154,11 @@ const InvestorForm = () => {
   const retryConnection = async () => {
     setError("");
     try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 5000);
-      
       toast.loading("Checking connection...");
       
-      // Try to fetch a small favicon to test connectivity
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3000);
+      
       await fetch('https://www.google.com/favicon.ico', {
         method: 'HEAD',
         mode: 'no-cors',
@@ -219,7 +225,7 @@ const InvestorForm = () => {
           {error && (
             <div className="mb-6 p-4 border rounded-lg bg-red-50 border-red-200 text-red-600">
               {error}
-              {error.includes("Connection error") && (
+              {(error.includes("Connection error") || error.includes("offline") || error.includes("network")) && (
                 <div className="mt-2">
                   <Button 
                     variant="outline" 
@@ -344,7 +350,12 @@ const InvestorForm = () => {
                 className="w-full"
                 disabled={isSubmitting || !isOnline}
               >
-                {isSubmitting ? "Creating Account..." : "Create Investor Account"}
+                {isSubmitting ? (
+                  <span className="flex items-center">
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Creating Account...
+                  </span>
+                ) : "Create Investor Account"}
               </Button>
               
               <div className="text-center mt-4 text-sm text-gray-600">

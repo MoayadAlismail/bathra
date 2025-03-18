@@ -3,7 +3,6 @@ import { useEffect } from "react";
 import HeroSection from "@/components/HeroSection";
 import HowItWorks from "@/components/HowItWorks";
 import Navbar from "@/components/Navbar";
-import InvestorRegistration from "@/components/InvestorRegistration";
 import { motion } from "framer-motion";
 import { ChartBarIcon, UsersIcon, InfoIcon } from "lucide-react";
 
@@ -25,11 +24,6 @@ const Index = () => {
       <Navbar />
       <HeroSection />
       <HowItWorks />
-      
-      {/* Investor Registration Section */}
-      <div id="investor-registration">
-        <InvestorRegistration />
-      </div>
       
       {/* Information Section */}
       <section className="py-20 bg-background">

@@ -1,7 +1,8 @@
+
 import React from "react";
 import { cn } from "@/lib/utils";
 import { LucideIcon, ArrowRight } from "lucide-react";
-import Link from 'next/link';
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 
 type BackgroundPathsProps = {
@@ -57,7 +58,7 @@ export function BackgroundPaths({
           </p>
           <div className="flex flex-wrap justify-center gap-4 mt-8">
             <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-base sm:text-lg py-6">
-              <Link href={buttonLink}>
+              <Link to={buttonLink}>
                 {buttonText}
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Link>

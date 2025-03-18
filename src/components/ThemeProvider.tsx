@@ -3,13 +3,21 @@ import { createContext, useContext, useEffect, useState } from "react";
 
 type Theme = "light";
 
+type ThemeProviderProps = {
+  children: React.ReactNode;
+  defaultTheme?: Theme;
+  storageKey?: string;
+};
+
 type ThemeContextType = {
   theme: Theme;
 };
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-export function ThemeProvider({ children }: { children: React.ReactNode }) {
+export function ThemeProvider({ 
+  children,
+}: ThemeProviderProps) {
   // Always use light mode
   const [theme] = useState<Theme>("light");
 

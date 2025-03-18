@@ -23,7 +23,7 @@ export function BackgroundPaths({
   secondaryButtonLink
 }: BackgroundPathsProps) {
   return (
-    <div className="relative">
+    <div className="relative min-h-screen">
       <svg
         className="absolute inset-0 w-full h-full"
         width="800"

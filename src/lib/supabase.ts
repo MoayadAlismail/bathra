@@ -8,8 +8,8 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 // Create a more resilient fetch function with timeout and retries
 const customFetch = async (input: RequestInfo | URL, init?: RequestInit) => {
   // Maximum number of retries
-  const MAX_RETRIES = 3;
-  const TIMEOUT_MS = 15000; // Increase timeout to 15 seconds
+  const MAX_RETRIES = 5;
+  const TIMEOUT_MS = 30000; // Increase timeout to 30 seconds
   let retries = 0;
   let lastError;
 
@@ -24,17 +24,22 @@ const customFetch = async (input: RequestInfo | URL, init?: RequestInit) => {
       // Set a longer timeout
       const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
       
-      // Enhanced fetch options
-      const fetchOptions = {
+      // Add a custom signal to the init object if it doesn't already have one
+      const modifiedInit = {
         ...init,
-        signal: controller.signal,
-        // Use 'no-cors' as fallback if needed for certain environments
-        mode: 'cors' as RequestMode,
-        // Enable credentials if same origin
-        credentials: 'same-origin' as RequestCredentials
+        signal: init?.signal || controller.signal,
+        // Use 'cors' mode with fallback to 'no-cors' if needed
+        mode: init?.mode || 'cors' as RequestMode,
+        // Add credentials for CORS requests
+        credentials: init?.credentials || 'include' as RequestCredentials,
+        // Add headers for better CORS support
+        headers: {
+          ...init?.headers,
+          'X-Client-Info': 'supabase-js-client',
+        }
       };
       
-      const response = await fetch(input, fetchOptions);
+      const response = await fetch(input, modifiedInit);
       clearTimeout(timeoutId);
       
       // If successful, return the response
@@ -51,7 +56,7 @@ const customFetch = async (input: RequestInfo | URL, init?: RequestInit) => {
       
       // Wait before retrying (exponential backoff with jitter)
       if (retries < MAX_RETRIES) {
-        const baseDelay = Math.min(1000 * 2 ** retries, 5000);
+        const baseDelay = Math.min(1000 * Math.pow(2, retries), 10000);
         // Add random jitter (±20%)
         const jitter = baseDelay * 0.2 * (Math.random() * 2 - 1);
         const delay = baseDelay + jitter;
@@ -62,7 +67,7 @@ const customFetch = async (input: RequestInfo | URL, init?: RequestInit) => {
 
   // If all retries failed, throw the last error with a clearer message
   console.error('All fetch attempts failed:', lastError);
-  throw new Error(lastError?.message || 'Network request failed after multiple attempts. Please check your connection.');
+  throw new Error('Network request failed after multiple attempts. Please check your connection and try again later.');
 };
 
 // Create a Supabase client with the credentials and improved fetch
@@ -72,7 +77,9 @@ export const supabase = createClient(
   {
     auth: {
       autoRefreshToken: true,
-      persistSession: true
+      persistSession: true,
+      detectSessionInUrl: true,
+      flowType: 'pkce',
     },
     global: {
       fetch: customFetch,
@@ -81,7 +88,7 @@ export const supabase = createClient(
         'X-Client-Info': 'supabase-js-client',
       }
     },
-    // Add more aggressive retry options
+    // Add more aggressive retry options for database operations
     db: {
       schema: 'public',
     },
@@ -93,7 +100,9 @@ export const updateSupabaseClient = (url: string, key: string) => {
   return createClient(url, key, {
     auth: {
       autoRefreshToken: true,
-      persistSession: true
+      persistSession: true,
+      detectSessionInUrl: true,
+      flowType: 'pkce',
     },
     global: {
       fetch: customFetch,

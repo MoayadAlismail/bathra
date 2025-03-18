@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
-import { WifiOff } from "lucide-react";
+import { WifiOff, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 
 const InvestorForm = () => {
@@ -22,19 +22,52 @@ const InvestorForm = () => {
   const [error, setError] = useState("");
   const [isOnline, setIsOnline] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submissionAttempts, setSubmissionAttempts] = useState(0);
   
   const { toast: uiToast } = useToast();
   const { register, isConfigured } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    const handleOnline = () => setIsOnline(true);
-    const handleOffline = () => setIsOnline(false);
+    const handleOnline = () => {
+      setIsOnline(true);
+      setError("");
+    };
+    
+    const handleOffline = () => {
+      setIsOnline(false);
+      setError("You are currently offline. Please check your internet connection.");
+    };
 
+    // Set initial online status
     setIsOnline(navigator.onLine);
 
+    // Add event listeners
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
+
+    // Perform a quick connectivity check
+    const checkConnectivity = async () => {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
+        
+        const response = await fetch('https://www.google.com/favicon.ico', {
+          method: 'HEAD',
+          mode: 'no-cors',
+          cache: 'no-store',
+          signal: controller.signal
+        });
+        
+        clearTimeout(timeoutId);
+        setIsOnline(true);
+      } catch (err) {
+        console.warn('Connectivity check failed:', err);
+        // Don't set offline just based on this test
+      }
+    };
+    
+    checkConnectivity();
 
     return () => {
       window.removeEventListener('online', handleOnline);
@@ -63,8 +96,12 @@ const InvestorForm = () => {
     
     try {
       setIsSubmitting(true);
+      setSubmissionAttempts(prevAttempts => prevAttempts + 1);
       
-      toast.loading("Creating your account...", { id: "register-toast" });
+      const toastId = "register-toast-" + Date.now();
+      toast.loading("Creating your account...", { id: toastId });
+      
+      console.log("Starting registration process...");
       
       await register({
         name,
@@ -74,7 +111,8 @@ const InvestorForm = () => {
         investmentRange
       });
       
-      toast.dismiss("register-toast");
+      console.log("Registration successful!");
+      toast.dismiss(toastId);
       toast.success("Registration Successful!", {
         description: "Your investor account has been created.",
         duration: 5000
@@ -82,22 +120,53 @@ const InvestorForm = () => {
       
       navigate("/dashboard");
     } catch (err: any) {
-      toast.dismiss("register-toast");
-      
       console.error("Registration error:", err);
+      
+      let errorMessage = err.message || "Registration failed";
+      
+      // Check for connection issues
       if (
-        err.message?.includes('Failed to fetch') || 
-        err.message?.includes('NetworkError') || 
-        err.message?.includes('network') ||
-        err.message?.includes('timeout') ||
+        errorMessage.includes('Failed to fetch') || 
+        errorMessage.includes('NetworkError') || 
+        errorMessage.includes('network') ||
+        errorMessage.includes('Connection error') ||
+        errorMessage.includes('timeout') ||
+        errorMessage.includes('offline') ||
         err.name === 'AbortError'
       ) {
-        setError("Connection error. Please check your internet connection or try again later.");
-      } else {
-        setError(err.message || "Registration failed");
+        errorMessage = "Connection error. Please check your internet connection or try again later.";
       }
+      
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const retryConnection = async () => {
+    setError("");
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
+      
+      toast.loading("Checking connection...");
+      
+      // Try to fetch a small favicon to test connectivity
+      await fetch('https://www.google.com/favicon.ico', {
+        method: 'HEAD',
+        mode: 'no-cors',
+        cache: 'no-store',
+        signal: controller.signal
+      });
+      
+      clearTimeout(timeoutId);
+      setIsOnline(true);
+      toast.success("Connection restored!");
+    } catch (err) {
+      setIsOnline(false);
+      setError("Still experiencing connection issues. Please check your network.");
+      toast.error("Connection check failed. Please try again later.");
     }
   };
 
@@ -124,8 +193,16 @@ const InvestorForm = () => {
           {!isOnline && (
             <Alert variant="destructive" className="mb-6">
               <WifiOff className="h-4 w-4" />
-              <AlertDescription>
-                You are currently offline. Please check your internet connection to create an account.
+              <AlertDescription className="flex items-center justify-between">
+                <span>You are currently offline. Please check your internet connection to create an account.</span>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={retryConnection}
+                  className="ml-2 whitespace-nowrap"
+                >
+                  <RefreshCw className="h-3 w-3 mr-1" /> Retry
+                </Button>
               </AlertDescription>
             </Alert>
           )}
@@ -142,6 +219,18 @@ const InvestorForm = () => {
           {error && (
             <div className="mb-6 p-4 border rounded-lg bg-red-50 border-red-200 text-red-600">
               {error}
+              {error.includes("Connection error") && (
+                <div className="mt-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={retryConnection}
+                    className="text-sm"
+                  >
+                    <RefreshCw className="h-3 w-3 mr-1" /> Test Connection
+                  </Button>
+                </div>
+              )}
             </div>
           )}
 

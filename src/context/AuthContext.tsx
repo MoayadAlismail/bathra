@@ -169,74 +169,76 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         throw new Error('You are currently offline. Please check your internet connection.');
       }
 
-      // Try an initial lightweight request to verify connectivity
+      // Attempt registration with error handling
       try {
-        const response = await fetch(SUPABASE_URL, { 
-          method: 'HEAD', 
-          mode: 'no-cors',
-          cache: 'no-store'
+        // First create the auth user
+        const { data: authData, error: authError } = await supabaseClientRef.current.auth.signUp({
+          email: userData.email,
+          password: userData.password,
         });
-        console.log('Connectivity test response:', response);
-      } catch (connError) {
-        console.error('Initial connectivity test failed:', connError);
-        // Continue anyway as this is just a test, the real request might still work
-      }
-      
-      // Proceed with registration
-      const { data: authData, error: authError } = await supabaseClientRef.current.auth.signUp({
-        email: userData.email,
-        password: userData.password,
-        options: {
-          data: {
+
+        if (authError) {
+          console.error('Auth signup error:', authError);
+          throw authError;
+        }
+
+        if (!authData.user) {
+          throw new Error('Registration failed - no user was returned');
+        }
+
+        console.log('Auth user created successfully, now creating profile...');
+
+        // Then create the profile
+        const { error: profileError } = await supabaseClientRef.current
+          .from('investors')
+          .insert({
+            id: authData.user.id,
+            email: userData.email,
             name: userData.name,
             investment_focus: userData.investmentFocus,
             investment_range: userData.investmentRange,
-          }
+          });
+
+        if (profileError) {
+          console.warn('Profile creation had an issue, but user was created:', profileError);
+          // We don't throw here as the auth user was still created
         }
-      });
 
-      if (authError) {
-        throw authError;
+        console.log('Profile created successfully');
+        toast.success('Account created successfully');
+        
+      } catch (innerError: any) {
+        console.error('Inner registration error:', innerError);
+        
+        // Check if it's a network-related error
+        if (
+          innerError.message?.includes('Failed to fetch') ||
+          innerError.message?.includes('NetworkError') ||
+          innerError.message?.includes('network') ||
+          innerError.message?.includes('offline') ||
+          innerError.message?.includes('timeout') ||
+          innerError.name === 'AbortError' ||
+          innerError.code === 20 ||
+          innerError.code === 'ECONNABORTED' ||
+          innerError.__isAuthError === true && innerError.status === 0
+        ) {
+          throw new Error('Connection error. Please check your internet connection or try again later.');
+        }
+        
+        throw innerError;
       }
-
-      if (!authData.user) {
-        throw new Error('Registration failed');
-      }
-
-      const { error: profileError } = await supabaseClientRef.current
-        .from('investors')
-        .insert({
-          id: authData.user.id,
-          email: userData.email,
-          name: userData.name,
-          investment_focus: userData.investmentFocus,
-          investment_range: userData.investmentRange,
-        });
-
-      if (profileError) {
-        console.warn('Profile creation had an issue, but user was created:', profileError);
-      }
-
-      toast.success('Account created successfully');
-    } catch (error: any) {
-      console.error('Registration failed:', error);
       
-      // Enhanced network error detection
-      if (
-        error.message?.includes('Failed to fetch') || 
-        error.message?.includes('NetworkError') || 
-        error.message?.includes('network') ||
-        error.message?.includes('offline') ||
-        error.message?.includes('timeout') ||
-        error.name === 'AbortError' ||
-        error.code === 20 || // Chromium timeout error code
-        error.code === 'ECONNABORTED' ||
-        error.__isAuthError === true && error.status === 0
-      ) {
-        toast.error('Connection error. Please check your internet connection or try again later.');
-      } else {
-        toast.error(error.message || 'Failed to create account');
+    } catch (error: any) {
+      console.error('Registration failed (outer catch):', error);
+      
+      let errorMessage = error.message || 'Failed to create account';
+      
+      // Remove any Supabase URL from the error message to avoid exposing it
+      if (errorMessage.includes(SUPABASE_URL)) {
+        errorMessage = errorMessage.replace(SUPABASE_URL, '[Supabase URL]');
       }
+      
+      toast.error(errorMessage);
       throw error;
     } finally {
       setIsLoading(false);

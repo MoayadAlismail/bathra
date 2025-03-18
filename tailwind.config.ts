@@ -52,14 +52,12 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        money: {
-          light: "#FFD700", // Saturated yellow
-          DEFAULT: "#E6C200", // Slightly darker yellow
-          dark: "#BFA000", // Even darker yellow
-        },
       },
       fontFamily: {
         sora: ['Sora', 'sans-serif'],
+      },
+      backgroundImage: {
+        'rainbow-gradient': 'linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3)',
       },
       keyframes: {
         "accordion-down": {
@@ -77,12 +75,18 @@ export default {
         shimmer: {
           "100%": { transform: "translateX(100%)" },
         },
+        rotate: {
+          "0%": { backgroundPosition: "0% 50%" },
+          "50%": { backgroundPosition: "100% 50%" },
+          "100%": { backgroundPosition: "0% 50%" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         float: "float 6s ease-in-out infinite",
         shimmer: "shimmer 2s infinite",
+        "rotate-slow": "rotate 6s linear infinite",
       },
       borderRadius: {
         lg: "var(--radius)",

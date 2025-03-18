@@ -4,6 +4,7 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { ArrowRight } from "lucide-react";
 
 function FloatingPaths({ position }: { position: number }) {
     const paths = Array.from({ length: 36 }, (_, i) => ({
@@ -21,7 +22,7 @@ function FloatingPaths({ position }: { position: number }) {
     return (
         <div className="absolute inset-0 pointer-events-none">
             <svg
-                className="w-full h-full text-primary/30"
+                className="w-full h-full"
                 viewBox="0 0 696 316"
                 fill="none"
             >
@@ -30,9 +31,9 @@ function FloatingPaths({ position }: { position: number }) {
                     <motion.path
                         key={path.id}
                         d={path.d}
-                        stroke="currentColor"
+                        stroke="url(#rainbow-stroke)"
                         strokeWidth={path.width}
-                        strokeOpacity={0.1 + path.id * 0.03}
+                        strokeOpacity={0.1 + path.id * 0.02}
                         initial={{ pathLength: 0.3, opacity: 0.6 }}
                         animate={{
                             pathLength: 1,
@@ -46,6 +47,18 @@ function FloatingPaths({ position }: { position: number }) {
                         }}
                     />
                 ))}
+                <defs>
+                    <linearGradient id="rainbow-stroke" x1="0%" y1="0%" x2="100%" y2="0%" gradientUnits="userSpaceOnUse">
+                        <stop stopColor="#ff0000" offset="0%" />
+                        <stop stopColor="#ff7f00" offset="14.3%" />
+                        <stop stopColor="#ffff00" offset="28.6%" />
+                        <stop stopColor="#00ff00" offset="42.9%" />
+                        <stop stopColor="#0000ff" offset="57.1%" />
+                        <stop stopColor="#4b0082" offset="71.4%" />
+                        <stop stopColor="#9400d3" offset="85.7%" />
+                        <stop stopColor="#ff0000" offset="100%" />
+                    </linearGradient>
+                </defs>
             </svg>
         </div>
     );
@@ -104,7 +117,7 @@ export function BackgroundPaths({
                                             stiffness: 150,
                                             damping: 25,
                                         }}
-                                        className="inline-block text-gradient"
+                                        className="inline-block rainbow-text"
                                     >
                                         {letter}
                                     </motion.span>
@@ -130,16 +143,16 @@ export function BackgroundPaths({
                         transition={{ delay: 2, duration: 0.8 }}
                     >
                         <div
-                            className="inline-block group relative p-px rounded-2xl backdrop-blur-lg 
+                            className="inline-block group relative rounded-2xl backdrop-blur-lg 
                             overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300
-                            bg-gradient-to-b from-primary/20 to-primary/10 border border-primary/30"
+                            rainbow-border rainbow-glow"
                         >
                             <Button
-                                variant="ghost"
+                                variant="default"
                                 onClick={handleButtonClick}
                                 className="rounded-[1.15rem] px-8 py-6 text-lg font-semibold backdrop-blur-md 
                                 transition-all duration-300 group-hover:-translate-y-0.5 
-                                bg-primary hover:bg-primary/90 text-black hover:shadow-primary/20
+                                bg-black hover:bg-black/90 text-white hover:shadow-black/20
                                 hover:shadow-md"
                             >
                                 <span className="opacity-90 group-hover:opacity-100 transition-opacity">

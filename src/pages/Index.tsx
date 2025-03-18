@@ -37,8 +37,8 @@ const Index = () => {
           >
             {/* Startup Success Stats */}
             <div className="text-center">
-              <div className="inline-flex items-center justify-center w-16 h-16 mb-6 rounded-full bg-secondary">
-                <ChartBarIcon className="w-8 h-8 text-primary" />
+              <div className="inline-flex items-center justify-center w-16 h-16 mb-6 rounded-full bg-primary">
+                <ChartBarIcon className="w-8 h-8 text-black" />
               </div>
               <h2 className="text-3xl font-bold mb-6 text-foreground">The Startup Reality</h2>
               <p className="text-lg text-muted-foreground mb-8">
@@ -49,8 +49,8 @@ const Index = () => {
 
             {/* About Us */}
             <div className="text-center">
-              <div className="inline-flex items-center justify-center w-16 h-16 mb-6 rounded-full bg-secondary">
-                <UsersIcon className="w-8 h-8 text-primary" />
+              <div className="inline-flex items-center justify-center w-16 h-16 mb-6 rounded-full bg-primary">
+                <UsersIcon className="w-8 h-8 text-black" />
               </div>
               <h2 className="text-3xl font-bold mb-6 text-foreground">About Us</h2>
               <p className="text-lg text-muted-foreground mb-8">
@@ -62,8 +62,8 @@ const Index = () => {
 
             {/* Our Mission */}
             <div className="text-center">
-              <div className="inline-flex items-center justify-center w-16 h-16 mb-6 rounded-full bg-secondary">
-                <InfoIcon className="w-8 h-8 text-primary" />
+              <div className="inline-flex items-center justify-center w-16 h-16 mb-6 rounded-full bg-primary">
+                <InfoIcon className="w-8 h-8 text-black" />
               </div>
               <h2 className="text-3xl font-bold mb-6 text-foreground">Our Mission</h2>
               <p className="text-lg text-muted-foreground">

@@ -139,7 +139,7 @@ export function BackgroundPaths({
                                 onClick={handleButtonClick}
                                 className="rounded-[1.15rem] px-8 py-6 text-lg font-semibold backdrop-blur-md 
                                 transition-all duration-300 group-hover:-translate-y-0.5 
-                                bg-primary/95 hover:bg-primary/100 text-white hover:shadow-primary/20
+                                bg-primary hover:bg-primary/90 text-black hover:shadow-primary/20
                                 hover:shadow-md"
                             >
                                 <span className="opacity-90 group-hover:opacity-100 transition-opacity">

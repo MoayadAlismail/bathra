@@ -55,20 +55,6 @@
 }
 
 @layer utilities {
-  /* Rainbow gradient effects */
-  .rainbow-border {
-    @apply relative before:absolute before:inset-0 before:p-[1px] before:rounded-[inherit] before:bg-rainbow-gradient before:-z-10 before:animate-rotate-slow;
-  }
-  
-  .rainbow-text {
-    @apply bg-clip-text text-transparent bg-rainbow-gradient;
-  }
-  
-  .rainbow-glow {
-    @apply relative after:absolute after:inset-0 after:rounded-[inherit] after:blur-md after:opacity-70 after:-z-10 after:bg-rainbow-gradient;
-  }
-
-  /* Original utilities */
   .text-gradient {
     @apply bg-clip-text text-transparent bg-gradient-to-r from-black via-black/90 to-black/80;
   }
@@ -95,19 +81,6 @@
 
   .card-black {
     @apply bg-black text-white rounded-xl border border-black/80;
-  }
-}
-
-/* Rainbow gradient animation */
-@keyframes rotate {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
   }
 }
 

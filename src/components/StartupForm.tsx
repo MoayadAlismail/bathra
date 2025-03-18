@@ -1,3 +1,4 @@
+
 import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 import { toast } from "sonner";
@@ -150,7 +151,7 @@ const StartupForm = () => {
   };
 
   return (
-    <section id="startup-form" className={`py-20 ${theme === 'dark' ? 'bg-background' : 'bg-white'}`}>
+    <section id="startup-form" className="py-20 bg-white">
       <div className="container mx-auto px-4">
         <motion.div
           initial={{ opacity: 0 }}
@@ -169,7 +170,7 @@ const StartupForm = () => {
             </p>
           </div>
 
-          <div className={`mb-10 p-6 ${theme === 'dark' ? 'bg-secondary/30' : 'bg-secondary/50'} rounded-xl`}>
+          <div className="mb-10 p-6 bg-secondary/50 rounded-xl">
             <h3 className="flex items-center text-lg font-semibold mb-3">
               <Lightbulb className="w-5 h-5 mr-2 text-primary" />
               What Investors Look For
@@ -182,7 +183,7 @@ const StartupForm = () => {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-8">
-            <div className={`${theme === 'dark' ? 'bg-card' : 'bg-white'} p-6 rounded-xl border border-border ${theme === 'dark' ? 'shadow-none' : 'shadow-sm'}`}>
+            <div className="bg-white p-6 rounded-xl border border-border shadow-sm">
               <div className="flex items-center mb-4">
                 <Users className="w-5 h-5 mr-2 text-primary" />
                 <h3 className="text-lg font-semibold">Company & Team Information</h3>
@@ -196,7 +197,7 @@ const StartupForm = () => {
                     type="text"
                     id="startupName"
                     required
-                    className={`w-full px-4 py-3 rounded-lg border border-border ${theme === 'dark' ? 'bg-background' : 'bg-white'} focus:ring-2 focus:ring-primary focus:border-transparent transition-colors`}
+                    className="w-full px-4 py-3 rounded-lg border border-border bg-white focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
                     placeholder="Enter your startup name"
                     value={formData.startupName}
                     onChange={handleChange}
@@ -210,7 +211,7 @@ const StartupForm = () => {
                   <input
                     type="url"
                     id="website"
-                    className={`w-full px-4 py-3 rounded-lg border border-border ${theme === 'dark' ? 'bg-background' : 'bg-white'} focus:ring-2 focus:ring-primary focus:border-transparent transition-colors`}
+                    className="w-full px-4 py-3 rounded-lg border border-border bg-white focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
                     placeholder="https://example.com"
                     value={formData.website}
                     onChange={handleChange}
@@ -224,7 +225,7 @@ const StartupForm = () => {
                   <input
                     type="month"
                     id="founded"
-                    className={`w-full px-4 py-3 rounded-lg border border-border ${theme === 'dark' ? 'bg-background' : 'bg-white'} focus:ring-2 focus:ring-primary focus:border-transparent transition-colors`}
+                    className="w-full px-4 py-3 rounded-lg border border-border bg-white focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
                     value={formData.founded}
                     onChange={handleChange}
                   />
@@ -238,7 +239,7 @@ const StartupForm = () => {
                     type="text"
                     id="founders"
                     required
-                    className={`w-full px-4 py-3 rounded-lg border border-border ${theme === 'dark' ? 'bg-background' : 'bg-white'} focus:ring-2 focus:ring-primary focus:border-transparent transition-colors`}
+                    className="w-full px-4 py-3 rounded-lg border border-border bg-white focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
                     placeholder="Founder names"
                     value={formData.founders}
                     onChange={handleChange}
@@ -251,7 +252,7 @@ const StartupForm = () => {
                   </label>
                   <select
                     id="teamSize"
-                    className={`w-full px-4 py-3 rounded-lg border border-border ${theme === 'dark' ? 'bg-background' : 'bg-white'} focus:ring-2 focus:ring-primary focus:border-transparent transition-colors`}
+                    className="w-full px-4 py-3 rounded-lg border border-border bg-white focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
                     value={formData.teamSize}
                     onChange={handleChange}
                   >
@@ -266,7 +267,7 @@ const StartupForm = () => {
               </div>
             </div>
 
-            <div className={`${theme === 'dark' ? 'bg-card' : 'bg-white'} p-6 rounded-xl border border-border ${theme === 'dark' ? 'shadow-none' : 'shadow-sm'}`}>
+            <div className="bg-white p-6 rounded-xl border border-border shadow-sm">
               <div className="flex items-center mb-4">
                 <Globe className="w-5 h-5 mr-2 text-primary" />
                 <h3 className="text-lg font-semibold">Market & Product</h3>
@@ -279,7 +280,7 @@ const StartupForm = () => {
                   <select
                     id="industry"
                     required
-                    className={`w-full px-4 py-3 rounded-lg border border-border ${theme === 'dark' ? 'bg-background' : 'bg-white'} focus:ring-2 focus:ring-primary focus:border-transparent transition-colors`}
+                    className="w-full px-4 py-3 rounded-lg border border-border bg-white focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
                     value={formData.industry}
                     onChange={handleChange}
                   >
@@ -302,7 +303,7 @@ const StartupForm = () => {
                   <select
                     id="stage"
                     required
-                    className={`w-full px-4 py-3 rounded-lg border border-border ${theme === 'dark' ? 'bg-background' : 'bg-white'} focus:ring-2 focus:ring-primary focus:border-transparent transition-colors`}
+                    className="w-full px-4 py-3 rounded-lg border border-border bg-white focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
                     value={formData.stage}
                     onChange={handleChange}
                   >
@@ -323,7 +324,7 @@ const StartupForm = () => {
                     type="text"
                     id="targetMarket"
                     required
-                    className={`w-full px-4 py-3 rounded-lg border border-border ${theme === 'dark' ? 'bg-background' : 'bg-white'} focus:ring-2 focus:ring-primary focus:border-transparent transition-colors`}
+                    className="w-full px-4 py-3 rounded-lg border border-border bg-white focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
                     placeholder="Describe your target customers"
                     value={formData.targetMarket}
                     onChange={handleChange}
@@ -338,7 +339,7 @@ const StartupForm = () => {
                     id="pitch"
                     required
                     rows={4}
-                    className={`w-full px-4 py-3 rounded-lg border border-border ${theme === 'dark' ? 'bg-background' : 'bg-white'} focus:ring-2 focus:ring-primary focus:border-transparent transition-colors`}
+                    className="w-full px-4 py-3 rounded-lg border border-border bg-white focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
                     placeholder="Describe your startup and what makes it unique (max 500 characters)"
                     maxLength={500}
                     value={formData.pitch}
@@ -354,7 +355,7 @@ const StartupForm = () => {
                     id="problem"
                     required
                     rows={3}
-                    className={`w-full px-4 py-3 rounded-lg border border-border ${theme === 'dark' ? 'bg-background' : 'bg-white'} focus:ring-2 focus:ring-primary focus:border-transparent transition-colors`}
+                    className="w-full px-4 py-3 rounded-lg border border-border bg-white focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
                     placeholder="What problem does your startup solve?"
                     value={formData.problem}
                     onChange={handleChange}
@@ -369,7 +370,7 @@ const StartupForm = () => {
                     id="usp"
                     required
                     rows={3}
-                    className={`w-full px-4 py-3 rounded-lg border border-border ${theme === 'dark' ? 'bg-background' : 'bg-white'} focus:ring-2 focus:ring-primary focus:border-transparent transition-colors`}
+                    className="w-full px-4 py-3 rounded-lg border border-border bg-white focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
                     placeholder="What makes your solution better than competitors?"
                     value={formData.usp}
                     onChange={handleChange}
@@ -378,7 +379,7 @@ const StartupForm = () => {
               </div>
             </div>
 
-            <div className={`${theme === 'dark' ? 'bg-card' : 'bg-white'} p-6 rounded-xl border border-border ${theme === 'dark' ? 'shadow-none' : 'shadow-sm'}`}>
+            <div className="bg-white p-6 rounded-xl border border-border shadow-sm">
               <div className="flex items-center mb-4">
                 <BarChart className="w-5 h-5 mr-2 text-primary" />
                 <h3 className="text-lg font-semibold">Traction & Metrics</h3>
@@ -391,7 +392,7 @@ const StartupForm = () => {
                   <textarea
                     id="traction"
                     rows={3}
-                    className={`w-full px-4 py-3 rounded-lg border border-border ${theme === 'dark' ? 'bg-background' : 'bg-white'} focus:ring-2 focus:ring-primary focus:border-transparent transition-colors`}
+                    className="w-full px-4 py-3 rounded-lg border border-border bg-white focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
                     placeholder="Users, customers, revenue, growth rate, etc."
                     value={formData.traction}
                     onChange={handleChange}
@@ -405,7 +406,7 @@ const StartupForm = () => {
                   <input
                     type="text"
                     id="keyMetrics"
-                    className={`w-full px-4 py-3 rounded-lg border border-border ${theme === 'dark' ? 'bg-background' : 'bg-white'} focus:ring-2 focus:ring-primary focus:border-transparent transition-colors`}
+                    className="w-full px-4 py-3 rounded-lg border border-border bg-white focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
                     placeholder="CAC, LTV, Churn Rate, etc."
                     value={formData.keyMetrics}
                     onChange={handleChange}
@@ -414,7 +415,7 @@ const StartupForm = () => {
               </div>
             </div>
 
-            <div className={`${theme === 'dark' ? 'bg-card' : 'bg-white'} p-6 rounded-xl border border-border ${theme === 'dark' ? 'shadow-none' : 'shadow-sm'}`}>
+            <div className="bg-white p-6 rounded-xl border border-border shadow-sm">
               <div className="flex items-center mb-4">
                 <DollarSign className="w-5 h-5 mr-2 text-primary" />
                 <h3 className="text-lg font-semibold">Funding Information</h3>
@@ -427,7 +428,7 @@ const StartupForm = () => {
                   <input
                     type="text"
                     id="previousFunding"
-                    className={`w-full px-4 py-3 rounded-lg border border-border ${theme === 'dark' ? 'bg-background' : 'bg-white'} focus:ring-2 focus:ring-primary focus:border-transparent transition-colors`}
+                    className="w-full px-4 py-3 rounded-lg border border-border bg-white focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
                     placeholder="e.g., $100K Angel, $500K Seed"
                     value={formData.previousFunding}
                     onChange={handleChange}
@@ -442,7 +443,7 @@ const StartupForm = () => {
                     type="text"
                     id="funding"
                     required
-                    className={`w-full px-4 py-3 rounded-lg border border-border ${theme === 'dark' ? 'bg-background' : 'bg-white'} focus:ring-2 focus:ring-primary focus:border-transparent transition-colors`}
+                    className="w-full px-4 py-3 rounded-lg border border-border bg-white focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
                     placeholder="How much funding are you seeking?"
                     value={formData.funding}
                     onChange={handleChange}
@@ -456,7 +457,7 @@ const StartupForm = () => {
                   <input
                     type="text"
                     id="valuation"
-                    className={`w-full px-4 py-3 rounded-lg border border-border ${theme === 'dark' ? 'bg-background' : 'bg-white'} focus:ring-2 focus:ring-primary focus:border-transparent transition-colors`}
+                    className="w-full px-4 py-3 rounded-lg border border-border bg-white focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
                     placeholder="Estimated valuation of your startup"
                     value={formData.valuation}
                     onChange={handleChange}
@@ -471,7 +472,7 @@ const StartupForm = () => {
                     id="useOfFunds"
                     required
                     rows={3}
-                    className={`w-full px-4 py-3 rounded-lg border border-border ${theme === 'dark' ? 'bg-background' : 'bg-white'} focus:ring-2 focus:ring-primary focus:border-transparent transition-colors`}
+                    className="w-full px-4 py-3 rounded-lg border border-border bg-white focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
                     placeholder="How will you use the investment?"
                     value={formData.useOfFunds}
                     onChange={handleChange}
@@ -480,7 +481,7 @@ const StartupForm = () => {
               </div>
             </div>
 
-            <div className={`${theme === 'dark' ? 'bg-card' : 'bg-white'} p-6 rounded-xl border border-border ${theme === 'dark' ? 'shadow-none' : 'shadow-sm'}`}>
+            <div className="bg-white p-6 rounded-xl border border-border shadow-sm">
               <div className="flex items-center mb-4">
                 <Target className="w-5 h-5 mr-2 text-primary" />
                 <h3 className="text-lg font-semibold">Future Plans</h3>
@@ -493,7 +494,7 @@ const StartupForm = () => {
                   <textarea
                     id="roadmap"
                     rows={3}
-                    className={`w-full px-4 py-3 rounded-lg border border-border ${theme === 'dark' ? 'bg-background' : 'bg-white'} focus:ring-2 focus:ring-primary focus:border-transparent transition-colors`}
+                    className="w-full px-4 py-3 rounded-lg border border-border bg-white focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
                     placeholder="Key milestones for the next 12-24 months"
                     value={formData.roadmap}
                     onChange={handleChange}
@@ -507,7 +508,7 @@ const StartupForm = () => {
                   <textarea
                     id="exitStrategy"
                     rows={2}
-                    className={`w-full px-4 py-3 rounded-lg border border-border ${theme === 'dark' ? 'bg-background' : 'bg-white'} focus:ring-2 focus:ring-primary focus:border-transparent transition-colors`}
+                    className="w-full px-4 py-3 rounded-lg border border-border bg-white focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
                     placeholder="Potential exits (acquisition, IPO, etc.)"
                     value={formData.exitStrategy}
                     onChange={handleChange}
@@ -516,7 +517,7 @@ const StartupForm = () => {
               </div>
             </div>
 
-            <div className={`${theme === 'dark' ? 'bg-card' : 'bg-white'} p-6 rounded-xl border border-border ${theme === 'dark' ? 'shadow-none' : 'shadow-sm'}`}>
+            <div className="bg-white p-6 rounded-xl border border-border shadow-sm">
               <div className="flex items-center mb-4">
                 <Upload className="w-5 h-5 mr-2 text-primary" />
                 <h3 className="text-lg font-semibold">Supporting Documents</h3>
@@ -528,7 +529,7 @@ const StartupForm = () => {
                 <p className="text-xs text-muted-foreground mb-3">
                   Pitch deck, financial projections, business plan, market research, etc.
                 </p>
-                <div className={`mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-dashed border-border rounded-lg hover:border-primary transition-colors ${theme === 'dark' ? 'bg-background/50' : ''}`}>
+                <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-dashed border-border rounded-lg hover:border-primary transition-colors">
                   <div className="space-y-1 text-center">
                     <Upload className="mx-auto h-12 w-12 text-muted-foreground" />
                     <div className="flex text-sm text-muted-foreground">

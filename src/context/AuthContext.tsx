@@ -1,6 +1,6 @@
 
 import React, { createContext, useState, useContext, useEffect, useRef } from 'react';
-import { supabase, updateSupabaseClient, SUPABASE_URL } from '@/lib/supabase';
+import { supabase, updateSupabaseClient, SUPABASE_URL, DEMO_INVESTOR } from '@/lib/supabase';
 import { User, SupabaseClient } from '@supabase/supabase-js';
 import { toast } from 'sonner';
 
@@ -17,6 +17,7 @@ type AuthContextType = {
   profile: InvestorProfile | null;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
+  loginWithDemo: () => void;
   register: (userData: Omit<InvestorProfile, 'id'> & { password: string }) => Promise<void>;
   logout: () => Promise<void>;
   isConfigured: boolean;
@@ -111,6 +112,44 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       subscription.unsubscribe();
     };
   }, []);
+
+  // Demo login function
+  const loginWithDemo = () => {
+    setIsLoading(true);
+    
+    // Create a mock user that resembles a Supabase auth user
+    const mockUser = {
+      id: DEMO_INVESTOR.id,
+      email: DEMO_INVESTOR.email,
+      app_metadata: { provider: 'demo' },
+      user_metadata: { name: DEMO_INVESTOR.name },
+      aud: 'authenticated',
+      created_at: new Date().toISOString(),
+    } as User;
+    
+    // Set the user and profile states directly
+    setUser(mockUser);
+    setProfile({
+      id: DEMO_INVESTOR.id,
+      email: DEMO_INVESTOR.email,
+      name: DEMO_INVESTOR.name,
+      investmentFocus: DEMO_INVESTOR.investment_focus,
+      investmentRange: DEMO_INVESTOR.investment_range,
+    });
+    
+    // Store demo session in localStorage to persist across page refreshes
+    localStorage.setItem('demoUser', JSON.stringify(mockUser));
+    localStorage.setItem('demoProfile', JSON.stringify({
+      id: DEMO_INVESTOR.id,
+      email: DEMO_INVESTOR.email,
+      name: DEMO_INVESTOR.name,
+      investmentFocus: DEMO_INVESTOR.investment_focus,
+      investmentRange: DEMO_INVESTOR.investment_range,
+    }));
+    
+    setIsLoading(false);
+    toast.success('Logged in with demo account');
+  };
 
   const login = async (email: string, password: string) => {
     if (!isConfigured) {
@@ -270,6 +309,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     if (!isConfigured) return;
     
     try {
+      // Check if this is a demo user
+      if (localStorage.getItem('demoUser')) {
+        localStorage.removeItem('demoUser');
+        localStorage.removeItem('demoProfile');
+        setUser(null);
+        setProfile(null);
+        toast.success('Logged out of demo account');
+        return;
+      }
+      
       const { error } = await supabaseClientRef.current.auth.signOut();
       if (error) {
         throw error;
@@ -288,6 +337,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       profile, 
       isLoading, 
       login, 
+      loginWithDemo,
       register, 
       logout, 
       isConfigured,

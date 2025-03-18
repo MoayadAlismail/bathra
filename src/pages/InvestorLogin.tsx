@@ -7,13 +7,14 @@ import { useAuth } from "@/context/AuthContext";
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Separator } from "@/components/ui/separator";
 
 const InvestorLogin = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const { toast } = useToast();
-  const { login } = useAuth();
+  const { login, loginWithDemo } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -30,6 +31,15 @@ const InvestorLogin = () => {
     } catch (err) {
       setError("Invalid email or password");
     }
+  };
+
+  const handleDemoLogin = () => {
+    loginWithDemo();
+    toast({
+      title: "Demo Login Successful!",
+      description: "You now have access to all investor features.",
+    });
+    navigate("/dashboard");
   };
 
   return (
@@ -99,6 +109,26 @@ const InvestorLogin = () => {
                 </Link>
               </div>
             </form>
+
+            <div className="mt-8">
+              <div className="flex items-center gap-4 mb-6">
+                <Separator className="flex-1" />
+                <span className="text-sm text-muted-foreground">or</span>
+                <Separator className="flex-1" />
+              </div>
+              
+              <Button 
+                variant="outline" 
+                className="w-full" 
+                onClick={handleDemoLogin}
+              >
+                Continue with Demo Account
+              </Button>
+              
+              <p className="text-xs text-muted-foreground mt-3 text-center">
+                No sign-up required. Access all features instantly.
+              </p>
+            </div>
           </motion.div>
         </div>
       </section>

@@ -117,6 +117,15 @@ export const updateSupabaseClient = (url: string, key: string) => {
 // Set isSupabaseConfigured to true since we're using hardcoded credentials
 export const isSupabaseConfigured = true;
 
+// Define sample investor profile for demo account
+export const DEMO_INVESTOR = {
+  id: 'demo-user-id',
+  email: 'demo@example.com',
+  name: 'Demo Investor',
+  investment_focus: 'Technology',
+  investment_range: '$50K - $200K (Angel)',
+};
+
 // Define database types to use with Supabase
 export type Tables = {
   investors: {

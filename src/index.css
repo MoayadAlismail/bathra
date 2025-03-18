@@ -7,36 +7,36 @@
 
 @layer base {
   :root {
-    /* Light mode colors - white and blue */
-    --background: 0 0% 100%;
-    --foreground: 220 70% 30%;
+    /* Warm earth tones with yellow accents - inspired by the image */
+    --background: 48 33% 97%;
+    --foreground: 30 25% 18%;
 
     --card: 0 0% 100%;
-    --card-foreground: 220 70% 30%;
+    --card-foreground: 30 25% 18%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 220 70% 30%;
+    --popover-foreground: 30 25% 18%;
 
-    --primary: 220 70% 50%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 25 70% 33%;
+    --primary-foreground: 48 33% 97%;
 
-    --secondary: 220 20% 92%;
-    --secondary-foreground: 220 70% 30%;
+    --secondary: 48 80% 75%;
+    --secondary-foreground: 30 25% 18%;
 
-    --muted: 220 20% 92%;
-    --muted-foreground: 220 40% 50%;
+    --muted: 30 10% 92%;
+    --muted-foreground: 30 15% 40%;
 
-    --accent: 220 70% 55%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 25 70% 45%;
+    --accent-foreground: 48 33% 97%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 220 20% 85%;
-    --input: 220 20% 85%;
-    --ring: 220 70% 50%;
+    --border: 30 15% 85%;
+    --input: 30 15% 85%;
+    --ring: 25 70% 33%;
 
-    --radius: 1rem;
+    --radius: 0.75rem;
   }
 }
 
@@ -50,8 +50,8 @@
   }
 
   .glass {
-    /* Glass styling for light mode */
-    @apply bg-white/80 backdrop-blur-lg border border-primary/10 shadow-blue-100 rounded-2xl shadow-lg;
+    /* Glass styling for light mode with warm tones */
+    @apply bg-white/80 backdrop-blur-lg border border-primary/10 shadow-[#8B4513]/10 rounded-2xl shadow-lg;
   }
 }
 
@@ -75,11 +75,19 @@
   .neo-blur {
     @apply backdrop-blur-xl bg-white/90 border border-primary/10;
   }
+  
+  .price-tag {
+    @apply bg-secondary px-3 py-2 rounded-md text-foreground font-bold inline-block;
+  }
+
+  .card-brown {
+    @apply bg-primary text-primary-foreground rounded-xl border border-primary/80;
+  }
 }
 
 /* Fix for underline visibility */
 a.underline, .underline {
-  text-decoration-color: #0057B8 !important;
+  text-decoration-color: #8B4513 !important;
   text-decoration-thickness: 3px !important;
   text-underline-offset: 4px !important;
 }

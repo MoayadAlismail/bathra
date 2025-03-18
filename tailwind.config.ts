@@ -53,9 +53,9 @@ export default {
           foreground: "hsl(var(--card-foreground))",
         },
         money: {
-          light: "#0057B8",
-          DEFAULT: "#004C9E",
-          dark: "#003C7E",
+          light: "#A65A2A",
+          DEFAULT: "#8B4513",
+          dark: "#723C10",
         },
       },
       fontFamily: {

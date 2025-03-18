@@ -1,6 +1,5 @@
-
 import { useState, useEffect } from "react";
-import { Menu, X, Sprout, LogIn } from "lucide-react";
+import { Menu, X, LogIn } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
@@ -59,10 +58,9 @@ const Navbar = () => {
           <div className="flex items-center justify-between">
             <button 
               onClick={() => handleNavigation('/')} 
-              className="flex items-center gap-2 text-2xl font-bold text-primary hover:text-primary/80 transition-colors duration-200"
+              className="flex items-center gap-2 hover:opacity-80 transition-opacity duration-200"
             >
-              <Sprout className="w-8 h-8" />
-              Bathra
+              <img src="/Logo.svg" alt="Bathra Logo" className="h-5 w-auto" />
             </button>
 
             <div className="hidden md:flex items-center space-x-6">

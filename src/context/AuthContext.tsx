@@ -1,7 +1,7 @@
 
 import React, { createContext, useState, useContext, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { User, SupabaseClient, Provider } from '@supabase/supabase-js';
+import { User, SupabaseClient } from '@supabase/supabase-js';
 import { toast } from 'sonner';
 
 type InvestorProfile = {
@@ -87,7 +87,38 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           investmentRange: data.investment_range,
         });
       } else {
-        console.log('No profile found for user');
+        console.log('No profile found for user, checking metadata for profile creation');
+        
+        // Try to create a profile from user metadata if it doesn't exist
+        const { data: { user } } = await supabaseClientRef.current.auth.getUser();
+        
+        if (user?.user_metadata?.name) {
+          const newProfile = {
+            id: userId,
+            email: user.email || '',
+            name: user.user_metadata.name || '',
+            investmentFocus: user.user_metadata.investment_focus || '',
+            investmentRange: user.user_metadata.investment_range || '',
+          };
+          
+          console.log('Creating new profile from metadata:', newProfile);
+          
+          const { error: insertError } = await supabaseClientRef.current
+            .from('investors')
+            .insert({
+              id: userId,
+              email: user.email || '',
+              name: user.user_metadata.name || '',
+              investment_focus: user.user_metadata.investment_focus || '',
+              investment_range: user.user_metadata.investment_range || '',
+            });
+            
+          if (insertError) {
+            console.error('Error creating profile from metadata:', insertError);
+          } else {
+            setProfile(newProfile);
+          }
+        }
       }
     } catch (error) {
       console.error('Error fetching user profile:', error);
@@ -97,6 +128,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const initSession = async () => {
       try {
+        console.log('Initializing session...');
         const { data, error } = await supabaseClientRef.current.auth.getSession();
         
         if (error) {
@@ -105,9 +137,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           return;
         }
         
-        setUser(data.session?.user || null);
+        // Handle the case where we have a session but no user in state
         if (data.session?.user) {
-          fetchUserProfile(data.session.user.id);
+          console.log('Found existing session with user:', data.session.user.id);
+          setUser(data.session.user);
+          await fetchUserProfile(data.session.user.id);
+        } else {
+          console.log('No active session found');
         }
       } catch (error) {
         console.error('Session initialization error:', error);
@@ -133,11 +169,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       initSession();
     }
 
-    const { data: { subscription } } = supabaseClientRef.current.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user || null);
+    // Subscribe to auth changes
+    const { data: { subscription } } = supabaseClientRef.current.auth.onAuthStateChange(async (event, session) => {
+      console.log('Auth state changed:', event, session?.user?.id);
+      
       if (session?.user) {
-        fetchUserProfile(session.user.id);
+        setUser(session.user);
+        await fetchUserProfile(session.user.id);
       } else {
+        setUser(null);
         setProfile(null);
       }
       setIsLoading(false);

@@ -9,7 +9,108 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      investors: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          investment_focus: string | null
+          investment_range: string | null
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          investment_focus?: string | null
+          investment_range?: string | null
+          name: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          investment_focus?: string | null
+          investment_range?: string | null
+          name?: string
+        }
+        Relationships: []
+      }
+      startups: {
+        Row: {
+          created_at: string
+          description: string | null
+          document_path: string | null
+          exit_strategy: string | null
+          founded_date: string | null
+          founders: string | null
+          funding_required: string | null
+          id: string
+          industry: string | null
+          key_metrics: string | null
+          name: string
+          previous_funding: string | null
+          problem_solved: string | null
+          roadmap: string | null
+          stage: string | null
+          target_market: string | null
+          team_size: string | null
+          traction: string | null
+          use_of_funds: string | null
+          usp: string | null
+          valuation: string | null
+          website: string | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          document_path?: string | null
+          exit_strategy?: string | null
+          founded_date?: string | null
+          founders?: string | null
+          funding_required?: string | null
+          id?: string
+          industry?: string | null
+          key_metrics?: string | null
+          name: string
+          previous_funding?: string | null
+          problem_solved?: string | null
+          roadmap?: string | null
+          stage?: string | null
+          target_market?: string | null
+          team_size?: string | null
+          traction?: string | null
+          use_of_funds?: string | null
+          usp?: string | null
+          valuation?: string | null
+          website?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          document_path?: string | null
+          exit_strategy?: string | null
+          founded_date?: string | null
+          founders?: string | null
+          funding_required?: string | null
+          id?: string
+          industry?: string | null
+          key_metrics?: string | null
+          name?: string
+          previous_funding?: string | null
+          problem_solved?: string | null
+          roadmap?: string | null
+          stage?: string | null
+          target_market?: string | null
+          team_size?: string | null
+          traction?: string | null
+          use_of_funds?: string | null
+          usp?: string | null
+          valuation?: string | null
+          website?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

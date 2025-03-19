@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -12,7 +13,7 @@ import InvestorLogin from "./pages/InvestorLogin";
 import InvestorDashboard from "./pages/InvestorDashboard";
 import VettedStartups from "./pages/VettedStartups";
 import NotFound from "./pages/NotFound";
-import { Suspense, Component, ReactNode } from "react";
+import { Suspense, Component, ReactNode, useEffect } from "react";
 import "./App.css";
 
 const queryClient = new QueryClient({
@@ -69,9 +70,22 @@ class ErrorBoundary extends Component<{children: ReactNode}, {hasError: boolean;
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, isLoading } = useAuth();
+  
+  useEffect(() => {
+    if (!isLoading && !user) {
+      console.log('User not authenticated, redirecting to login');
+    }
+  }, [user, isLoading]);
 
   if (isLoading) {
-    return <div className="flex h-screen items-center justify-center">Loading...</div>;
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading authentication...</p>
+        </div>
+      </div>
+    );
   }
 
   if (!user) {
@@ -95,12 +109,16 @@ const AppRoutes = () => {
         <Route path="/login" element={<InvestorLogin />} />
         <Route path="/dashboard" element={
           <ProtectedRoute>
-            <InvestorDashboard />
+            <ErrorBoundary>
+              <InvestorDashboard />
+            </ErrorBoundary>
           </ProtectedRoute>
         } />
         <Route path="/startups" element={
           <ProtectedRoute>
-            <VettedStartups />
+            <ErrorBoundary>
+              <VettedStartups />
+            </ErrorBoundary>
           </ProtectedRoute>
         } />
         <Route path="*" element={<NotFound />} />
@@ -116,7 +134,14 @@ const App = () => (
         <AuthProvider>
           <Toaster />
           <Sonner />
-          <Suspense fallback={<div className="flex h-screen items-center justify-center">Loading...</div>}>
+          <Suspense fallback={
+            <div className="flex h-screen items-center justify-center">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+                <p className="text-muted-foreground">Loading application...</p>
+              </div>
+            </div>
+          }>
             <AppRoutes />
           </Suspense>
         </AuthProvider>

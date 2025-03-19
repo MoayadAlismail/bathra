@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { useAuth } from "@/context/AuthContext";
+import { Loader, WifiOff } from "lucide-react";
 
 const SupabaseConfig = () => {
   const [url, setUrl] = useState<string>("");
@@ -135,7 +136,7 @@ const SupabaseConfig = () => {
           >
             {isTesting ? (
               <span className="flex items-center">
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                <Loader className="h-4 w-4 mr-2 animate-spin" />
                 Testing Connection...
               </span>
             ) : 'Save Configuration'}

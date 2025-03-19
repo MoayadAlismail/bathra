@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -9,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
-import { WifiOff, RefreshCw, Loader2 } from "lucide-react";
+import { WifiOff, RefreshCw, Loader } from "lucide-react";
 import { toast } from "sonner";
 
 const InvestorForm = () => {
@@ -356,7 +355,7 @@ const InvestorForm = () => {
               >
                 {isSubmitting ? (
                   <span className="flex items-center">
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    <Loader className="h-4 w-4 mr-2 animate-spin" />
                     Creating Account...
                   </span>
                 ) : "Create Investor Account"}

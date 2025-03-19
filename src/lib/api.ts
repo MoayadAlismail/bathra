@@ -4,8 +4,11 @@ import axiosInstance from '@/lib/axios';
 export const api = {
   get: async (url: string) => {
     try {
+      console.log(`API request: GET ${url}`);
+      
       // For now, return mock data since we don't have a backend yet
       if (url === '/startups') {
+        console.log('Returning mock startup data');
         return {
           data: [
             {
@@ -38,7 +41,10 @@ export const api = {
           ],
         };
       }
-      return await axiosInstance.get(url);
+      
+      const response = await axiosInstance.get(url);
+      console.log(`API response success:`, response);
+      return response;
     } catch (error) {
       console.error('API Error:', error);
       throw error;

@@ -9,7 +9,7 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 const customFetch = async (input: RequestInfo | URL, init?: RequestInit) => {
   // Maximum number of retries
   const MAX_RETRIES = 3;
-  const TIMEOUT_MS = 15000; // 15 seconds timeout
+  const TIMEOUT_MS = 20000; // Increase timeout to 20 seconds
   let retries = 0;
   let lastError;
 
@@ -20,6 +20,8 @@ const customFetch = async (input: RequestInfo | URL, init?: RequestInit) => {
 
   while (retries < MAX_RETRIES) {
     try {
+      console.log(`Fetch attempt ${retries + 1} for ${typeof input === 'string' ? input : 'request'}`);
+      
       const controller = new AbortController();
       // Set timeout
       const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
@@ -29,15 +31,18 @@ const customFetch = async (input: RequestInfo | URL, init?: RequestInit) => {
         ...init,
         signal: init?.signal || controller.signal,
         mode: 'cors' as RequestMode,
-        credentials: 'omit' as RequestCredentials, // Changed from 'include' to 'omit'
+        credentials: 'omit' as RequestCredentials,
         headers: {
           ...init?.headers,
           'X-Client-Info': 'supabase-js-client',
+          'Cache-Control': 'no-cache, no-store', // Prevent caching issues
         }
       };
       
       const response = await fetch(input, modifiedInit);
       clearTimeout(timeoutId);
+      
+      console.log(`Fetch successful: ${response.status} ${response.statusText}`);
       
       // If successful, return the response
       return response;
@@ -57,6 +62,7 @@ const customFetch = async (input: RequestInfo | URL, init?: RequestInit) => {
         // Add random jitter (±10%)
         const jitter = baseDelay * 0.1 * (Math.random() * 2 - 1);
         const delay = baseDelay + jitter;
+        console.log(`Retrying in ${Math.round(delay)}ms...`);
         await new Promise(resolve => setTimeout(resolve, delay));
       }
     }
@@ -98,6 +104,8 @@ export const supabase = createClient(
 
 // Function to create a new client with updated credentials
 export const updateSupabaseClient = (url: string, key: string) => {
+  console.log(`Creating new Supabase client with URL: ${url.substring(0, 15)}... and key: ${key.substring(0, 5)}...`);
+  
   return createClient(url, key, {
     auth: {
       autoRefreshToken: true,

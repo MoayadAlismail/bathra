@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
-import { WifiOff, RefreshCw, Loader, Wifi } from "lucide-react";
+import { Loader } from "lucide-react";
 import { toast } from "sonner";
 
 const InvestorForm = () => {
@@ -20,103 +20,15 @@ const InvestorForm = () => {
   const [investmentFocus, setInvestmentFocus] = useState("");
   const [investmentRange, setInvestmentRange] = useState("");
   const [error, setError] = useState("");
-  const [isOnline, setIsOnline] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submissionAttempts, setSubmissionAttempts] = useState(0);
   
   const { toast: uiToast } = useToast();
   const { register, isConfigured } = useAuth();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const handleOnline = () => {
-      console.log("Browser reports online status");
-      setIsOnline(true);
-      setError("");
-    };
-    
-    const handleOffline = () => {
-      console.log("Browser reports offline status");
-      setIsOnline(false);
-      setError("You are currently offline. Please check your internet connection.");
-    };
-
-    // Set initial online state but don't trust it completely
-    setIsOnline(navigator.onLine);
-
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
-
-    // More reliable connectivity check
-    const checkConnectivity = async () => {
-      try {
-        console.log("Performing initial connectivity check");
-        const timestamp = new Date().getTime();
-        // Use multiple endpoints with cache busting to prevent false positives
-        const endpoints = [
-          `https://www.google.com/favicon.ico?_=${timestamp}`,
-          `https://www.cloudflare.com/favicon.ico?_=${timestamp}`,
-          `https://www.microsoft.com/favicon.ico?_=${timestamp}`
-        ];
-        
-        // Try the endpoints one by one until one succeeds
-        for (const endpoint of endpoints) {
-          try {
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 3000);
-            
-            const response = await fetch(endpoint, {
-              method: 'HEAD',
-              mode: 'no-cors',
-              cache: 'no-store',
-              signal: controller.signal
-            });
-            
-            clearTimeout(timeoutId);
-            console.log(`Connectivity check succeeded with ${endpoint}`);
-            setIsOnline(true);
-            setError("");
-            return; // Exit after first successful check
-          } catch (err) {
-            console.warn(`Connectivity check failed for ${endpoint}:`, err);
-            // Continue to the next endpoint
-          }
-        }
-        
-        // If we get here, all endpoints failed
-        if (navigator.onLine) {
-          console.log("Browser reports online but all connectivity checks failed");
-          // The browser might be wrong about online status, but let's trust it for now
-          // to avoid false negatives in corporate networks with firewalls
-          setIsOnline(true);
-        } else {
-          console.log("All connectivity checks failed and browser reports offline");
-          setIsOnline(false);
-          setError("You appear to be offline. Please check your internet connection.");
-        }
-      } catch (err) {
-        console.warn('Connectivity check error:', err);
-        // Fall back to browser's online status
-        setIsOnline(navigator.onLine);
-      }
-    };
-    
-    checkConnectivity();
-
-    return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
-    };
-  }, []);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    
-    if (!isOnline) {
-      setError("You are currently offline. Please check your internet connection.");
-      return;
-    }
     
     if (password !== confirmPassword) {
       setError("Passwords don't match");
@@ -130,7 +42,6 @@ const InvestorForm = () => {
     
     try {
       setIsSubmitting(true);
-      setSubmissionAttempts(prevAttempts => prevAttempts + 1);
       
       const toastId = "register-toast-" + Date.now();
       toast.loading("Creating your account...", { id: toastId, duration: 30000 });
@@ -173,74 +84,15 @@ const InvestorForm = () => {
         errorMessage.includes('network') ||
         errorMessage.includes('Connection error') ||
         errorMessage.includes('timeout') ||
-        errorMessage.includes('offline') ||
-        err.name === 'AbortError' ||
-        !navigator.onLine
+        errorMessage.includes('offline')
       ) {
-        errorMessage = "Connection error. Please check your internet connection or try again later.";
-        setIsOnline(false);
+        errorMessage = "There was an issue connecting to our servers. This does not mean you're offline - please try again.";
       }
       
       setError(errorMessage);
       toast.error(errorMessage);
     } finally {
       setIsSubmitting(false);
-    }
-  };
-
-  const retryConnection = async () => {
-    setError("");
-    try {
-      toast.loading("Checking connection...");
-      
-      // Use the same multi-endpoint approach for retrying
-      const timestamp = new Date().getTime();
-      const endpoints = [
-        `https://www.google.com/favicon.ico?_=${timestamp}`,
-        `https://www.cloudflare.com/favicon.ico?_=${timestamp}`,
-        `https://www.microsoft.com/favicon.ico?_=${timestamp}`
-      ];
-      
-      let connected = false;
-      
-      for (const endpoint of endpoints) {
-        try {
-          const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 3000);
-          
-          await fetch(endpoint, {
-            method: 'HEAD',
-            mode: 'no-cors',
-            cache: 'no-store',
-            signal: controller.signal
-          });
-          
-          clearTimeout(timeoutId);
-          connected = true;
-          break;
-        } catch (err) {
-          console.warn(`Retry connectivity check failed for ${endpoint}:`, err);
-          // Continue to next endpoint
-        }
-      }
-      
-      if (connected || navigator.onLine) {
-        setIsOnline(true);
-        toast.success("Connection verified!");
-      } else {
-        setIsOnline(false);
-        setError("Still experiencing connection issues. Please check your network.");
-        toast.error("Connection check failed. Please try again later.");
-      }
-    } catch (err) {
-      console.error("Connection retry error:", err);
-      // Fall back to browser's status
-      setIsOnline(navigator.onLine);
-      if (navigator.onLine) {
-        toast.success("Connection seems to be working");
-      } else {
-        toast.error("Connection check failed. Please try again later.");
-      }
     }
   };
 
@@ -264,32 +116,6 @@ const InvestorForm = () => {
             </p>
           </div>
 
-          {!isOnline && (
-            <Alert variant="destructive" className="mb-6">
-              <WifiOff className="h-4 w-4" />
-              <AlertDescription className="flex items-center justify-between">
-                <span>You are currently offline. Please check your internet connection to create an account.</span>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={retryConnection}
-                  className="ml-2 whitespace-nowrap"
-                >
-                  <RefreshCw className="h-3 w-3 mr-1" /> Retry
-                </Button>
-              </AlertDescription>
-            </Alert>
-          )}
-
-          {isOnline && (
-            <Alert variant="default" className="mb-6 bg-green-50 border-green-200 text-green-700">
-              <Wifi className="h-4 w-4" />
-              <AlertDescription>
-                You are connected to the internet and can create an account.
-              </AlertDescription>
-            </Alert>
-          )}
-
           {!isConfigured && (
             <Alert variant="destructive" className="mb-6">
               <ExclamationTriangleIcon className="h-4 w-4" />
@@ -302,18 +128,6 @@ const InvestorForm = () => {
           {error && (
             <div className="mb-6 p-4 border rounded-lg bg-red-50 border-red-200 text-red-600">
               {error}
-              {(error.includes("Connection error") || error.includes("offline") || error.includes("network")) && (
-                <div className="mt-2">
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={retryConnection}
-                    className="text-sm"
-                  >
-                    <RefreshCw className="h-3 w-3 mr-1" /> Test Connection
-                  </Button>
-                </div>
-              )}
             </div>
           )}
 
@@ -425,7 +239,7 @@ const InvestorForm = () => {
               <Button 
                 type="submit" 
                 className="w-full"
-                disabled={isSubmitting || !isOnline}
+                disabled={isSubmitting}
               >
                 {isSubmitting ? (
                   <span className="flex items-center">

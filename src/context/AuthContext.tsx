@@ -1,6 +1,7 @@
+
 import React, { createContext, useState, useContext, useEffect, useRef } from 'react';
 import { supabase, updateSupabaseClient, SUPABASE_URL, DEMO_INVESTOR } from '@/lib/supabase';
-import { User, SupabaseClient } from '@supabase/supabase-js';
+import { User, SupabaseClient, Provider } from '@supabase/supabase-js';
 import { toast } from 'sonner';
 
 type InvestorProfile = {
@@ -16,6 +17,7 @@ type AuthContextType = {
   profile: InvestorProfile | null;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
+  loginWithGoogle: () => Promise<void>;
   loginWithDemo: () => void;
   register: (userData: Omit<InvestorProfile, 'id'> & { password: string }) => Promise<void>;
   logout: () => Promise<void>;
@@ -160,20 +162,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     
     setIsLoading(true);
     try {
-      if (typeof navigator !== 'undefined' && !navigator.onLine) {
-        throw new Error('You are currently offline. Please check your internet connection.');
-      }
-
-      const loginPromise = supabaseClientRef.current.auth.signInWithPassword({
+      const { data, error } = await supabaseClientRef.current.auth.signInWithPassword({
         email,
         password,
       });
-      
-      const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error("Login timed out. Please try again.")), 15000);
-      });
-      
-      const { data, error } = await Promise.race([loginPromise, timeoutPromise]) as any;
 
       if (error) {
         throw error;
@@ -192,8 +184,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         error.message?.includes('timeout') ||
         error.message?.includes('offline') ||
         error.name === 'AbortError' ||
-        (error.__isAuthError === true && error.status === 0) ||
-        !navigator.onLine
+        (error.__isAuthError === true && error.status === 0)
       ) {
         errorMessage = 'Connection error. Please check your internet connection and try again.';
       } else if (error.status === 400 || error.status === 401) {
@@ -202,6 +193,38 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       
       toast.error(errorMessage);
       throw new Error(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const loginWithGoogle = async () => {
+    if (!isConfigured) {
+      toast.error('Authentication is not configured. Please set up Supabase credentials.');
+      throw new Error('Authentication is not configured');
+    }
+    
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabaseClientRef.current.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/dashboard`,
+        }
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      // No need to call toast.success here as we're redirecting to Google
+      // Success will be handled when the user returns to the site
+    } catch (error: any) {
+      console.error('Google login failed:', error);
+      
+      let errorMessage = error.message || 'Failed to login with Google';
+      toast.error(errorMessage);
+      throw error;
     } finally {
       setIsLoading(false);
     }
@@ -216,10 +239,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setIsLoading(true);
     
     try {
-      if (typeof navigator !== 'undefined' && !navigator.onLine) {
-        throw new Error('You are currently offline. Please check your internet connection.');
-      }
-
       console.log('Starting registration process for:', userData.email);
       
       const { data: authData, error: authError } = await supabaseClientRef.current.auth.signUp({
@@ -303,6 +322,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       profile, 
       isLoading, 
       login, 
+      loginWithGoogle,
       loginWithDemo,
       register, 
       logout, 

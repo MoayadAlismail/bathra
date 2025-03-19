@@ -1,4 +1,3 @@
-
 import React, { createContext, useState, useContext, useEffect, useRef } from 'react';
 import { supabase, updateSupabaseClient, SUPABASE_URL, DEMO_INVESTOR } from '@/lib/supabase';
 import { User, SupabaseClient } from '@supabase/supabase-js';
@@ -34,6 +33,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const supabaseClientRef = useRef<SupabaseClient>(supabase);
   
   const updateSupabaseConfig = (url: string, key: string) => {
+    console.log('Updating Supabase config with:', { url: url.substring(0, 10) + '...', keyLength: key.length });
     supabaseClientRef.current = updateSupabaseClient(url, key);
     
     supabaseClientRef.current.auth.getSession().then(({ data: { session } }) => {
@@ -50,6 +50,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     if (!isConfigured) return;
     
     try {
+      console.log('Fetching profile for user:', userId);
       const { data, error } = await supabaseClientRef.current
         .from('investors')
         .select('*')
@@ -57,10 +58,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         .single();
 
       if (error) {
+        console.error('Error fetching profile:', error);
         throw error;
       }
 
       if (data) {
+        console.log('Profile fetched successfully:', data);
         setProfile({
           id: data.id,
           email: data.email,
@@ -68,6 +71,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           investmentFocus: data.investment_focus,
           investmentRange: data.investment_range,
         });
+      } else {
+        console.log('No profile found for user');
       }
     } catch (error) {
       console.error('Error fetching user profile:', error);
@@ -113,11 +118,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     };
   }, []);
 
-  // Demo login function
   const loginWithDemo = () => {
     setIsLoading(true);
     
-    // Create a mock user that resembles a Supabase auth user
     const mockUser = {
       id: DEMO_INVESTOR.id,
       email: DEMO_INVESTOR.email,
@@ -127,7 +130,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       created_at: new Date().toISOString(),
     } as User;
     
-    // Set the user and profile states directly
     setUser(mockUser);
     setProfile({
       id: DEMO_INVESTOR.id,
@@ -137,7 +139,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       investmentRange: DEMO_INVESTOR.investment_range,
     });
     
-    // Store demo session in localStorage to persist across page refreshes
     localStorage.setItem('demoUser', JSON.stringify(mockUser));
     localStorage.setItem('demoProfile', JSON.stringify({
       id: DEMO_INVESTOR.id,
@@ -159,12 +160,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     
     setIsLoading(true);
     try {
-      // Check internet connection first
       if (typeof navigator !== 'undefined' && !navigator.onLine) {
         throw new Error('You are currently offline. Please check your internet connection.');
       }
 
-      // Add a timeout for the login attempt
       const loginPromise = supabaseClientRef.current.auth.signInWithPassword({
         email,
         password,
@@ -184,7 +183,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     } catch (error: any) {
       console.error('Login failed:', error);
       
-      // Create a more user-friendly error message
       let errorMessage = error.message || 'Failed to login';
       
       if (
@@ -218,82 +216,51 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setIsLoading(true);
     
     try {
-      // Check internet connection first
       if (typeof navigator !== 'undefined' && !navigator.onLine) {
         throw new Error('You are currently offline. Please check your internet connection.');
       }
 
-      // Attempt registration with error handling and timeout
-      try {
-        const registrationPromise = supabaseClientRef.current.auth.signUp({
-          email: userData.email,
-          password: userData.password,
-        });
-        
-        const timeoutPromise = new Promise((_, reject) => {
-          setTimeout(() => reject(new Error("Registration timed out. Please try again.")), 15000);
-        });
-        
-        const { data: authData, error: authError } = await Promise.race([registrationPromise, timeoutPromise]) as any;
-
-        if (authError) {
-          console.error('Auth signup error:', authError);
-          throw authError;
-        }
-
-        if (!authData?.user) {
-          throw new Error('Registration failed - no user was returned');
-        }
-
-        console.log('Auth user created successfully, now creating profile...');
-
-        // Then create the profile
-        const { error: profileError } = await supabaseClientRef.current
-          .from('investors')
-          .insert({
-            id: authData.user.id,
-            email: userData.email,
-            name: userData.name,
-            investment_focus: userData.investmentFocus,
-            investment_range: userData.investmentRange,
-          });
-
-        if (profileError) {
-          console.warn('Profile creation had an issue, but user was created:', profileError);
-          // We don't throw here as the auth user was still created
-        }
-
-        console.log('Profile created successfully');
-        toast.success('Account created successfully');
-        
-      } catch (innerError: any) {
-        console.error('Inner registration error:', innerError);
-        
-        // Create better error messages
-        if (
-          innerError.message?.includes('Failed to fetch') ||
-          innerError.message?.includes('NetworkError') ||
-          innerError.message?.includes('network') ||
-          innerError.message?.includes('offline') ||
-          innerError.message?.includes('timeout') ||
-          innerError.name === 'AbortError' ||
-          (innerError.__isAuthError === true && innerError.status === 0) ||
-          !navigator.onLine
-        ) {
-          throw new Error('Connection error. Please check your internet connection or try again later.');
-        } else if (innerError.message?.includes('User already registered')) {
-          throw new Error('This email is already registered. Please log in instead.');
-        }
-        
-        throw innerError;
-      }
+      console.log('Starting registration process for:', userData.email);
       
+      const { data: authData, error: authError } = await supabaseClientRef.current.auth.signUp({
+        email: userData.email,
+        password: userData.password,
+      });
+
+      if (authError) {
+        console.error('Auth signup error:', authError);
+        throw authError;
+      }
+
+      if (!authData?.user) {
+        throw new Error('Registration failed - no user was returned');
+      }
+
+      console.log('Auth user created successfully with ID:', authData.user.id);
+
+      const { error: profileError } = await supabaseClientRef.current
+        .from('investors')
+        .insert({
+          id: authData.user.id,
+          email: userData.email,
+          name: userData.name,
+          investment_focus: userData.investmentFocus,
+          investment_range: userData.investmentRange,
+        });
+
+      if (profileError) {
+        console.error('Profile creation error:', profileError);
+        toast.warning('Account created, but profile setup had an issue. Some features may be limited.');
+      } else {
+        console.log('Profile created successfully');
+      }
+
+      toast.success('Account created successfully');
     } catch (error: any) {
       console.error('Registration failed (outer catch):', error);
       
       let errorMessage = error.message || 'Failed to create account';
       
-      // Remove any Supabase URL from the error message to avoid exposing it
       if (errorMessage.includes(SUPABASE_URL)) {
         errorMessage = errorMessage.replace(SUPABASE_URL, '[Supabase URL]');
       }
@@ -309,7 +276,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     if (!isConfigured) return;
     
     try {
-      // Check if this is a demo user
       if (localStorage.getItem('demoUser')) {
         localStorage.removeItem('demoUser');
         localStorage.removeItem('demoProfile');

@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -101,9 +102,15 @@ const InvestorForm = () => {
       const toastId = "register-toast-" + Date.now();
       toast.loading("Creating your account...", { id: toastId, duration: 30000 });
       
-      console.log("Starting registration process...");
+      console.log("Starting registration process with:", { 
+        name, 
+        email, 
+        passwordLength: password.length,
+        investmentFocus,
+        investmentRange
+      });
       
-      const registrationPromise = register({
+      await register({
         name,
         email,
         password,
@@ -111,20 +118,17 @@ const InvestorForm = () => {
         investmentRange
       });
       
-      const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error("Registration timed out. Please try again.")), 25000);
-      });
-      
-      await Promise.race([registrationPromise, timeoutPromise]);
-      
-      console.log("Registration successful!");
+      console.log("Registration completed successfully!");
       toast.dismiss(toastId);
       toast.success("Registration Successful!", {
         description: "Your investor account has been created.",
         duration: 5000
       });
       
-      navigate("/dashboard");
+      // Small delay before navigation to ensure toast is seen
+      setTimeout(() => {
+        navigate("/dashboard");
+      }, 500);
     } catch (err: any) {
       console.error("Registration error:", err);
       

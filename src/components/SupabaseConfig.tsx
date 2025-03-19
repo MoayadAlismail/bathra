@@ -1,6 +1,5 @@
 
 import { useState, useEffect } from "react";
-import { supabase } from "@/lib/supabase";
 import { createClient } from "@supabase/supabase-js";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,6 +10,7 @@ const SupabaseConfig = () => {
   const [url, setUrl] = useState<string>("");
   const [key, setKey] = useState<string>("");
   const [isConfigured, setIsConfigured] = useState<boolean>(false);
+  const [isTesting, setIsTesting] = useState<boolean>(false);
   const { updateSupabaseConfig } = useAuth();
 
   // Check if valid credentials are stored in localStorage
@@ -22,6 +22,9 @@ const SupabaseConfig = () => {
       setUrl(storedUrl);
       setKey(storedKey);
       setIsConfigured(true);
+      console.log("Found stored Supabase credentials");
+    } else {
+      console.log("No stored Supabase credentials found");
     }
   }, []);
 
@@ -31,7 +34,11 @@ const SupabaseConfig = () => {
       return;
     }
 
+    setIsTesting(true);
+    
     try {
+      console.log("Testing Supabase connection...");
+      
       // Test the connection with these credentials
       const testClient = createClient(url, key, {
         auth: {
@@ -45,12 +52,15 @@ const SupabaseConfig = () => {
       
       if (error && error.code !== 'PGRST116') {
         // PGRST116 is "No rows found" which is fine for our test
+        console.error("Supabase connection test failed:", error);
         throw new Error(`Supabase connection failed: ${error.message}`);
       }
 
       // Store credentials in localStorage
       localStorage.setItem("supabase_url", url);
       localStorage.setItem("supabase_anon_key", key);
+      
+      console.log("Supabase credentials validated and saved");
       
       // Update the auth context
       updateSupabaseConfig(url, key);
@@ -60,6 +70,8 @@ const SupabaseConfig = () => {
     } catch (error: any) {
       console.error("Failed to verify Supabase credentials:", error);
       toast.error(error.message || "Failed to connect to Supabase");
+    } finally {
+      setIsTesting(false);
     }
   };
 
@@ -116,8 +128,17 @@ const SupabaseConfig = () => {
             </div>
           </div>
           
-          <Button onClick={handleSaveConfig} className="w-full">
-            Save Configuration
+          <Button 
+            onClick={handleSaveConfig} 
+            className="w-full"
+            disabled={isTesting}
+          >
+            {isTesting ? (
+              <span className="flex items-center">
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Testing Connection...
+              </span>
+            ) : 'Save Configuration'}
           </Button>
         </div>
       )}

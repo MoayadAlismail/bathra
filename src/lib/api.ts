@@ -1,14 +1,5 @@
 
-import axios from '@/lib/axios';
-
-// Create a base axios instance
-const instance = axios.create({
-  baseURL: '/api',
-  timeout: 10000,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
+import axiosInstance from '@/lib/axios';
 
 export const api = {
   get: async (url: string) => {
@@ -47,7 +38,7 @@ export const api = {
           ],
         };
       }
-      return await instance.get(url);
+      return await axiosInstance.get(url);
     } catch (error) {
       console.error('API Error:', error);
       throw error;

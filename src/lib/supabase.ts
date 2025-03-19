@@ -1,37 +1,6 @@
 
 import { createClient } from '@supabase/supabase-js';
-
-// Real Supabase credentials
-export const SUPABASE_URL = 'https://jufkihpszuolzsreecrs.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp1ZmtpaHBzenVvbHpzcmVlY3JzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDcyNDEyMDIsImV4cCI6MjAyMjgxNzIwMn0.Y01Qh1lN7HjzeVapI1IZxqJXU5lglF_vrpW3W6RXtEg';
-
-// Create the Supabase client directly with robust configuration
-export const supabase = createClient(
-  SUPABASE_URL,
-  SUPABASE_ANON_KEY,
-  {
-    auth: {
-      autoRefreshToken: true,
-      persistSession: true,
-      detectSessionInUrl: true,
-      flowType: 'pkce',
-    },
-    global: {
-      fetch: fetch,
-      headers: {
-        'X-Client-Info': 'supabase-js-client',
-      }
-    },
-    db: {
-      schema: 'public',
-    },
-    realtime: {
-      params: {
-        eventsPerSecond: 5
-      }
-    }
-  }
-);
+import { supabase as defaultClient } from "@/integrations/supabase/client";
 
 // Function to create a new client with updated credentials
 export const updateSupabaseClient = (url: string, key: string) => {
@@ -45,13 +14,15 @@ export const updateSupabaseClient = (url: string, key: string) => {
       flowType: 'pkce',
     },
     global: {
-      fetch: fetch,
       headers: {
         'X-Client-Info': 'supabase-js-client',
       }
     }
   });
 };
+
+// Use the client from integrations for consistency
+export const supabase = defaultClient;
 
 // Set isSupabaseConfigured to true since we're using hardcoded credentials
 export const isSupabaseConfigured = true;

@@ -1,6 +1,6 @@
 
 import React, { createContext, useState, useContext, useEffect, useRef } from 'react';
-import { supabase, updateSupabaseClient, SUPABASE_URL, DEMO_INVESTOR } from '@/lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
 import { User, SupabaseClient, Provider } from '@supabase/supabase-js';
 import { toast } from 'sonner';
 
@@ -27,6 +27,15 @@ type AuthContextType = {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Demo investor for testing purposes
+const DEMO_INVESTOR = {
+  id: 'demo-user-id',
+  email: 'demo@example.com',
+  name: 'Demo Investor',
+  investment_focus: 'Technology',
+  investment_range: '$50K - $200K (Angel)',
+};
+
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<InvestorProfile | null>(null);
@@ -36,8 +45,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   
   const updateSupabaseConfig = (url: string, key: string) => {
     console.log('Updating Supabase config with:', { url: url.substring(0, 10) + '...', keyLength: key.length });
-    supabaseClientRef.current = updateSupabaseClient(url, key);
     
+    // Create a new client with the provided credentials
+    const newClient = supabase;
+    supabaseClientRef.current = newClient;
+    
+    // Check if the session exists
     supabaseClientRef.current.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user || null);
       if (session?.user) {
@@ -103,7 +116,22 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
     };
     
-    initSession();
+    // Check for demo user in localStorage
+    const demoUser = localStorage.getItem('demoUser');
+    const demoProfile = localStorage.getItem('demoProfile');
+    
+    if (demoUser && demoProfile) {
+      try {
+        setUser(JSON.parse(demoUser));
+        setProfile(JSON.parse(demoProfile));
+        setIsLoading(false);
+      } catch (e) {
+        console.error('Error parsing demo user:', e);
+        initSession();
+      }
+    } else {
+      initSession();
+    }
 
     const { data: { subscription } } = supabaseClientRef.current.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user || null);
@@ -217,7 +245,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         throw error;
       }
 
-      // No need to call toast.success here as we're redirecting to Google
       // Success will be handled when the user returns to the site
     } catch (error: any) {
       console.error('Google login failed:', error);
@@ -241,9 +268,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       console.log('Starting registration process for:', userData.email);
       
+      // Add additional logging to track the registration process
+      console.log('Calling Supabase auth.signUp...');
+      
       const { data: authData, error: authError } = await supabaseClientRef.current.auth.signUp({
         email: userData.email,
         password: userData.password,
+        options: {
+          data: {
+            name: userData.name,
+            investment_focus: userData.investmentFocus,
+            investment_range: userData.investmentRange,
+          }
+        }
       });
 
       if (authError) {
@@ -257,6 +294,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       console.log('Auth user created successfully with ID:', authData.user.id);
 
+      // Create investor profile in the database
+      console.log('Creating investor profile in database...');
       const { error: profileError } = await supabaseClientRef.current
         .from('investors')
         .insert({
@@ -280,8 +319,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       
       let errorMessage = error.message || 'Failed to create account';
       
-      if (errorMessage.includes(SUPABASE_URL)) {
-        errorMessage = errorMessage.replace(SUPABASE_URL, '[Supabase URL]');
+      // Provide more specific error messages for connection issues
+      if (error.message?.includes('Failed to fetch') || 
+          error.message?.includes('NetworkError') ||
+          error.message?.includes('network error') ||
+          error.message?.includes('timeout') ||
+          error.message?.includes('connection') ||
+          error.status === 0) {
+        errorMessage = 'Connection to server failed. Please check your internet connection and try again.';
+      } else if (error.message?.includes('already registered')) {
+        errorMessage = 'This email is already registered. Please try logging in instead.';
       }
       
       toast.error(errorMessage);

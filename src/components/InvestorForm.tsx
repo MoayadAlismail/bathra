@@ -86,11 +86,13 @@ const InvestorForm = () => {
         errorMessage.includes('timeout') ||
         errorMessage.includes('offline')
       ) {
-        errorMessage = "There was an issue connecting to our servers. This does not mean you're offline - please try again.";
+        // More specific error message for connection issues
+        errorMessage = "There was an issue connecting to our servers. Please try again in a moment. If the problem persists, check your internet connection and browser settings.";
       }
       
       setError(errorMessage);
       toast.error(errorMessage);
+      toast.dismiss("register-toast-" + Date.now());
     } finally {
       setIsSubmitting(false);
     }

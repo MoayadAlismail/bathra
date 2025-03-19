@@ -1,4 +1,3 @@
-
 import { createClient } from '@supabase/supabase-js';
 
 // Real Supabase credentials
@@ -9,13 +8,14 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 const customFetch = async (input: RequestInfo | URL, init?: RequestInit) => {
   // Maximum number of retries
   const MAX_RETRIES = 3;
-  const TIMEOUT_MS = 20000; // Increase timeout to 20 seconds
+  const TIMEOUT_MS = 30000; // Increase timeout to 30 seconds
   let retries = 0;
   let lastError;
 
-  // If we're running in a browser environment, check network status first
-  if (typeof navigator !== 'undefined' && !navigator.onLine) {
-    throw new Error('You are currently offline. Please check your internet connection.');
+  // If we're running in a browser environment, check network status
+  // but don't rely solely on navigator.onLine
+  if (typeof navigator !== 'undefined') {
+    console.log(`Browser reports online status: ${navigator.onLine}`);
   }
 
   while (retries < MAX_RETRIES) {
@@ -24,7 +24,10 @@ const customFetch = async (input: RequestInfo | URL, init?: RequestInit) => {
       
       const controller = new AbortController();
       // Set timeout
-      const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
+      const timeoutId = setTimeout(() => {
+        console.log(`Request timeout after ${TIMEOUT_MS}ms`);
+        controller.abort();
+      }, TIMEOUT_MS);
       
       // Add a custom signal to the init object if it doesn't already have one
       const modifiedInit = {
@@ -35,7 +38,10 @@ const customFetch = async (input: RequestInfo | URL, init?: RequestInit) => {
         headers: {
           ...init?.headers,
           'X-Client-Info': 'supabase-js-client',
-          'Cache-Control': 'no-cache, no-store', // Prevent caching issues
+          'Cache-Control': 'no-cache, no-store, must-revalidate', // Stronger cache prevention
+          'Pragma': 'no-cache', // For older browsers
+          'X-Requested-With': 'XMLHttpRequest', // Helps identify AJAX requests
+          'X-Timestamp': Date.now().toString(), // Cache busting
         }
       };
       
@@ -68,9 +74,46 @@ const customFetch = async (input: RequestInfo | URL, init?: RequestInit) => {
     }
   }
 
-  // If all retries failed, throw the last error with a clearer message
+  // If all retries failed, try to determine if it's a connectivity issue
+  // or a server issue
   console.error('All fetch attempts failed:', lastError);
-  throw new Error(`Connection error: Failed to connect to Supabase after ${MAX_RETRIES} attempts. Please check your connection and try again.`);
+  
+  // Check connectivity to a reliable endpoint as a final test
+  if (typeof window !== 'undefined') {
+    try {
+      const timestamp = Date.now();
+      // Try multiple endpoints with a short timeout
+      const endpoints = [
+        `https://www.google.com/favicon.ico?_=${timestamp}`,
+        `https://www.cloudflare.com/favicon.ico?_=${timestamp}`
+      ];
+      
+      for (const endpoint of endpoints) {
+        try {
+          const controller = new AbortController();
+          setTimeout(() => controller.abort(), 3000);
+          await fetch(endpoint, { 
+            method: 'HEAD', 
+            mode: 'no-cors',
+            cache: 'no-store',
+            signal: controller.signal 
+          });
+          // If we can reach Google or Cloudflare but not Supabase,
+          // it's likely a Supabase-specific issue
+          throw new Error(`Connection to Supabase failed. You are online, but we couldn't reach Supabase servers. Please try again later.`);
+        } catch (e) {
+          // Continue to next endpoint
+        }
+      }
+    } catch (connectivityError: any) {
+      if (connectivityError.message.includes("Supabase")) {
+        throw connectivityError; // This is our custom message about Supabase being down
+      }
+    }
+  }
+  
+  // Default error if we can't determine more specifically
+  throw new Error(`Connection error: Failed to connect to the server after ${MAX_RETRIES} attempts. Please check your connection and try again.`);
 };
 
 // Create a Supabase client with the credentials and improved fetch

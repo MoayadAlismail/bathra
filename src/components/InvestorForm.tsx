@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -8,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
-import { WifiOff, RefreshCw, Loader } from "lucide-react";
+import { WifiOff, RefreshCw, Loader, Wifi } from "lucide-react";
 import { toast } from "sonner";
 
 const InvestorForm = () => {
@@ -29,41 +30,74 @@ const InvestorForm = () => {
 
   useEffect(() => {
     const handleOnline = () => {
+      console.log("Browser reports online status");
       setIsOnline(true);
       setError("");
     };
     
     const handleOffline = () => {
+      console.log("Browser reports offline status");
       setIsOnline(false);
       setError("You are currently offline. Please check your internet connection.");
     };
 
+    // Set initial online state but don't trust it completely
     setIsOnline(navigator.onLine);
 
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
 
+    // More reliable connectivity check
     const checkConnectivity = async () => {
       try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 3000);
+        console.log("Performing initial connectivity check");
+        const timestamp = new Date().getTime();
+        // Use multiple endpoints with cache busting to prevent false positives
+        const endpoints = [
+          `https://www.google.com/favicon.ico?_=${timestamp}`,
+          `https://www.cloudflare.com/favicon.ico?_=${timestamp}`,
+          `https://www.microsoft.com/favicon.ico?_=${timestamp}`
+        ];
         
-        const response = await fetch('https://www.google.com/favicon.ico', {
-          method: 'HEAD',
-          mode: 'no-cors',
-          cache: 'no-store',
-          signal: controller.signal
-        });
+        // Try the endpoints one by one until one succeeds
+        for (const endpoint of endpoints) {
+          try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 3000);
+            
+            const response = await fetch(endpoint, {
+              method: 'HEAD',
+              mode: 'no-cors',
+              cache: 'no-store',
+              signal: controller.signal
+            });
+            
+            clearTimeout(timeoutId);
+            console.log(`Connectivity check succeeded with ${endpoint}`);
+            setIsOnline(true);
+            setError("");
+            return; // Exit after first successful check
+          } catch (err) {
+            console.warn(`Connectivity check failed for ${endpoint}:`, err);
+            // Continue to the next endpoint
+          }
+        }
         
-        clearTimeout(timeoutId);
-        setIsOnline(true);
-        setError("");
-      } catch (err) {
-        console.warn('Initial connectivity check failed:', err);
-        if (!navigator.onLine) {
+        // If we get here, all endpoints failed
+        if (navigator.onLine) {
+          console.log("Browser reports online but all connectivity checks failed");
+          // The browser might be wrong about online status, but let's trust it for now
+          // to avoid false negatives in corporate networks with firewalls
+          setIsOnline(true);
+        } else {
+          console.log("All connectivity checks failed and browser reports offline");
           setIsOnline(false);
           setError("You appear to be offline. Please check your internet connection.");
         }
+      } catch (err) {
+        console.warn('Connectivity check error:', err);
+        // Fall back to browser's online status
+        setIsOnline(navigator.onLine);
       }
     };
     
@@ -159,23 +193,54 @@ const InvestorForm = () => {
     try {
       toast.loading("Checking connection...");
       
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 3000);
+      // Use the same multi-endpoint approach for retrying
+      const timestamp = new Date().getTime();
+      const endpoints = [
+        `https://www.google.com/favicon.ico?_=${timestamp}`,
+        `https://www.cloudflare.com/favicon.ico?_=${timestamp}`,
+        `https://www.microsoft.com/favicon.ico?_=${timestamp}`
+      ];
       
-      await fetch('https://www.google.com/favicon.ico', {
-        method: 'HEAD',
-        mode: 'no-cors',
-        cache: 'no-store',
-        signal: controller.signal
-      });
+      let connected = false;
       
-      clearTimeout(timeoutId);
-      setIsOnline(true);
-      toast.success("Connection restored!");
+      for (const endpoint of endpoints) {
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 3000);
+          
+          await fetch(endpoint, {
+            method: 'HEAD',
+            mode: 'no-cors',
+            cache: 'no-store',
+            signal: controller.signal
+          });
+          
+          clearTimeout(timeoutId);
+          connected = true;
+          break;
+        } catch (err) {
+          console.warn(`Retry connectivity check failed for ${endpoint}:`, err);
+          // Continue to next endpoint
+        }
+      }
+      
+      if (connected || navigator.onLine) {
+        setIsOnline(true);
+        toast.success("Connection verified!");
+      } else {
+        setIsOnline(false);
+        setError("Still experiencing connection issues. Please check your network.");
+        toast.error("Connection check failed. Please try again later.");
+      }
     } catch (err) {
-      setIsOnline(false);
-      setError("Still experiencing connection issues. Please check your network.");
-      toast.error("Connection check failed. Please try again later.");
+      console.error("Connection retry error:", err);
+      // Fall back to browser's status
+      setIsOnline(navigator.onLine);
+      if (navigator.onLine) {
+        toast.success("Connection seems to be working");
+      } else {
+        toast.error("Connection check failed. Please try again later.");
+      }
     }
   };
 
@@ -212,6 +277,15 @@ const InvestorForm = () => {
                 >
                   <RefreshCw className="h-3 w-3 mr-1" /> Retry
                 </Button>
+              </AlertDescription>
+            </Alert>
+          )}
+
+          {isOnline && (
+            <Alert variant="default" className="mb-6 bg-green-50 border-green-200 text-green-700">
+              <Wifi className="h-4 w-4" />
+              <AlertDescription>
+                You are connected to the internet and can create an account.
               </AlertDescription>
             </Alert>
           )}

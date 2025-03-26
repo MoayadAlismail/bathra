@@ -9,26 +9,19 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Loader, Building, User, Briefcase } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-
-type AccountType = 'startup' | 'individual' | 'vc';
+import { MainAccountType, InvestorType, getFullAccountType } from "@/lib/account-types";
 
 const AccountSelection = () => {
-  const [mainAccountType, setMainAccountType] = useState<'startup' | 'investor'>("investor");
-  const [investorType, setInvestorType] = useState<'individual' | 'vc'>("individual");
+  const [mainAccountType, setMainAccountType] = useState<MainAccountType>("investor");
+  const [investorType, setInvestorType] = useState<InvestorType>("individual");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { setAccountType: saveAccountType, user } = useAuth();
   const navigate = useNavigate();
 
-  // Determine the final account type based on main selection and investor subtype
-  const getAccountType = (): AccountType => {
-    if (mainAccountType === 'startup') return 'startup';
-    return investorType;
-  };
-
   const handleContinue = async () => {
     try {
       setIsSubmitting(true);
-      const accountType = getAccountType();
+      const accountType = getFullAccountType(mainAccountType, investorType);
       await saveAccountType(accountType);
       
       if (accountType === 'startup') {
@@ -65,7 +58,7 @@ const AccountSelection = () => {
               <div className="mb-6">
                 <RadioGroup 
                   value={mainAccountType} 
-                  onValueChange={(value) => setMainAccountType(value as 'startup' | 'investor')}
+                  onValueChange={(value) => setMainAccountType(value as MainAccountType)}
                   className="flex flex-col gap-4"
                 >
                   <div className="flex items-center space-x-2 border p-4 rounded-md cursor-pointer hover:bg-muted/30">
@@ -103,7 +96,7 @@ const AccountSelection = () => {
                   </Label>
                   <Select
                     value={investorType}
-                    onValueChange={(value) => setInvestorType(value as 'individual' | 'vc')}
+                    onValueChange={(value) => setInvestorType(value as InvestorType)}
                   >
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Select investor type" />

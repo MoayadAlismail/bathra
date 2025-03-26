@@ -6,13 +6,6 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 
-const navItems = [
-  { label: "Home", path: "/" },
-  { label: "How It Works", path: "/#how-it-works" },
-  { label: "Startups", path: "/pitch" },
-  { label: "Investors", path: "/invest" },
-];
-
 const Navbar = () => {
   const navigate = useNavigate();
   const { user, profile, logout } = useAuth();
@@ -47,6 +40,34 @@ const Navbar = () => {
     logout();
     navigate("/");
   };
+
+  // Get public navigation items (shown to all users)
+  const getPublicNavItems = () => [
+    { label: "Home", path: "/" },
+    { label: "How It Works", path: "/#how-it-works" },
+  ];
+
+  // Get authenticated navigation items based on account type
+  const getAuthenticatedNavItems = () => {
+    if (!user) return [];
+    
+    if (accountType === 'startup') {
+      return [
+        { label: "My Startup", path: "/startup-profile" }
+      ];
+    } else {
+      // For investors (individual or VC)
+      return [
+        { label: "Startups", path: "/startups" }
+      ];
+    }
+  };
+
+  // Combine public and authenticated nav items
+  const navItems = [
+    ...getPublicNavItems(),
+    ...getAuthenticatedNavItems(),
+  ];
 
   const renderAuthButtons = () => {
     if (!user) {

@@ -65,31 +65,54 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const fetchUserProfile = async (userId: string) => {
     try {
       console.log('Fetching profile for user:', userId);
-      const { data, error } = await supabase
+      
+      // In our demo mode, check for investor profile first
+      const { data: investorData, error: investorError } = await supabase
         .from('investors')
         .select('*')
         .eq('id', userId)
         .single();
 
-      if (error) {
-        console.error('Error fetching profile:', error);
-        throw error;
+      if (investorError) {
+        console.log('No investor profile found, checking for startup');
+        
+        // Try to find a startup profile
+        const { data: startupData, error: startupError } = await supabase
+          .from('startups')
+          .select('*')
+          .eq('id', userId)
+          .single();
+          
+        if (startupError) {
+          console.log('No startup profile found either');
+          throw new Error('No profile found');
+        }
+        
+        // For demo purposes, create a profile from the startup data
+        setProfile({
+          id: startupData.id,
+          name: startupData.name,
+          email: 'startup@example.com', // Demo email
+          accountType: 'startup',
+          startupId: startupData.id
+        });
+        return;
       }
 
-      if (data) {
-        console.log('Profile fetched successfully:', data);
-        setProfile({
-          id: data.id,
-          email: data.email,
-          name: data.name,
-          accountType: (data.account_type as AccountType) || 'individual',
-          investmentFocus: data.investment_focus,
-          investmentRange: data.investment_range,
-        });
-      } else {
-        console.log('No profile found for user, checking metadata for profile creation');
-        
-        // Try to create a profile from user metadata if it doesn't exist
+      // For demo, we have an investor profile
+      setProfile({
+        id: investorData.id,
+        email: investorData.email,
+        name: investorData.name,
+        accountType: (investorData.account_type as AccountType) || 'individual',
+        investmentFocus: investorData.investment_focus,
+        investmentRange: investorData.investment_range,
+      });
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
+      
+      // Try to create a profile from user metadata if it doesn't exist
+      try {
         const { data: { user } } = await supabase.auth.getUser();
         
         if (user?.user_metadata?.name) {
@@ -107,26 +130,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           
           console.log('Creating new profile from metadata:', newProfile);
           setProfile(newProfile);
-          
-          // Store in database if required
-          const { error: insertError } = await supabase
-            .from('investors')
-            .insert({
-              id: userId,
-              email: user.email || '',
-              name: user.user_metadata.name || '',
-              investment_focus: user.user_metadata.investmentFocus || '',
-              investment_range: user.user_metadata.investmentRange || '',
-              account_type: accountType,
-            });
-            
-          if (insertError) {
-            console.error('Error creating profile from metadata:', insertError);
-          }
         }
+      } catch (metadataError) {
+        console.error('Failed to create profile from metadata:', metadataError);
       }
-    } catch (error) {
-      console.error('Error fetching user profile:', error);
     }
   };
 

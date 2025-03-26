@@ -44,35 +44,34 @@ const VettedStartups = () => {
   const { theme } = useTheme();
 
   useEffect(() => {
+    // Check if user is logged in and has appropriate access
+    if (!user) {
+      toast.error("You must be logged in to view vetted startups");
+      navigate('/login');
+      return;
+    }
+
+    const accountType = profile?.accountType || user?.user_metadata?.accountType;
+    if (accountType !== 'individual' && accountType !== 'vc') {
+      toast.error("Only investor accounts can view vetted startups");
+      navigate('/account-type');
+      return;
+    }
+
     const fetchStartups = async () => {
       setLoading(true);
       try {
-        // Fetch only vetted startups
-        const { data, error } = await supabase
+        // Fetch only vetted startups from our mock database
+        const result = await supabase
           .from('startups')
           .select('*')
-          .eq('status', 'vetted')
-          .order('created_at', { ascending: false })
-          .limit(10);
+          .eq('status', 'vetted');
         
-        if (error) throw error;
+        if (result.error) throw result.error;
 
-        // Convert database data to our Startup interface
-        const formattedData = (data || []).map((startup) => ({
-          id: startup.id,
-          name: startup.name,
-          description: startup.description || '',
-          image: `https://source.unsplash.com/random/800x600/?${startup.industry?.toLowerCase() || 'startup'}`,
-          valuation: startup.valuation || 'N/A',
-          // Generate some demo data for display
-          raised: Math.floor(Math.random() * 5000000),
-          roi: Math.floor(Math.random() * 40) + 10,
-          industry: startup.industry || 'Technology',
-          stage: startup.stage || 'Seed',
-          status: startup.status || 'vetted'
-        }));
-
-        setStartups(formattedData);
+        // Type assertion to handle the mock result
+        const data = result.data as Startup[];
+        setStartups(data);
       } catch (error) {
         console.error("Failed to fetch startups:", error);
         toast.error("Failed to fetch startups. Using demo data instead.");
@@ -110,7 +109,7 @@ const VettedStartups = () => {
     };
 
     fetchStartups();
-  }, []);
+  }, [user, profile, navigate]);
 
   const investInStartup = (startupId: string) => {
     if (!user) {

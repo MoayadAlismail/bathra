@@ -1,221 +1,189 @@
-import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/context/AuthContext';
-import Navbar from '@/components/Navbar';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
-import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
-import StartupDetailModal from '@/components/StartupDetailModal';
-import { isInvestorAccount } from '@/lib/account-types';
 
-interface Startup {
-  id: string;
-  name: string;
-  description: string;
-  industry: string;
-  stage: string;
-  valuation: string;
-  roi: number;
-  raised: number;
-  status?: string;
-  image?: string;
-}
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import { Search, Filter, Building, ArrowRight, ExternalLink } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
+import { supabase } from "@/lib/supabase";
+import { toast } from "sonner";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import Navbar from "@/components/Navbar";
+import StartupDetailModal from "@/components/StartupDetailModal";
 
 const VettedStartups = () => {
-  const [startups, setStartups] = useState<Startup[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState("");
-  const { toast: uiToast } = useToast();
+  const [startups, setStartups] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedStartup, setSelectedStartup] = useState<any>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const { user, profile } = useAuth();
   const navigate = useNavigate();
-  const { theme } = useTheme();
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState('');
 
   useEffect(() => {
-    if (!user) {
-      toast.error("You must be logged in to view vetted startups");
-      navigate('/login');
-      return;
-    }
-
-    const accountType = profile?.accountType || user?.user_metadata?.accountType;
-    if (accountType !== 'individual' && accountType !== 'vc') {
-      toast.error("Only investor accounts can view vetted startups");
-      navigate('/account-type');
-      return;
-    }
-
-    const fetchStartups = async () => {
-      try {
-        setIsLoading(true);
-        
-        // Only fetch vetted startups
-        const { data, error } = await supabase
-          .from('startups')
-          .select('*')
-          .eq('status', 'vetted')
-          .select();
-        
-        if (error) throw error;
-        
-        if (data) {
-          setStartups(data as Startup[]);
-        }
-      } catch (error) {
-        console.error('Error fetching startups:', error);
-        setError('Failed to load startups. Please try again later.');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     fetchStartups();
-  }, [user, profile, navigate]);
+  }, []);
 
-  const investInStartup = (startupId: string) => {
-    if (!user) {
-      toast.error("Please log in to invest in startups.");
-      navigate("/login");
-      return;
+  const fetchStartups = async () => {
+    setIsLoading(true);
+    try {
+      console.log("Fetching startups...");
+      
+      // For demo purposes, we're filtering 'vetted' startups
+      const { data, error } = await supabase
+        .from('startups')
+        .select('*')
+        .eq('status', 'vetted');
+      
+      if (error) {
+        throw error;
+      }
+      
+      console.log("Fetched startups:", data);
+      setStartups(data || []);
+    } catch (error) {
+      console.error("Error fetching startups:", error);
+      toast.error("Failed to load startups");
+    } finally {
+      setIsLoading(false);
     }
-
-    toast.success("Investment Initiated", {
-      description: `You have initiated investment in startup with ID: ${startupId}.`
-    });
   };
 
-  const filteredStartups = startups.filter((startup) =>
-    startup.name.toLowerCase().includes(search.toLowerCase()) ||
-    startup.industry.toLowerCase().includes(search.toLowerCase()) ||
-    startup.description.toLowerCase().includes(search.toLowerCase())
+  const handleStartupClick = (startup: any) => {
+    setSelectedStartup(startup);
+    setIsModalOpen(true);
+  };
+
+  const handleInvest = (startupId: string) => {
+    // In a real app, this would initiate the investment process
+    toast.success("Investment interest recorded");
+    setIsModalOpen(false);
+  };
+
+  // Filter startups based on search term
+  const filteredStartups = startups.filter(
+    (startup) =>
+      startup.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      startup.industry.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      startup.description.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // Render loading skeletons
+  const renderSkeletons = () => (
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      {[1, 2, 3].map((i) => (
+        <div key={i} className="bg-card rounded-lg p-6 shadow-md">
+          <Skeleton className="h-40 w-full mb-4" />
+          <Skeleton className="h-8 w-3/4 mb-2" />
+          <Skeleton className="h-4 w-1/2 mb-4" />
+          <Skeleton className="h-20 w-full mb-4" />
+          <Skeleton className="h-10 w-full" />
+        </div>
+      ))}
+    </div>
   );
 
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
+      
       <section className="py-20">
         <div className="container mx-auto px-4">
           <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7 }}
-            className="text-center mb-12"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
           >
-            <h2 className="text-3xl font-bold text-gradient mb-4">
-              Explore Vetted Startups
-            </h2>
-            <p className="text-muted-foreground">
-              Invest in promising startups and grow your portfolio.
-            </p>
-          </motion.div>
+            <div className="max-w-4xl mx-auto text-center mb-12">
+              <h1 className="text-4xl font-bold mb-4">Vetted Startups</h1>
+              <p className="text-xl text-muted-foreground">
+                Discover pre-vetted startups with high growth potential
+              </p>
+            </div>
 
-          <motion.div
-            initial={{ y: 50, opacity: 0 }}
-            whileInView={{ y: 0, opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7, delay: 0.2 }}
-            className="max-w-md mx-auto mb-8"
-          >
-            <Input
-              type="search"
-              placeholder="Search startups by name, industry, or description..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="bg-background border-border"
-            />
-          </motion.div>
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-8">
+              <div className="relative w-full md:w-1/2">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  type="text"
+                  placeholder="Search by name, industry, or description"
+                  className="pl-10"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+              <Button variant="outline" className="w-full md:w-auto">
+                <Filter className="mr-2 h-4 w-4" /> Filter
+              </Button>
+            </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {loading
-              ? Array(6)
-                  .fill(null)
-                  .map((_, i) => (
-                    <Card key={i}>
-                      <CardHeader>
-                        <CardTitle>
-                          <Skeleton className="h-5 w-4/5" />
-                        </CardTitle>
-                        <CardDescription>
-                          <Skeleton className="h-4 w-3/5" />
-                        </CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        <Skeleton className="h-24 w-full" />
-                        <div className="mt-4 space-y-2">
-                          <Skeleton className="h-4 w-full" />
-                          <Skeleton className="h-4 w-5/6" />
-                          <Skeleton className="h-4 w-4/6" />
+            {isLoading ? (
+              renderSkeletons()
+            ) : (
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {filteredStartups.map((startup) => (
+                  <motion.div
+                    key={startup.id}
+                    whileHover={{ y: -5 }}
+                    className="bg-card border rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all duration-300"
+                  >
+                    <div 
+                      className="h-40 bg-center bg-cover" 
+                      style={{ backgroundImage: `url(${startup.image || 'https://images.unsplash.com/photo-1551434678-e076c223a692?w=800&auto=format&fit=crop'})` }}
+                    />
+                    <div className="p-6">
+                      <div className="flex justify-between items-start mb-2">
+                        <h3 className="text-xl font-bold">{startup.name}</h3>
+                        <div className="flex space-x-2">
+                          <Badge variant="outline">{startup.stage}</Badge>
+                          <Badge variant="secondary">{startup.industry}</Badge>
                         </div>
-                      </CardContent>
-                      <CardFooter className="flex justify-between items-center">
-                        <Skeleton className="h-8 w-20" />
-                        <Skeleton className="h-8 w-20" />
-                      </CardFooter>
-                    </Card>
-                  ))
-              : filteredStartups.length > 0 ? (
-                  filteredStartups.map((startup) => (
-                    <motion.div
-                      key={startup.id}
-                      initial={{ y: 50, opacity: 0 }}
-                      whileInView={{ y: 0, opacity: 1 }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 0.5 }}
-                    >
-                      <Card className="neo-blur h-full flex flex-col">
-                        <CardHeader>
-                          <div className="flex flex-wrap gap-2 mb-2">
-                            <Badge variant="secondary">{startup.industry}</Badge>
-                            <Badge variant="outline">{startup.stage}</Badge>
-                          </div>
-                          <CardTitle>{startup.name}</CardTitle>
-                          <CardDescription className="line-clamp-2">{startup.description}</CardDescription>
-                        </CardHeader>
-                        <CardContent className="flex-grow">
-                          <img
-                            src={startup.image}
-                            alt={startup.name}
-                            className="rounded-md mb-4 w-full h-48 object-cover"
-                          />
-                          <div className="space-y-2">
-                            <div className="flex justify-between">
-                              <span className="text-muted-foreground">Valuation:</span>
-                              <span className="font-medium">${startup.valuation}</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-muted-foreground">Raised:</span>
-                              <span className="font-medium">${startup.raised.toLocaleString()}</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-muted-foreground">Potential ROI:</span>
-                              <span className="font-medium text-green-600">{startup.roi}%</span>
-                            </div>
-                          </div>
-                        </CardContent>
-                        <CardFooter>
-                          <Button
-                            onClick={() => investInStartup(startup.id)}
-                            className="w-full"
-                          >
-                            Invest Now
-                          </Button>
-                        </CardFooter>
-                      </Card>
-                    </motion.div>
-                  ))
-                ) : (
-                  <div className="col-span-full text-center py-10">
-                    <p className="text-muted-foreground">No startups match your search criteria.</p>
-                  </div>
-                )}
-          </div>
+                      </div>
+                      <p className="text-muted-foreground mb-4 line-clamp-3">
+                        {startup.description}
+                      </p>
+                      <div className="mt-4 flex justify-between items-center">
+                        <div>
+                          <span className="text-sm font-medium">Valuation:</span>
+                          <span className="ml-1 text-sm">${startup.valuation || 'Undisclosed'}</span>
+                        </div>
+                        <Button 
+                          onClick={() => handleStartupClick(startup)}
+                          size="sm"
+                          className="rounded-full"
+                        >
+                          Details <ArrowRight className="ml-1 h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            )}
+
+            {filteredStartups.length === 0 && !isLoading && (
+              <div className="text-center py-12">
+                <Building className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+                <h3 className="text-xl font-medium mb-2">No startups found</h3>
+                <p className="text-muted-foreground">
+                  Try adjusting your search or check back later for new additions.
+                </p>
+              </div>
+            )}
+          </motion.div>
         </div>
       </section>
+
+      {selectedStartup && (
+        <StartupDetailModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          startup={selectedStartup}
+          onInvest={handleInvest}
+        />
+      )}
     </div>
   );
 };

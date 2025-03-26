@@ -1,587 +1,699 @@
+import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/context/AuthContext';
+import { z } from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Card, CardContent } from '@/components/ui/card';
+import { ArrowRight, Upload, CheckCircle, AlertCircle, Loader } from 'lucide-react';
 
-import { motion } from "framer-motion";
-import { useToast } from "@/hooks/use-toast";
-import { toast } from "sonner";
-import { Upload, Target, Globe, Lightbulb, DollarSign, Users, BarChart } from "lucide-react";
-import { useState, FormEvent } from "react";
-import { supabase } from "@/lib/supabase";
-import { useTheme } from "@/components/ThemeProvider";
-import { useNavigate } from "react-router-dom";
+const startupSchema = z.object({
+  name: z.string().min(2, {
+    message: "Startup name must be at least 2 characters.",
+  }),
+  industry: z.string().min(2, {
+    message: "Industry must be at least 2 characters.",
+  }),
+  stage: z.string().min(2, {
+    message: "Stage must be at least 2 characters.",
+  }),
+  description: z.string().min(10, {
+    message: "Description must be at least 10 characters.",
+  }),
+  website: z.string().url({
+    message: "Please enter a valid URL.",
+  }),
+  founders: z.string().min(2, {
+    message: "Founders must be at least 2 characters.",
+  }),
+  team_size: z.string().min(1, {
+    message: "Team size is required.",
+  }),
+  founded_date: z.string().min(1, {
+    message: "Founded date is required.",
+  }),
+  target_market: z.string().min(2, {
+    message: "Target market must be at least 2 characters.",
+  }),
+  problem_solved: z.string().min(10, {
+    message: "Problem solved must be at least 10 characters.",
+  }),
+  usp: z.string().min(10, {
+    message: "Unique selling proposition must be at least 10 characters.",
+  }),
+  traction: z.string().min(10, {
+    message: "Traction must be at least 10 characters.",
+  }),
+  key_metrics: z.string().min(10, {
+    message: "Key metrics must be at least 10 characters.",
+  }),
+  previous_funding: z.string().min(2, {
+    message: "Previous funding must be at least 2 characters.",
+  }),
+  funding_required: z.string().min(2, {
+    message: "Funding required must be at least 2 characters.",
+  }),
+  valuation: z.string().min(2, {
+    message: "Valuation must be at least 2 characters.",
+  }),
+  use_of_funds: z.string().min(10, {
+    message: "Use of funds must be at least 10 characters.",
+  }),
+  roadmap: z.string().min(10, {
+    message: "Roadmap must be at least 10 characters.",
+  }),
+  exit_strategy: z.string().min(10, {
+    message: "Exit strategy must be at least 10 characters.",
+  }),
+});
 
 const StartupForm = () => {
-  const { toast: uiToast } = useToast();
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { theme } = useTheme();
+  const [isUploaded, setIsUploaded] = useState(false);
+  const [uploadError, setUploadError] = useState('');
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploading, setUploading] = useState(false);
+  const [fileUrl, setFileUrl] = useState<string | null>(null);
+  const [error, setError] = useState('');
+  const [startupExists, setStartupExists] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [startup, setStartup] = useState<any>(null);
+
   const navigate = useNavigate();
-  
-  const [formData, setFormData] = useState({
-    startupName: "",
-    website: "",
-    founded: "",
-    founders: "",
-    teamSize: "",
-    industry: "",
-    stage: "",
-    targetMarket: "",
-    pitch: "",
-    problem: "",
-    usp: "",
-    traction: "",
-    keyMetrics: "",
-    previousFunding: "",
-    funding: "",
-    valuation: "",
-    useOfFunds: "",
-    roadmap: "",
-    exitStrategy: ""
+  const { user, profile } = useAuth();
+
+  const form = useForm<z.infer<typeof startupSchema>>({
+    resolver: zodResolver(startupSchema),
+    defaultValues: {
+      name: "",
+      industry: "",
+      stage: "",
+      description: "",
+      website: "",
+      founders: "",
+      team_size: "",
+      founded_date: "",
+      target_market: "",
+      problem_solved: "",
+      usp: "",
+      traction: "",
+      key_metrics: "",
+      previous_funding: "",
+      funding_required: "",
+      valuation: "",
+      use_of_funds: "",
+      roadmap: "",
+      exit_strategy: "",
+    },
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { id, value } = e.target;
-    setFormData(prev => ({ ...prev, [id]: value }));
-  };
+  useEffect(() => {
+    if (user) {
+      checkExistingStartup(user.id);
+      fetchStartupProfile();
+    }
+  }, [user, profile]);
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    
+  const checkExistingStartup = async (userId: string) => {
     try {
-      setIsSubmitting(true);
-      
-      // Insert new startup data
       const { data, error } = await supabase
         .from('startups')
-        .insert({
-          name: formData.startupName,
-          website: formData.website,
-          founded_date: formData.founded,
-          founders: formData.founders,
-          team_size: formData.teamSize,
-          industry: formData.industry,
-          stage: formData.stage,
-          target_market: formData.targetMarket,
-          description: formData.pitch,
-          problem_solved: formData.problem,
-          usp: formData.usp,
-          traction: formData.traction,
-          key_metrics: formData.keyMetrics,
-          previous_funding: formData.previousFunding,
-          funding_required: formData.funding,
-          valuation: formData.valuation,
-          use_of_funds: formData.useOfFunds,
-          roadmap: formData.roadmap,
-          exit_strategy: formData.exitStrategy,
-          status: 'pending'
-        })
+        .select('*')
+        .eq('id', userId)
+        .select();
+
+      if (error) throw error;
+      setStartupExists(data && data.length > 0);
+    } catch (err) {
+      console.error("Error checking existing startup:", err);
+      setError("Error occurred while checking startup profile.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const fetchStartupProfile = async () => {
+    try {
+      setIsLoading(true);
+      setError('');
+      
+      // Get the startup ID from the user's profile
+      const startupId = profile?.startupId || profile?.id;
+      
+      if (!startupId) {
+        setError('No startup profile found');
+        setIsLoading(false);
+        return;
+      }
+      
+      const { data, error } = await supabase
+        .from('startups')
+        .select('*')
+        .eq('id', startupId)
         .select();
       
       if (error) throw error;
       
-      // Handle file upload if a file is selected
-      if (selectedFile && data && data.length > 0) {
-        const fileExt = selectedFile.name.split('.').pop();
-        const fileName = `${data[0].id}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-        const filePath = `pitch-docs/${fileName}`;
-        
-        const { error: uploadError } = await supabase
-          .storage
-          .from('startup-documents')
-          .upload(filePath, selectedFile);
-          
-        if (uploadError) throw uploadError;
-        
-        // Update startup record with document path
-        const { error: updateError } = await supabase
-          .from('startups')
-          .update({ document_path: filePath })
-          .eq('id', data[0].id);
-          
-        if (updateError) throw updateError;
+      if (!data || data.length === 0) {
+        setError('Startup profile not found');
+      } else {
+        setStartup(data[0]);
       }
-      
-      toast.success("Your pitch has been submitted successfully and is pending review!");
-      
-      // Reset form
-      setFormData({
-        startupName: "",
-        website: "",
-        founded: "",
-        founders: "",
-        teamSize: "",
-        industry: "",
-        stage: "",
-        targetMarket: "",
-        pitch: "",
-        problem: "",
-        usp: "",
-        traction: "",
-        keyMetrics: "",
-        previousFunding: "",
-        funding: "",
-        valuation: "",
-        useOfFunds: "",
-        roadmap: "",
-        exitStrategy: ""
-      });
-      setSelectedFile(null);
-      
-      // Redirect to startup profile page
-      setTimeout(() => {
-        navigate('/startup-profile');
-      }, 1500);
-      
-    } catch (error: any) {
-      console.error('Error submitting pitch:', error);
-      toast.error(error.message || "Failed to submit your pitch. Please try again.");
+    } catch (err: any) {
+      console.error('Error fetching startup profile:', err);
+      setError(err.message || 'Failed to load your startup profile');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSubmit = async (data: z.infer<typeof startupSchema>) => {
+    setIsSubmitting(true);
+    setError('');
+
+    try {
+      if (!user) {
+        throw new Error("User not authenticated.");
+      }
+
+      const startupData = {
+        id: user.id,
+        name: data.name,
+        industry: data.industry,
+        stage: data.stage,
+        description: data.description,
+        website: data.website,
+        founders: data.founders,
+        team_size: data.team_size,
+        founded_date: data.founded_date,
+        target_market: data.target_market,
+        problem_solved: data.problem_solved,
+        usp: data.usp,
+        traction: data.traction,
+        key_metrics: data.key_metrics,
+        previous_funding: data.previous_funding,
+        funding_required: data.funding_required,
+        valuation: data.valuation,
+        use_of_funds: data.use_of_funds,
+        roadmap: data.roadmap,
+        exit_strategy: data.exit_strategy,
+        status: 'pending',
+        document_path: fileUrl || null,
+        created_at: new Date().toISOString(),
+      };
+
+      if (startupExists) {
+        // Update existing startup profile
+        const { error } = await supabase
+          .from('startups')
+          .update(startupData)
+          .eq('id', user.id);
+
+        if (error) {
+          throw error;
+        }
+        toast.success("Startup profile updated successfully!");
+      } else {
+        // Insert new startup profile
+        const { error } = await supabase
+          .from('startups')
+          .insert(startupData);
+
+        if (error) {
+          throw error;
+        }
+        toast.success("Startup profile created successfully!");
+      }
+
+      navigate("/startups");
+    } catch (err: any) {
+      console.error("Form submission error:", err);
+      setError(err.message || "Failed to save startup profile.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) { // 5MB limit
-        uiToast({
-          title: "Error",
-          description: "File size must be less than 5MB",
-          variant: "destructive",
+  const uploadDocument = async (file: File) => {
+    setUploading(true);
+    setUploadError('');
+    setIsUploaded(false);
+    setUploadProgress(0);
+
+    try {
+      if (!user) {
+        throw new Error("User not authenticated.");
+      }
+
+      const fileExt = file.name.split('.').pop();
+      const filePath = `startups/${user.id}/${Date.now()}.${fileExt}`;
+
+      const { data, error } = await supabase.storage
+        .from('documents')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false,
         });
+
+      if (error) {
+        console.error("File upload error:", error);
+        setUploadError(error.message);
         return;
       }
-      setSelectedFile(file);
-      uiToast({
-        title: "File selected",
-        description: `${file.name} has been selected`,
-      });
+
+      const { data: publicUrlData } = supabase.storage
+        .from('documents')
+        .getPublicUrl(filePath);
+
+      setFileUrl(publicUrlData.publicUrl);
+      setIsUploaded(true);
+      toast.success("Document uploaded successfully!");
+    } catch (err: any) {
+      console.error("File upload error:", err);
+      setUploadError(err.message || "Failed to upload document.");
+    } finally {
+      setUploading(false);
+      setUploadProgress(0);
     }
   };
 
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    await uploadDocument(file);
+  };
+
   return (
-    <section id="startup-form" className="py-20 bg-white">
+    <motion.section
+      id="startup-form"
+      className="py-20"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+    >
       <div className="container mx-auto px-4">
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="max-w-3xl mx-auto"
-        >
-          <div className="text-center mb-12">
-            <span className="inline-block px-4 py-2 bg-secondary rounded-full text-primary-foreground text-sm font-medium mb-4">
-              For Startups
-            </span>
-            <h2 className="text-4xl font-bold mb-4">Pitch Your Startup</h2>
+        <div className="max-w-3xl mx-auto">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold mb-4">
+              {startupExists ? "Update Your Startup Profile" : "Create Your Startup Profile"}
+            </h2>
             <p className="text-muted-foreground">
-              Share your vision with potential investors and take the first step towards growth.
+              Provide detailed information about your startup to attract potential investors.
             </p>
           </div>
 
-          <div className="mb-10 p-6 bg-secondary/50 rounded-xl">
-            <h3 className="flex items-center text-lg font-semibold mb-3">
-              <Lightbulb className="w-5 h-5 mr-2 text-primary" />
-              What Investors Look For
-            </h3>
-            <p className="text-sm text-muted-foreground mb-4">
-              Investors typically evaluate startups based on the strength of the team, 
-              market opportunity, product differentiation, traction, and financial projections.
-              The more comprehensive information you provide, the better your chances of securing funding.
-            </p>
-          </div>
-
-          <form onSubmit={handleSubmit} className="space-y-8">
-            <div className="bg-white p-6 rounded-xl border border-border shadow-sm">
-              <div className="flex items-center mb-4">
-                <Users className="w-5 h-5 mr-2 text-primary" />
-                <h3 className="text-lg font-semibold">Company & Team Information</h3>
-              </div>
-              <div className="space-y-4">
-                <div>
-                  <label htmlFor="startupName" className="block text-sm font-medium text-foreground mb-2">
-                    Startup Name *
-                  </label>
-                  <input
-                    type="text"
-                    id="startupName"
-                    required
-                    className="w-full px-4 py-3 rounded-lg border border-border bg-white focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
-                    placeholder="Enter your startup name"
-                    value={formData.startupName}
-                    onChange={handleChange}
-                  />
+          <Card className="bg-card shadow-lg rounded-lg">
+            <CardContent className="p-8">
+              {error && (
+                <div className="mb-4 p-4 border rounded-lg bg-red-50 border-red-200 text-red-600">
+                  <AlertCircle className="mr-2 h-5 w-5 inline-block align-middle" />
+                  {error}
                 </div>
+              )}
 
-                <div>
-                  <label htmlFor="website" className="block text-sm font-medium text-foreground mb-2">
-                    Website/Social Media
-                  </label>
-                  <input
-                    type="url"
-                    id="website"
-                    className="w-full px-4 py-3 rounded-lg border border-border bg-white focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
-                    placeholder="https://example.com"
-                    value={formData.website}
-                    onChange={handleChange}
-                  />
+              {isLoading ? (
+                <div className="text-center">
+                  <Loader className="mr-2 h-6 w-6 inline-block align-middle animate-spin" />
+                  Loading...
                 </div>
+              ) : (
+                <Form {...form}>
+                  <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+                    <FormField
+                      control={form.control}
+                      name="name"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Startup Name *</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Enter your startup name" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-                <div>
-                  <label htmlFor="founded" className="block text-sm font-medium text-foreground mb-2">
-                    Founded Date
-                  </label>
-                  <input
-                    type="month"
-                    id="founded"
-                    className="w-full px-4 py-3 rounded-lg border border-border bg-white focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
-                    value={formData.founded}
-                    onChange={handleChange}
-                  />
-                </div>
+                    <FormField
+                      control={form.control}
+                      name="industry"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Industry *</FormLabel>
+                          <FormControl>
+                            <Input placeholder="e.g., Fintech, HealthTech" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-                <div>
-                  <label htmlFor="founders" className="block text-sm font-medium text-foreground mb-2">
-                    Founders *
-                  </label>
-                  <input
-                    type="text"
-                    id="founders"
-                    required
-                    className="w-full px-4 py-3 rounded-lg border border-border bg-white focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
-                    placeholder="Founder names"
-                    value={formData.founders}
-                    onChange={handleChange}
-                  />
-                </div>
+                    <FormField
+                      control={form.control}
+                      name="stage"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Stage *</FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select stage" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="Ideation">Ideation</SelectItem>
+                              <SelectItem value="Seed">Seed</SelectItem>
+                              <SelectItem value="Series A">Series A</SelectItem>
+                              <SelectItem value="Series B">Series B</SelectItem>
+                              <SelectItem value="Series C">Series C</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-                <div>
-                  <label htmlFor="teamSize" className="block text-sm font-medium text-foreground mb-2">
-                    Team Size
-                  </label>
-                  <select
-                    id="teamSize"
-                    className="w-full px-4 py-3 rounded-lg border border-border bg-white focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
-                    value={formData.teamSize}
-                    onChange={handleChange}
-                  >
-                    <option value="">Select team size</option>
-                    <option value="1-5">1-5 employees</option>
-                    <option value="6-10">6-10 employees</option>
-                    <option value="11-25">11-25 employees</option>
-                    <option value="26-50">26-50 employees</option>
-                    <option value="51+">51+ employees</option>
-                  </select>
-                </div>
-              </div>
-            </div>
+                    <FormField
+                      control={form.control}
+                      name="description"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Description *</FormLabel>
+                          <FormControl>
+                            <Textarea
+                              placeholder="Describe your startup"
+                              className="resize-none"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-            <div className="bg-white p-6 rounded-xl border border-border shadow-sm">
-              <div className="flex items-center mb-4">
-                <Globe className="w-5 h-5 mr-2 text-primary" />
-                <h3 className="text-lg font-semibold">Market & Product</h3>
-              </div>
-              <div className="space-y-4">
-                <div>
-                  <label htmlFor="industry" className="block text-sm font-medium text-foreground mb-2">
-                    Industry *
-                  </label>
-                  <select
-                    id="industry"
-                    required
-                    className="w-full px-4 py-3 rounded-lg border border-border bg-white focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
-                    value={formData.industry}
-                    onChange={handleChange}
-                  >
-                    <option value="">Select industry</option>
-                    <option value="fintech">Fintech</option>
-                    <option value="healthtech">Healthtech</option>
-                    <option value="ecommerce">E-commerce</option>
-                    <option value="edtech">Edtech</option>
-                    <option value="ai">AI/ML</option>
-                    <option value="saas">SaaS</option>
-                    <option value="marketplace">Marketplace</option>
-                    <option value="other">Other</option>
-                  </select>
-                </div>
+                    <FormField
+                      control={form.control}
+                      name="website"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Website *</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Enter your website URL" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-                <div>
-                  <label htmlFor="stage" className="block text-sm font-medium text-foreground mb-2">
-                    Development Stage *
-                  </label>
-                  <select
-                    id="stage"
-                    required
-                    className="w-full px-4 py-3 rounded-lg border border-border bg-white focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
-                    value={formData.stage}
-                    onChange={handleChange}
-                  >
-                    <option value="">Select stage</option>
-                    <option value="idea">Idea/Concept</option>
-                    <option value="mvp">MVP/Prototype</option>
-                    <option value="early">Early Traction</option>
-                    <option value="growth">Growth</option>
-                    <option value="scaling">Scaling</option>
-                  </select>
-                </div>
-                
-                <div>
-                  <label htmlFor="targetMarket" className="block text-sm font-medium text-foreground mb-2">
-                    Target Market/Audience *
-                  </label>
-                  <input
-                    type="text"
-                    id="targetMarket"
-                    required
-                    className="w-full px-4 py-3 rounded-lg border border-border bg-white focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
-                    placeholder="Describe your target customers"
-                    value={formData.targetMarket}
-                    onChange={handleChange}
-                  />
-                </div>
+                    <FormField
+                      control={form.control}
+                      name="founders"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Founders *</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Enter founder names" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-                <div>
-                  <label htmlFor="pitch" className="block text-sm font-medium text-foreground mb-2">
-                    Pitch Description *
-                  </label>
-                  <textarea
-                    id="pitch"
-                    required
-                    rows={4}
-                    className="w-full px-4 py-3 rounded-lg border border-border bg-white focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
-                    placeholder="Describe your startup and what makes it unique (max 500 characters)"
-                    maxLength={500}
-                    value={formData.pitch}
-                    onChange={handleChange}
-                  />
-                </div>
+                    <FormField
+                      control={form.control}
+                      name="team_size"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Team Size *</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Enter team size" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-                <div>
-                  <label htmlFor="problem" className="block text-sm font-medium text-foreground mb-2">
-                    Problem Solved *
-                  </label>
-                  <textarea
-                    id="problem"
-                    required
-                    rows={3}
-                    className="w-full px-4 py-3 rounded-lg border border-border bg-white focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
-                    placeholder="What problem does your startup solve?"
-                    value={formData.problem}
-                    onChange={handleChange}
-                  />
-                </div>
+                    <FormField
+                      control={form.control}
+                      name="founded_date"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Founded Date *</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="Enter founded date (YYYY-MM-DD)"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-                <div>
-                  <label htmlFor="usp" className="block text-sm font-medium text-foreground mb-2">
-                    Unique Value Proposition *
-                  </label>
-                  <textarea
-                    id="usp"
-                    required
-                    rows={3}
-                    className="w-full px-4 py-3 rounded-lg border border-border bg-white focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
-                    placeholder="What makes your solution better than competitors?"
-                    value={formData.usp}
-                    onChange={handleChange}
-                  />
-                </div>
-              </div>
-            </div>
+                    <FormField
+                      control={form.control}
+                      name="target_market"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Target Market *</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Enter target market" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-            <div className="bg-white p-6 rounded-xl border border-border shadow-sm">
-              <div className="flex items-center mb-4">
-                <BarChart className="w-5 h-5 mr-2 text-primary" />
-                <h3 className="text-lg font-semibold">Traction & Metrics</h3>
-              </div>
-              <div className="space-y-4">
-                <div>
-                  <label htmlFor="traction" className="block text-sm font-medium text-foreground mb-2">
-                    Current Traction
-                  </label>
-                  <textarea
-                    id="traction"
-                    rows={3}
-                    className="w-full px-4 py-3 rounded-lg border border-border bg-white focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
-                    placeholder="Users, customers, revenue, growth rate, etc."
-                    value={formData.traction}
-                    onChange={handleChange}
-                  />
-                </div>
+                    <FormField
+                      control={form.control}
+                      name="problem_solved"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Problem Solved *</FormLabel>
+                          <FormControl>
+                            <Textarea
+                              placeholder="Describe the problem you are solving"
+                              className="resize-none"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-                <div>
-                  <label htmlFor="keyMetrics" className="block text-sm font-medium text-foreground mb-2">
-                    Key Metrics
-                  </label>
-                  <input
-                    type="text"
-                    id="keyMetrics"
-                    className="w-full px-4 py-3 rounded-lg border border-border bg-white focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
-                    placeholder="CAC, LTV, Churn Rate, etc."
-                    value={formData.keyMetrics}
-                    onChange={handleChange}
-                  />
-                </div>
-              </div>
-            </div>
+                    <FormField
+                      control={form.control}
+                      name="usp"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Unique Selling Proposition (USP) *</FormLabel>
+                          <FormControl>
+                            <Textarea
+                              placeholder="Enter your unique selling proposition"
+                              className="resize-none"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-            <div className="bg-white p-6 rounded-xl border border-border shadow-sm">
-              <div className="flex items-center mb-4">
-                <DollarSign className="w-5 h-5 mr-2 text-primary" />
-                <h3 className="text-lg font-semibold">Funding Information</h3>
-              </div>
-              <div className="space-y-4">
-                <div>
-                  <label htmlFor="previousFunding" className="block text-sm font-medium text-foreground mb-2">
-                    Previous Funding
-                  </label>
-                  <input
-                    type="text"
-                    id="previousFunding"
-                    className="w-full px-4 py-3 rounded-lg border border-border bg-white focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
-                    placeholder="e.g., $100K Angel, $500K Seed"
-                    value={formData.previousFunding}
-                    onChange={handleChange}
-                  />
-                </div>
+                    <FormField
+                      control={form.control}
+                      name="traction"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Traction *</FormLabel>
+                          <FormControl>
+                            <Textarea placeholder="Describe your traction" className="resize-none" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-                <div>
-                  <label htmlFor="funding" className="block text-sm font-medium text-foreground mb-2">
-                    Funding Requirements *
-                  </label>
-                  <input
-                    type="text"
-                    id="funding"
-                    required
-                    className="w-full px-4 py-3 rounded-lg border border-border bg-white focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
-                    placeholder="How much funding are you seeking?"
-                    value={formData.funding}
-                    onChange={handleChange}
-                  />
-                </div>
+                    <FormField
+                      control={form.control}
+                      name="key_metrics"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Key Metrics *</FormLabel>
+                          <FormControl>
+                            <Textarea
+                              placeholder="Enter your key metrics"
+                              className="resize-none"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-                <div>
-                  <label htmlFor="valuation" className="block text-sm font-medium text-foreground mb-2">
-                    Current Valuation
-                  </label>
-                  <input
-                    type="text"
-                    id="valuation"
-                    className="w-full px-4 py-3 rounded-lg border border-border bg-white focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
-                    placeholder="Estimated valuation of your startup"
-                    value={formData.valuation}
-                    onChange={handleChange}
-                  />
-                </div>
+                    <FormField
+                      control={form.control}
+                      name="previous_funding"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Previous Funding *</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Enter previous funding details" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-                <div>
-                  <label htmlFor="useOfFunds" className="block text-sm font-medium text-foreground mb-2">
-                    Use of Funds *
-                  </label>
-                  <textarea
-                    id="useOfFunds"
-                    required
-                    rows={3}
-                    className="w-full px-4 py-3 rounded-lg border border-border bg-white focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
-                    placeholder="How will you use the investment?"
-                    value={formData.useOfFunds}
-                    onChange={handleChange}
-                  />
-                </div>
-              </div>
-            </div>
+                    <FormField
+                      control={form.control}
+                      name="funding_required"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Funding Required *</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Enter funding required" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-            <div className="bg-white p-6 rounded-xl border border-border shadow-sm">
-              <div className="flex items-center mb-4">
-                <Target className="w-5 h-5 mr-2 text-primary" />
-                <h3 className="text-lg font-semibold">Future Plans</h3>
-              </div>
-              <div className="space-y-4">
-                <div>
-                  <label htmlFor="roadmap" className="block text-sm font-medium text-foreground mb-2">
-                    Business Roadmap
-                  </label>
-                  <textarea
-                    id="roadmap"
-                    rows={3}
-                    className="w-full px-4 py-3 rounded-lg border border-border bg-white focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
-                    placeholder="Key milestones for the next 12-24 months"
-                    value={formData.roadmap}
-                    onChange={handleChange}
-                  />
-                </div>
+                    <FormField
+                      control={form.control}
+                      name="valuation"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Valuation *</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Enter valuation" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-                <div>
-                  <label htmlFor="exitStrategy" className="block text-sm font-medium text-foreground mb-2">
-                    Exit Strategy
-                  </label>
-                  <textarea
-                    id="exitStrategy"
-                    rows={2}
-                    className="w-full px-4 py-3 rounded-lg border border-border bg-white focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
-                    placeholder="Potential exits (acquisition, IPO, etc.)"
-                    value={formData.exitStrategy}
-                    onChange={handleChange}
-                  />
-                </div>
-              </div>
-            </div>
+                    <FormField
+                      control={form.control}
+                      name="use_of_funds"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Use of Funds *</FormLabel>
+                          <FormControl>
+                            <Textarea
+                              placeholder="Describe use of funds"
+                              className="resize-none"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-            <div className="bg-white p-6 rounded-xl border border-border shadow-sm">
-              <div className="flex items-center mb-4">
-                <Upload className="w-5 h-5 mr-2 text-primary" />
-                <h3 className="text-lg font-semibold">Supporting Documents</h3>
-              </div>
-              <div>
-                <label htmlFor="document" className="block text-sm font-medium text-foreground mb-2">
-                  Upload Documents (Optional)
-                </label>
-                <p className="text-xs text-muted-foreground mb-3">
-                  Pitch deck, financial projections, business plan, market research, etc.
-                </p>
-                <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-dashed border-border rounded-lg hover:border-primary transition-colors">
-                  <div className="space-y-1 text-center">
-                    <Upload className="mx-auto h-12 w-12 text-muted-foreground" />
-                    <div className="flex text-sm text-muted-foreground">
-                      <label
-                        htmlFor="document"
-                        className="relative cursor-pointer rounded-md font-medium text-primary hover:text-primary/80 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-primary"
-                      >
-                        <span>Upload a file</span>
-                        <input
-                          id="document"
-                          name="document"
+                    <FormField
+                      control={form.control}
+                      name="roadmap"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Roadmap *</FormLabel>
+                          <FormControl>
+                            <Textarea placeholder="Describe your roadmap" className="resize-none" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="exit_strategy"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Exit Strategy *</FormLabel>
+                          <FormControl>
+                            <Textarea
+                              placeholder="Describe your exit strategy"
+                              className="resize-none"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <div>
+                      <FormLabel>Upload Document</FormLabel>
+                      <FormControl>
+                        <Input
                           type="file"
-                          className="sr-only"
-                          accept=".pdf,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                           onChange={handleFileChange}
+                          disabled={uploading}
                         />
-                      </label>
-                      <p className="pl-1">or drag and drop</p>
+                      </FormControl>
+                      {uploading && (
+                        <div className="mt-2">
+                          <Progress value={uploadProgress} />
+                          <p className="text-sm text-muted-foreground mt-1">
+                            Uploading... {uploadProgress}%
+                          </p>
+                        </div>
+                      )}
+                      {uploadError && (
+                        <p className="text-sm text-red-500 mt-1">{uploadError}</p>
+                      )}
+                      {isUploaded && (
+                        <div className="flex items-center mt-2">
+                          <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
+                          <p className="text-sm text-green-500">Document uploaded!</p>
+                        </div>
+                      )}
                     </div>
-                    <p className="text-xs text-muted-foreground">
-                      PDF or Word up to 5MB
-                    </p>
-                    {selectedFile && (
-                      <p className="text-sm text-primary mt-2">
-                        Selected: {selectedFile.name}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
 
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full py-4 bg-primary text-primary-foreground rounded-lg font-medium transition-colors hover:bg-primary/90 disabled:opacity-50 disabled:pointer-events-none"
-            >
-              {isSubmitting ? "Submitting..." : "Submit Pitch"}
-            </motion.button>
-          </form>
-        </motion.div>
+                    <Button disabled={isSubmitting} className="w-full">
+                      {isSubmitting ? (
+                        <>
+                          <Loader className="mr-2 h-4 w-4 animate-spin" />
+                          Submitting...
+                        </>
+                      ) : (
+                        <>
+                          Submit
+                          <ArrowRight className="ml-2 h-4 w-4" />
+                        </>
+                      )}
+                    </Button>
+                  </form>
+                </Form>
+              )}
+            </CardContent>
+          </Card>
+        </div>
       </div>
-    </section>
+    </motion.section>
   );
 };
 

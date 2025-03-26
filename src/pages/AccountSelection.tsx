@@ -8,18 +8,27 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Loader, Building, User, Briefcase } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 type AccountType = 'startup' | 'individual' | 'vc';
 
 const AccountSelection = () => {
-  const [accountType, setAccountType] = useState<AccountType>("individual");
+  const [mainAccountType, setMainAccountType] = useState<'startup' | 'investor'>("investor");
+  const [investorType, setInvestorType] = useState<'individual' | 'vc'>("individual");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { setAccountType: saveAccountType, user } = useAuth();
   const navigate = useNavigate();
 
+  // Determine the final account type based on main selection and investor subtype
+  const getAccountType = (): AccountType => {
+    if (mainAccountType === 'startup') return 'startup';
+    return investorType;
+  };
+
   const handleContinue = async () => {
     try {
       setIsSubmitting(true);
+      const accountType = getAccountType();
       await saveAccountType(accountType);
       
       if (accountType === 'startup') {
@@ -55,8 +64,8 @@ const AccountSelection = () => {
             <div className="bg-card p-6 rounded-lg shadow-lg">
               <div className="mb-6">
                 <RadioGroup 
-                  value={accountType} 
-                  onValueChange={(value) => setAccountType(value as AccountType)}
+                  value={mainAccountType} 
+                  onValueChange={(value) => setMainAccountType(value as 'startup' | 'investor')}
                   className="flex flex-col gap-4"
                 >
                   <div className="flex items-center space-x-2 border p-4 rounded-md cursor-pointer hover:bg-muted/30">
@@ -73,32 +82,49 @@ const AccountSelection = () => {
                   </div>
 
                   <div className="flex items-center space-x-2 border p-4 rounded-md cursor-pointer hover:bg-muted/30">
-                    <RadioGroupItem value="individual" id="individual" />
+                    <RadioGroupItem value="investor" id="investor" />
                     <div className="flex-1 ml-2">
-                      <Label htmlFor="individual" className="font-medium flex items-center cursor-pointer">
-                        <User className="mr-2 h-5 w-5 text-primary" />
-                        Individual Investor
-                      </Label>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        Browse and invest in promising startups as an individual
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center space-x-2 border p-4 rounded-md cursor-pointer hover:bg-muted/30">
-                    <RadioGroupItem value="vc" id="vc" />
-                    <div className="flex-1 ml-2">
-                      <Label htmlFor="vc" className="font-medium flex items-center cursor-pointer">
+                      <Label htmlFor="investor" className="font-medium flex items-center cursor-pointer">
                         <Briefcase className="mr-2 h-5 w-5 text-primary" />
-                        Venture Capital
+                        Investor
                       </Label>
                       <p className="text-sm text-muted-foreground mt-1">
-                        Represent a VC firm and explore investment opportunities
+                        Browse and invest in promising startups
                       </p>
                     </div>
                   </div>
                 </RadioGroup>
               </div>
+
+              {mainAccountType === 'investor' && (
+                <div className="mb-6">
+                  <Label htmlFor="investorType" className="mb-2 block">
+                    Investor Type
+                  </Label>
+                  <Select
+                    value={investorType}
+                    onValueChange={(value) => setInvestorType(value as 'individual' | 'vc')}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select investor type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="individual">
+                        <div className="flex items-center">
+                          <User className="mr-2 h-4 w-4" />
+                          <span>Individual Investor</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="vc">
+                        <div className="flex items-center">
+                          <Briefcase className="mr-2 h-4 w-4" />
+                          <span>Venture Capital</span>
+                        </div>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
 
               <Button 
                 onClick={handleContinue} 

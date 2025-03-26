@@ -1,16 +1,13 @@
+import React, { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/context/AuthContext';
+import Navbar from '@/components/Navbar';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { PieChart, Pie, Cell, ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, Legend, BarChart, Bar } from 'recharts';
+import { isInvestorAccount } from '@/lib/account-types';
 
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
-import { useAuth } from "@/context/AuthContext";
-import Navbar from "@/components/Navbar";
-import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
-import { ChevronDown, ChevronUp, FileText } from "lucide-react";
-import { supabase } from "@/lib/supabase";
-
-// Define startup type for the dashboard
 type Startup = {
   id: string;
   name: string;
@@ -25,14 +22,14 @@ const InvestorDashboard = () => {
   const [startups, setStartups] = useState<Startup[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [openStartup, setOpenStartup] = useState<string | null>(null);
+  const [recentStartups, setRecentStartups] = useState<Startup[]>([]);
 
   useEffect(() => {
-    // Redirect to login if not authenticated
     if (!user) {
       navigate("/login");
     } else {
-      // Fetch startups from Supabase
       fetchStartups();
+      fetchRecentStartups();
     }
   }, [user, navigate]);
 
@@ -40,8 +37,6 @@ const InvestorDashboard = () => {
     try {
       setIsLoading(true);
       
-      // For this example, we'll fetch all startups, but in a real application,
-      // you might filter based on investor preferences
       const { data, error } = await supabase
         .from('startups')
         .select('id, name, industry, stage, description')
@@ -55,6 +50,23 @@ const InvestorDashboard = () => {
       console.error('Error fetching startups:', error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const fetchRecentStartups = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('startups')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(5)
+        .select();
+      
+      if (error) throw error;
+      
+      setRecentStartups(data || []);
+    } catch (error) {
+      console.error('Error fetching recent startups:', error);
     }
   };
 

@@ -1,10 +1,8 @@
-
 import React, { createContext, useState, useContext, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { User } from '@supabase/supabase-js';
 import { toast } from 'sonner';
-
-type AccountType = 'startup' | 'individual' | 'vc';
+import { AccountType } from '@/lib/account-types';
 
 type UserProfile = {
   id: string;
@@ -71,9 +69,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         .from('investors')
         .select('*')
         .eq('id', userId)
-        .single();
+        .select();
 
-      if (investorError) {
+      if (investorError || !investorData || investorData.length === 0) {
         console.log('No investor profile found, checking for startup');
         
         // Try to find a startup profile
@@ -81,32 +79,32 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           .from('startups')
           .select('*')
           .eq('id', userId)
-          .single();
+          .select();
           
-        if (startupError) {
+        if (startupError || !startupData || startupData.length === 0) {
           console.log('No startup profile found either');
           throw new Error('No profile found');
         }
         
         // For demo purposes, create a profile from the startup data
         setProfile({
-          id: startupData.id,
-          name: startupData.name,
+          id: startupData[0].id,
+          name: startupData[0].name,
           email: 'startup@example.com', // Demo email
           accountType: 'startup',
-          startupId: startupData.id
+          startupId: startupData[0].id
         });
         return;
       }
 
       // For demo, we have an investor profile
       setProfile({
-        id: investorData.id,
-        email: investorData.email,
-        name: investorData.name,
-        accountType: (investorData.account_type as AccountType) || 'individual',
-        investmentFocus: investorData.investment_focus,
-        investmentRange: investorData.investment_range,
+        id: investorData[0].id,
+        email: investorData[0].email,
+        name: investorData[0].name,
+        accountType: (investorData[0].account_type as AccountType) || 'individual',
+        investmentFocus: investorData[0].investment_focus,
+        investmentRange: investorData[0].investment_range,
       });
     } catch (error) {
       console.error('Error fetching user profile:', error);
@@ -401,10 +399,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setProfile(prev => prev ? { ...prev, accountType } : null);
       
       // Update user in database if applicable
-      await supabase
+      const { error: updateError } = await supabase
         .from('investors')
         .update({ account_type: accountType })
-        .eq('id', user.id);
+        .eq('id', user.id)
+        .select();
+      
+      if (updateError) {
+        console.log('Error updating investor record:', updateError);
+      }
       
       toast.success(`Account type set to ${accountType}`);
     } catch (error) {

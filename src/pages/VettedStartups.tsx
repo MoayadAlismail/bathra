@@ -1,37 +1,27 @@
-
-import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
-import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/context/AuthContext";
-import { useTheme } from "next-themes";
-import Navbar from "@/components/Navbar";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Badge } from "@/components/ui/badge";
-import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
+import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/context/AuthContext';
+import Navbar from '@/components/Navbar';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
+import StartupDetailModal from '@/components/StartupDetailModal';
+import { isInvestorAccount } from '@/lib/account-types';
 
 interface Startup {
   id: string;
   name: string;
   description: string;
-  image: string;
-  valuation: string;
-  raised: number;
-  roi: number;
   industry: string;
   stage: string;
-  status: string;
+  valuation: string;
+  roi: number;
+  raised: number;
+  status?: string;
+  image?: string;
 }
 
 const VettedStartups = () => {
@@ -42,9 +32,10 @@ const VettedStartups = () => {
   const { user, profile } = useAuth();
   const navigate = useNavigate();
   const { theme } = useTheme();
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    // Check if user is logged in and has appropriate access
     if (!user) {
       toast.error("You must be logged in to view vetted startups");
       navigate('/login');
@@ -59,52 +50,26 @@ const VettedStartups = () => {
     }
 
     const fetchStartups = async () => {
-      setLoading(true);
       try {
-        // Fetch only vetted startups from our mock database
-        const result = await supabase
+        setIsLoading(true);
+        
+        // Only fetch vetted startups
+        const { data, error } = await supabase
           .from('startups')
           .select('*')
-          .eq('status', 'vetted');
+          .eq('status', 'vetted')
+          .select();
         
-        if (result.error) throw result.error;
-
-        // Type assertion to handle the mock result
-        const data = result.data as Startup[];
-        setStartups(data);
+        if (error) throw error;
+        
+        if (data) {
+          setStartups(data as Startup[]);
+        }
       } catch (error) {
-        console.error("Failed to fetch startups:", error);
-        toast.error("Failed to fetch startups. Using demo data instead.");
-        
-        // Fallback to demo data
-        setStartups([
-          {
-            id: "demo-startup-1",
-            name: "EcoSolutions",
-            industry: "CleanTech",
-            stage: "Seed",
-            description: "Developing sustainable energy solutions for residential buildings.",
-            image: "https://images.unsplash.com/photo-1473893604213-3df9c15611c0?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
-            valuation: "2.5M",
-            raised: 750000,
-            roi: 22,
-            status: "vetted"
-          },
-          {
-            id: "demo-startup-2",
-            name: "MediTech",
-            industry: "HealthTech",
-            stage: "Series A",
-            description: "AI-powered diagnostic tools for early disease detection.",
-            image: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
-            valuation: "8M",
-            raised: 2500000,
-            roi: 35,
-            status: "vetted"
-          }
-        ]);
+        console.error('Error fetching startups:', error);
+        setError('Failed to load startups. Please try again later.');
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
 

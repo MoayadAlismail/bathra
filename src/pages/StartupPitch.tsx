@@ -1,9 +1,42 @@
 
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import StartupForm from "@/components/StartupForm";
 import Navbar from "@/components/Navbar";
 import { motion } from "framer-motion";
+import { useAuth } from "@/context/AuthContext";
+import { toast } from "sonner";
 
 const StartupPitch = () => {
+  const { user, profile, isLoading } = useAuth();
+  const navigate = useNavigate();
+  
+  useEffect(() => {
+    // Check if user is logged in and has the 'startup' account type
+    if (!isLoading) {
+      if (!user) {
+        toast.error("You must be logged in to submit a startup pitch");
+        navigate('/login');
+        return;
+      }
+      
+      const accountType = profile?.accountType || user?.user_metadata?.accountType;
+      
+      if (accountType !== 'startup') {
+        toast.error("Only startup accounts can submit pitches");
+        navigate('/account-type');
+      }
+    }
+  }, [user, profile, isLoading, navigate]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />

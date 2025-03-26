@@ -6,12 +6,14 @@ import { Upload, Target, Globe, Lightbulb, DollarSign, Users, BarChart } from "l
 import { useState, FormEvent } from "react";
 import { supabase } from "@/lib/supabase";
 import { useTheme } from "@/components/ThemeProvider";
+import { useNavigate } from "react-router-dom";
 
 const StartupForm = () => {
   const { toast: uiToast } = useToast();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { theme } = useTheme();
+  const navigate = useNavigate();
   
   const [formData, setFormData] = useState({
     startupName: "",
@@ -46,7 +48,7 @@ const StartupForm = () => {
     try {
       setIsSubmitting(true);
       
-      // Real submission to Supabase
+      // Insert new startup data
       const { data, error } = await supabase
         .from('startups')
         .insert({
@@ -68,17 +70,17 @@ const StartupForm = () => {
           valuation: formData.valuation,
           use_of_funds: formData.useOfFunds,
           roadmap: formData.roadmap,
-          exit_strategy: formData.exitStrategy
+          exit_strategy: formData.exitStrategy,
+          status: 'pending'
         })
-        .select()
-        .single();
+        .select();
       
       if (error) throw error;
       
       // Handle file upload if a file is selected
-      if (selectedFile && data) {
+      if (selectedFile && data && data.length > 0) {
         const fileExt = selectedFile.name.split('.').pop();
-        const fileName = `${data.id}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+        const fileName = `${data[0].id}-${Math.random().toString(36).substring(2)}.${fileExt}`;
         const filePath = `pitch-docs/${fileName}`;
         
         const { error: uploadError } = await supabase
@@ -92,12 +94,12 @@ const StartupForm = () => {
         const { error: updateError } = await supabase
           .from('startups')
           .update({ document_path: filePath })
-          .eq('id', data.id);
+          .eq('id', data[0].id);
           
         if (updateError) throw updateError;
       }
       
-      toast.success("Your pitch has been submitted successfully!");
+      toast.success("Your pitch has been submitted successfully and is pending review!");
       
       // Reset form
       setFormData({
@@ -122,6 +124,11 @@ const StartupForm = () => {
         exitStrategy: ""
       });
       setSelectedFile(null);
+      
+      // Redirect to startup profile page
+      setTimeout(() => {
+        navigate('/startup-profile');
+      }, 1500);
       
     } catch (error: any) {
       console.error('Error submitting pitch:', error);

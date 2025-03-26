@@ -20,7 +20,8 @@ const createMockClient = () => {
       raised: 750000,
       roi: 22,
       image: "https://images.unsplash.com/photo-1473893604213-3df9c15611c0?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
-      status: "vetted"
+      status: "vetted",
+      created_at: new Date().toISOString()
     },
     {
       id: "demo-startup-2",
@@ -35,7 +36,8 @@ const createMockClient = () => {
       raised: 2500000,
       roi: 35,
       image: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
-      status: "vetted"
+      status: "vetted",
+      created_at: new Date().toISOString()
     },
     {
       id: "demo-startup-3",
@@ -50,7 +52,8 @@ const createMockClient = () => {
       raised: 300000,
       roi: 18,
       image: "https://images.unsplash.com/photo-1518186285589-2f7649de83e0?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
-      status: "pending"
+      status: "pending",
+      created_at: new Date().toISOString()
     }
   ];
 
@@ -59,17 +62,19 @@ const createMockClient = () => {
       id: "demo-investor-1",
       email: "demo@investor.com",
       name: "Demo Investor",
-      investmentFocus: "Technology",
-      investmentRange: "$50K - $200K (Angel)",
-      accountType: "individual"
+      investment_focus: "Technology",
+      investment_range: "$50K - $200K (Angel)",
+      account_type: "individual",
+      created_at: new Date().toISOString()
     },
     {
       id: "demo-vc-1",
       email: "demo@vc.com",
       name: "Demo VC Fund",
-      investmentFocus: "CleanTech, HealthTech",
-      investmentRange: "$1M+ (Series B+)",
-      accountType: "vc"
+      investment_focus: "CleanTech, HealthTech",
+      investment_range: "$1M+ (Series B+)",
+      account_type: "vc",
+      created_at: new Date().toISOString()
     }
   ];
 
@@ -78,10 +83,26 @@ const createMockClient = () => {
       id: "demo-startup-user-1",
       email: "demo@startup.com",
       name: "Demo Startup",
-      accountType: "startup",
-      startupId: "demo-startup-1"
+      account_type: "startup",
+      startupId: "demo-startup-1",
+      created_at: new Date().toISOString()
     }
   ];
+
+  // Mock storage for uploads
+  const mockStorage = {
+    files: {},
+    from: (bucket) => ({
+      upload: (path, file) => {
+        console.log(`Uploading to ${bucket}/${path}`, file);
+        mockStorage.files[`${bucket}/${path}`] = file;
+        return { data: { path }, error: null };
+      },
+      getPublicUrl: (path) => {
+        return { data: { publicUrl: `https://mock-storage/${bucket}/${path}` } };
+      }
+    })
+  };
 
   // Mock auth state
   let currentUser = null;
@@ -94,6 +115,9 @@ const createMockClient = () => {
       getSession: async () => {
         return { data: { session: currentSession }, error: null };
       },
+      getUser: async () => {
+        return { data: { user: currentUser }, error: null };
+      },
       signInWithPassword: async ({ email, password }) => {
         // Find user in demo data
         let user = null;
@@ -105,13 +129,13 @@ const createMockClient = () => {
           user = {
             id: startupUser.id,
             email: startupUser.email,
-            user_metadata: { name: startupUser.name, accountType: startupUser.accountType }
+            user_metadata: { name: startupUser.name, accountType: startupUser.account_type }
           };
           profile = {
             id: startupUser.id,
             email: startupUser.email,
             name: startupUser.name,
-            accountType: startupUser.accountType,
+            accountType: startupUser.account_type,
             startupId: startupUser.startupId
           };
         }
@@ -124,16 +148,16 @@ const createMockClient = () => {
             email: investor.email,
             user_metadata: { 
               name: investor.name, 
-              accountType: investor.accountType
+              accountType: investor.account_type
             }
           };
           profile = {
             id: investor.id,
             email: investor.email,
             name: investor.name,
-            investmentFocus: investor.investmentFocus,
-            investmentRange: investor.investmentRange,
-            accountType: investor.accountType
+            investmentFocus: investor.investment_focus,
+            investmentRange: investor.investment_range,
+            accountType: investor.account_type
           };
         }
 
@@ -187,6 +211,26 @@ const createMockClient = () => {
         
         return { data: { user, session: currentSession }, error: null };
       },
+      updateUser: async ({ data }) => {
+        if (currentUser) {
+          currentUser.user_metadata = {
+            ...currentUser.user_metadata,
+            ...data
+          };
+          
+          // Notify listeners
+          for (const listener of authListeners) {
+            listener('USER_UPDATED', currentSession);
+          }
+          
+          return { data: { user: currentUser }, error: null };
+        }
+        
+        return {
+          data: { user: null },
+          error: { message: "No user logged in" }
+        };
+      },
       signOut: async () => {
         currentUser = null;
         currentSession = null;
@@ -207,14 +251,15 @@ const createMockClient = () => {
         };
       }
     },
+    storage: mockStorage,
     from: (table) => {
       return {
-        select: () => {
+        select: (fields = '*') => {
           if (table === 'startups') {
             return {
-              order: () => ({
-                limit: () => ({
-                  data: demoStartups.filter(s => s.status === 'vetted'),
+              order: (column, { ascending } = {}) => ({
+                limit: (count) => ({
+                  data: demoStartups.filter(s => s.status === 'vetted').slice(0, count),
                   error: null
                 })
               }),
@@ -257,22 +302,58 @@ const createMockClient = () => {
             error: null
           };
         },
-        insert: () => {
-          console.log("Mock insert to", table);
+        insert: (data) => {
+          console.log("Mock insert to", table, data);
+          const id = `mock-${Date.now()}`;
+          
+          // Add the new data with generated ID
+          let mockData = { id, ...data };
+          
+          if (table === 'startups') {
+            mockData.created_at = new Date().toISOString();
+            mockData.status = 'pending';
+            demoStartups.push(mockData);
+          } else if (table === 'investors') {
+            mockData.created_at = new Date().toISOString();
+            demoInvestors.push(mockData);
+          }
+          
           return {
             select: () => ({
-              data: [{ id: `mock-${Date.now()}` }],
+              single: () => ({
+                data: mockData,
+                error: null
+              }),
+              data: [mockData],
               error: null
             })
           };
         },
-        update: () => {
-          console.log("Mock update to", table);
+        update: (data) => {
+          console.log("Mock update to", table, data);
           return {
-            eq: () => ({
-              data: null,
-              error: null
-            })
+            eq: (column, value) => {
+              let mockData = null;
+              
+              if (table === 'startups') {
+                const index = demoStartups.findIndex(s => s[column] === value);
+                if (index !== -1) {
+                  demoStartups[index] = { ...demoStartups[index], ...data };
+                  mockData = demoStartups[index];
+                }
+              } else if (table === 'investors') {
+                const index = demoInvestors.findIndex(i => i[column] === value);
+                if (index !== -1) {
+                  demoInvestors[index] = { ...demoInvestors[index], ...data };
+                  mockData = demoInvestors[index];
+                }
+              }
+              
+              return {
+                data: mockData,
+                error: null
+              };
+            }
           };
         }
       };

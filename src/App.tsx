@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -10,8 +9,9 @@ import Index from "./pages/Index";
 import StartupPitch from "./pages/StartupPitch";
 import InvestorJoin from "./pages/InvestorJoin";
 import InvestorLogin from "./pages/InvestorLogin";
-import InvestorDashboard from "./pages/InvestorDashboard";
 import VettedStartups from "./pages/VettedStartups";
+import StartupProfile from "./pages/StartupProfile";
+import AccountSelection from "./pages/AccountSelection";
 import NotFound from "./pages/NotFound";
 import { Suspense, Component, ReactNode, useEffect } from "react";
 import "./App.css";
@@ -68,14 +68,23 @@ class ErrorBoundary extends Component<{children: ReactNode}, {hasError: boolean;
   }
 }
 
-const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { user, isLoading } = useAuth();
+const ProtectedRoute = ({ children, requiredAccountType }: { children: React.ReactNode, requiredAccountType?: string | string[] }) => {
+  const { user, profile, isLoading } = useAuth();
   
   useEffect(() => {
-    if (!isLoading && !user) {
-      console.log('User not authenticated, redirecting to login');
+    if (!isLoading) {
+      if (!user) {
+        console.log('User not authenticated, redirecting to login');
+      } else if (requiredAccountType) {
+        const accountType = profile?.accountType || user?.user_metadata?.accountType;
+        const requiredTypes = Array.isArray(requiredAccountType) ? requiredAccountType : [requiredAccountType];
+        
+        if (!accountType || !requiredTypes.includes(accountType)) {
+          console.log(`User does not have required account type: ${requiredAccountType}`);
+        }
+      }
     }
-  }, [user, isLoading]);
+  }, [user, profile, isLoading, requiredAccountType]);
 
   if (isLoading) {
     return (
@@ -90,6 +99,15 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
   if (!user) {
     return <Navigate to="/login" replace />;
+  }
+
+  if (requiredAccountType) {
+    const accountType = profile?.accountType || user?.user_metadata?.accountType;
+    const requiredTypes = Array.isArray(requiredAccountType) ? requiredAccountType : [requiredAccountType];
+    
+    if (!accountType || !requiredTypes.includes(accountType)) {
+      return <Navigate to="/account-type" replace />;
+    }
   }
 
   return <>{children}</>;
@@ -107,17 +125,18 @@ const AppRoutes = () => {
         } />
         <Route path="/invest" element={<InvestorJoin />} />
         <Route path="/login" element={<InvestorLogin />} />
-        <Route path="/dashboard" element={
-          <ProtectedRoute>
+        <Route path="/account-type" element={<AccountSelection />} />
+        <Route path="/startups" element={
+          <ProtectedRoute requiredAccountType={["individual", "vc"]}>
             <ErrorBoundary>
-              <InvestorDashboard />
+              <VettedStartups />
             </ErrorBoundary>
           </ProtectedRoute>
         } />
-        <Route path="/startups" element={
-          <ProtectedRoute>
+        <Route path="/startup-profile" element={
+          <ProtectedRoute requiredAccountType="startup">
             <ErrorBoundary>
-              <VettedStartups />
+              <StartupProfile />
             </ErrorBoundary>
           </ProtectedRoute>
         } />

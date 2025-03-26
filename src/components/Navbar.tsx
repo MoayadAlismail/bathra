@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Menu, X, LogIn } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -14,9 +15,11 @@ const navItems = [
 
 const Navbar = () => {
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { user, profile, logout } = useAuth();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const accountType = profile?.accountType || user?.user_metadata?.accountType;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -43,6 +46,106 @@ const Navbar = () => {
   const handleLogout = () => {
     logout();
     navigate("/");
+  };
+
+  const renderAuthButtons = () => {
+    if (!user) {
+      return (
+        <Button 
+          size="sm" 
+          onClick={() => navigate('/login')}
+          className="flex items-center gap-2"
+        >
+          <LogIn className="w-4 h-4" />
+          Sign In
+        </Button>
+      );
+    }
+
+    // Render different buttons based on account type
+    if (accountType === 'startup') {
+      return (
+        <div className="flex items-center space-x-4">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => navigate('/startup-profile')}
+          >
+            My Startup
+          </Button>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={handleLogout}
+          >
+            Sign Out
+          </Button>
+        </div>
+      );
+    } else {
+      // For investors (individual or VC)
+      return (
+        <div className="flex items-center space-x-4">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => navigate('/startups')}
+          >
+            Vetted Startups
+          </Button>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={handleLogout}
+          >
+            Sign Out
+          </Button>
+        </div>
+      );
+    }
+  };
+
+  const renderMobileAuthButtons = () => {
+    if (!user) {
+      return (
+        <button
+          onClick={() => {
+            navigate('/login');
+            setIsMobileMenuOpen(false);
+          }}
+          className="flex items-center gap-2 text-foreground hover:text-primary transition-colors duration-200 py-2 text-left"
+        >
+          <LogIn className="w-4 h-4" />
+          Sign In
+        </button>
+      );
+    }
+
+    if (accountType === 'startup') {
+      return (
+        <button
+          onClick={() => {
+            navigate('/startup-profile');
+            setIsMobileMenuOpen(false);
+          }}
+          className="text-foreground hover:text-primary transition-colors duration-200 py-2 text-left"
+        >
+          My Startup
+        </button>
+      );
+    } else {
+      return (
+        <button
+          onClick={() => {
+            navigate('/startups');
+            setIsMobileMenuOpen(false);
+          }}
+          className="text-foreground hover:text-primary transition-colors duration-200 py-2 text-left"
+        >
+          Vetted Startups
+        </button>
+      );
+    }
   };
 
   return (
@@ -74,40 +177,7 @@ const Navbar = () => {
                 </button>
               ))}
               
-              {user ? (
-                <div className="flex items-center space-x-4">
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={() => navigate('/dashboard')}
-                  >
-                    Dashboard
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={() => navigate('/startups')}
-                  >
-                    Vetted Startups
-                  </Button>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    onClick={handleLogout}
-                  >
-                    Sign Out
-                  </Button>
-                </div>
-              ) : (
-                <Button 
-                  size="sm" 
-                  onClick={() => navigate('/login')}
-                  className="flex items-center gap-2"
-                >
-                  <LogIn className="w-4 h-4" />
-                  Sign In
-                </Button>
-              )}
+              {renderAuthButtons()}
             </div>
 
             <div className="md:hidden flex items-center">
@@ -142,46 +212,17 @@ const Navbar = () => {
                   </button>
                 ))}
                 
-                {user ? (
-                  <>
-                    <button
-                      onClick={() => {
-                        navigate('/dashboard');
-                        setIsMobileMenuOpen(false);
-                      }}
-                      className="text-foreground hover:text-primary transition-colors duration-200 py-2 text-left"
-                    >
-                      Dashboard
-                    </button>
-                    <button
-                      onClick={() => {
-                        navigate('/startups');
-                        setIsMobileMenuOpen(false);
-                      }}
-                      className="text-foreground hover:text-primary transition-colors duration-200 py-2 text-left"
-                    >
-                      Vetted Startups
-                    </button>
-                    <button
-                      onClick={() => {
-                        handleLogout();
-                        setIsMobileMenuOpen(false);
-                      }}
-                      className="text-foreground hover:text-primary transition-colors duration-200 py-2 text-left"
-                    >
-                      Sign Out
-                    </button>
-                  </>
-                ) : (
+                {renderMobileAuthButtons()}
+                
+                {user && (
                   <button
                     onClick={() => {
-                      navigate('/login');
+                      handleLogout();
                       setIsMobileMenuOpen(false);
                     }}
-                    className="flex items-center gap-2 text-foreground hover:text-primary transition-colors duration-200 py-2 text-left"
+                    className="text-foreground hover:text-primary transition-colors duration-200 py-2 text-left"
                   >
-                    <LogIn className="w-4 h-4" />
-                    Sign In
+                    Sign Out
                   </button>
                 )}
               </div>

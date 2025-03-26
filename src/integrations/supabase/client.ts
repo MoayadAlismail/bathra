@@ -3,27 +3,308 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
+// Mock Supabase client for demo purposes
+const createMockClient = () => {
+  // Sample demo data
+  const demoStartups = [
+    {
+      id: "demo-startup-1",
+      name: "EcoSolutions",
+      industry: "CleanTech",
+      stage: "Seed",
+      description: "Developing sustainable energy solutions for residential buildings.",
+      website: "https://ecosolutions-demo.com",
+      founders: "Jane Smith, John Doe",
+      team_size: "5-10",
+      valuation: "2.5M",
+      raised: 750000,
+      roi: 22,
+      image: "https://images.unsplash.com/photo-1473893604213-3df9c15611c0?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
+      status: "vetted"
+    },
+    {
+      id: "demo-startup-2",
+      name: "MediTech",
+      industry: "HealthTech",
+      stage: "Series A",
+      description: "AI-powered diagnostic tools for early disease detection.",
+      website: "https://meditech-demo.com",
+      founders: "Michael Chen, Sarah Wilson",
+      team_size: "10-20",
+      valuation: "8M",
+      raised: 2500000,
+      roi: 35,
+      image: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
+      status: "vetted"
+    },
+    {
+      id: "demo-startup-3",
+      name: "FinanceFlow",
+      industry: "FinTech",
+      stage: "Seed",
+      description: "Blockchain-based payment processing for small businesses.",
+      website: "https://financeflow-demo.com",
+      founders: "Alex Peterson",
+      team_size: "3-5",
+      valuation: "1.2M",
+      raised: 300000,
+      roi: 18,
+      image: "https://images.unsplash.com/photo-1518186285589-2f7649de83e0?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
+      status: "pending"
+    }
+  ];
+
+  const demoInvestors = [
+    {
+      id: "demo-investor-1",
+      email: "demo@investor.com",
+      name: "Demo Investor",
+      investmentFocus: "Technology",
+      investmentRange: "$50K - $200K (Angel)",
+      accountType: "individual"
+    },
+    {
+      id: "demo-vc-1",
+      email: "demo@vc.com",
+      name: "Demo VC Fund",
+      investmentFocus: "CleanTech, HealthTech",
+      investmentRange: "$1M+ (Series B+)",
+      accountType: "vc"
+    }
+  ];
+
+  const demoStartupUsers = [
+    {
+      id: "demo-startup-user-1",
+      email: "demo@startup.com",
+      name: "Demo Startup",
+      accountType: "startup",
+      startupId: "demo-startup-1"
+    }
+  ];
+
+  // Mock auth state
+  let currentUser = null;
+  let currentSession = null;
+  let authListeners = [];
+
+  // Mock client implementation
+  return {
+    auth: {
+      getSession: async () => {
+        return { data: { session: currentSession }, error: null };
+      },
+      signInWithPassword: async ({ email, password }) => {
+        // Find user in demo data
+        let user = null;
+        let profile = null;
+        
+        // Check if it's a startup user
+        const startupUser = demoStartupUsers.find(u => u.email === email);
+        if (startupUser && password === 'demo') {
+          user = {
+            id: startupUser.id,
+            email: startupUser.email,
+            user_metadata: { name: startupUser.name, accountType: startupUser.accountType }
+          };
+          profile = {
+            id: startupUser.id,
+            email: startupUser.email,
+            name: startupUser.name,
+            accountType: startupUser.accountType,
+            startupId: startupUser.startupId
+          };
+        }
+        
+        // Check if it's an investor
+        const investor = demoInvestors.find(i => i.email === email);
+        if (investor && password === 'demo') {
+          user = {
+            id: investor.id,
+            email: investor.email,
+            user_metadata: { 
+              name: investor.name, 
+              accountType: investor.accountType
+            }
+          };
+          profile = {
+            id: investor.id,
+            email: investor.email,
+            name: investor.name,
+            investmentFocus: investor.investmentFocus,
+            investmentRange: investor.investmentRange,
+            accountType: investor.accountType
+          };
+        }
+
+        if (user) {
+          currentUser = user;
+          currentSession = {
+            user,
+            access_token: "mock-token",
+            expires_at: Date.now() + 3600 * 1000
+          };
+          
+          // Notify listeners
+          for (const listener of authListeners) {
+            listener('SIGNED_IN', currentSession);
+          }
+          
+          return { data: { user, session: currentSession }, error: null };
+        }
+        
+        return {
+          data: { user: null, session: null },
+          error: { message: "Invalid email or password. Try 'demo@investor.com', 'demo@vc.com', or 'demo@startup.com' with password 'demo'." }
+        };
+      },
+      signInWithOAuth: async ({ provider }) => {
+        console.log(`Mock OAuth sign in with ${provider}`);
+        return { data: {}, error: null };
+      },
+      signUp: async ({ email, password, options }) => {
+        const accountType = options?.data?.accountType || "individual";
+        const user = {
+          id: `mock-user-${Date.now()}`,
+          email,
+          user_metadata: { 
+            ...options?.data,
+            accountType
+          }
+        };
+        
+        currentUser = user;
+        currentSession = {
+          user,
+          access_token: "mock-token",
+          expires_at: Date.now() + 3600 * 1000
+        };
+        
+        // Notify listeners
+        for (const listener of authListeners) {
+          listener('SIGNED_UP', currentSession);
+        }
+        
+        return { data: { user, session: currentSession }, error: null };
+      },
+      signOut: async () => {
+        currentUser = null;
+        currentSession = null;
+        
+        // Notify listeners
+        for (const listener of authListeners) {
+          listener('SIGNED_OUT', null);
+        }
+        
+        return { error: null };
+      },
+      onAuthStateChange: (callback) => {
+        authListeners.push(callback);
+        return {
+          data: { subscription: { unsubscribe: () => {
+            authListeners = authListeners.filter(l => l !== callback);
+          } } }
+        };
+      }
+    },
+    from: (table) => {
+      return {
+        select: () => {
+          if (table === 'startups') {
+            return {
+              order: () => ({
+                limit: () => ({
+                  data: demoStartups.filter(s => s.status === 'vetted'),
+                  error: null
+                })
+              }),
+              eq: (column, value) => {
+                if (column === 'id') {
+                  return {
+                    single: () => ({
+                      data: demoStartups.find(s => s.id === value) || null,
+                      error: null
+                    })
+                  };
+                }
+                return {
+                  data: demoStartups.filter(s => s[column] === value),
+                  error: null
+                };
+              }
+            };
+          }
+          if (table === 'investors') {
+            return {
+              eq: (column, value) => {
+                if (column === 'id') {
+                  return {
+                    single: () => ({
+                      data: demoInvestors.find(i => i.id === value) || null,
+                      error: null
+                    })
+                  };
+                }
+                return {
+                  data: demoInvestors.filter(i => i[column] === value),
+                  error: null
+                };
+              }
+            };
+          }
+          return {
+            data: [],
+            error: null
+          };
+        },
+        insert: () => {
+          console.log("Mock insert to", table);
+          return {
+            select: () => ({
+              data: [{ id: `mock-${Date.now()}` }],
+              error: null
+            })
+          };
+        },
+        update: () => {
+          console.log("Mock update to", table);
+          return {
+            eq: () => ({
+              data: null,
+              error: null
+            })
+          };
+        }
+      };
+    }
+  };
+};
+
+// Toggle between mock and real client
+const USE_MOCK_CLIENT = true;
 const SUPABASE_URL = "https://rqnfbyptnlgnlrvanber.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJxbmZieXB0bmxnbmxydmFuYmVyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIxMTc2NzksImV4cCI6MjA1NzY5MzY3OX0.dMBSankzTOsACXMzBsGMaE3DCgvOlr775hMfusFBLEI";
 
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
-export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
-  auth: {
-    autoRefreshToken: true,
-    persistSession: true,
-    detectSessionInUrl: false, // Changed from true to false to prevent URL parsing issues
-    flowType: 'pkce',
-  },
-  global: {
-    headers: {
-      'X-Client-Info': 'supabase-js-client',
-    },
-  },
-  realtime: {
-    params: {
-      eventsPerSecond: 5
-    }
-  }
-});
+export const supabase = USE_MOCK_CLIENT 
+  ? createMockClient()
+  : createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+      auth: {
+        autoRefreshToken: true,
+        persistSession: true,
+        detectSessionInUrl: false,
+        flowType: 'pkce',
+      },
+      global: {
+        headers: {
+          'X-Client-Info': 'supabase-js-client',
+        },
+      },
+      realtime: {
+        params: {
+          eventsPerSecond: 5
+        }
+      }
+    });

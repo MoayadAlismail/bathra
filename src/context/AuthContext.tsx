@@ -1,72 +1,71 @@
 
 import React, { createContext, useState, useContext, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { User, SupabaseClient } from '@supabase/supabase-js';
+import { User } from '@supabase/supabase-js';
 import { toast } from 'sonner';
 
-type InvestorProfile = {
+type AccountType = 'startup' | 'individual' | 'vc';
+
+type UserProfile = {
   id: string;
   email: string;
   name: string;
-  investmentFocus: string;
-  investmentRange: string;
+  accountType: AccountType;
+  investmentFocus?: string;
+  investmentRange?: string;
+  startupId?: string;
 };
 
 type AuthContextType = {
   user: User | null;
-  profile: InvestorProfile | null;
+  profile: UserProfile | null;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
   loginWithGoogle: () => Promise<void>;
-  loginWithDemo: () => void;
-  register: (userData: Omit<InvestorProfile, 'id'> & { password: string }) => Promise<void>;
+  loginWithDemo: (type: AccountType) => void;
+  register: (userData: Omit<UserProfile, 'id'> & { password: string, accountType: AccountType }) => Promise<void>;
   logout: () => Promise<void>;
-  isConfigured: boolean;
-  updateSupabaseConfig: (url: string, key: string) => void;
+  setAccountType: (accountType: AccountType) => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Demo investor for testing purposes
-const DEMO_INVESTOR = {
-  id: 'demo-user-id',
-  email: 'demo@example.com',
-  name: 'Demo Investor',
-  investment_focus: 'Technology',
-  investment_range: '$50K - $200K (Angel)',
+// Demo accounts for testing purposes
+const DEMO_ACCOUNTS = {
+  investor: {
+    id: 'demo-investor-id',
+    email: 'demo@investor.com',
+    name: 'Demo Investor',
+    accountType: 'individual' as AccountType,
+    investmentFocus: 'Technology',
+    investmentRange: '$50K - $200K (Angel)',
+  },
+  vc: {
+    id: 'demo-vc-id',
+    email: 'demo@vc.com',
+    name: 'Demo VC Fund',
+    accountType: 'vc' as AccountType,
+    investmentFocus: 'CleanTech, HealthTech',
+    investmentRange: '$1M+ (Series B+)',
+  },
+  startup: {
+    id: 'demo-startup-id',
+    email: 'demo@startup.com',
+    name: 'Demo Startup',
+    accountType: 'startup' as AccountType,
+    startupId: 'demo-startup-1',
+  }
 };
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [profile, setProfile] = useState<InvestorProfile | null>(null);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [isConfigured, setIsConfigured] = useState<boolean>(true);
-  const supabaseClientRef = useRef<SupabaseClient>(supabase);
   
-  const updateSupabaseConfig = (url: string, key: string) => {
-    console.log('Updating Supabase config with:', { url: url.substring(0, 10) + '...', keyLength: key.length });
-    
-    // Create a new client with the provided credentials
-    const newClient = supabase;
-    supabaseClientRef.current = newClient;
-    
-    // Check if the session exists
-    supabaseClientRef.current.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user || null);
-      if (session?.user) {
-        fetchUserProfile(session.user.id);
-      }
-    }).catch(error => {
-      console.error('Session fetch error:', error);
-    });
-  };
-
   const fetchUserProfile = async (userId: string) => {
-    if (!isConfigured) return;
-    
     try {
       console.log('Fetching profile for user:', userId);
-      const { data, error } = await supabaseClientRef.current
+      const { data, error } = await supabase
         .from('investors')
         .select('*')
         .eq('id', userId)
@@ -83,6 +82,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           id: data.id,
           email: data.email,
           name: data.name,
+          accountType: (data.account_type as AccountType) || 'individual',
           investmentFocus: data.investment_focus,
           investmentRange: data.investment_range,
         });
@@ -90,33 +90,38 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         console.log('No profile found for user, checking metadata for profile creation');
         
         // Try to create a profile from user metadata if it doesn't exist
-        const { data: { user } } = await supabaseClientRef.current.auth.getUser();
+        const { data: { user } } = await supabase.auth.getUser();
         
         if (user?.user_metadata?.name) {
-          const newProfile = {
+          const accountType = (user.user_metadata.accountType || 'individual') as AccountType;
+          
+          const newProfile: UserProfile = {
             id: userId,
             email: user.email || '',
             name: user.user_metadata.name || '',
-            investmentFocus: user.user_metadata.investment_focus || '',
-            investmentRange: user.user_metadata.investment_range || '',
+            accountType,
+            investmentFocus: user.user_metadata.investmentFocus || '',
+            investmentRange: user.user_metadata.investmentRange || '',
+            startupId: user.user_metadata.startupId || '',
           };
           
           console.log('Creating new profile from metadata:', newProfile);
+          setProfile(newProfile);
           
-          const { error: insertError } = await supabaseClientRef.current
+          // Store in database if required
+          const { error: insertError } = await supabase
             .from('investors')
             .insert({
               id: userId,
               email: user.email || '',
               name: user.user_metadata.name || '',
-              investment_focus: user.user_metadata.investment_focus || '',
-              investment_range: user.user_metadata.investment_range || '',
+              investment_focus: user.user_metadata.investmentFocus || '',
+              investment_range: user.user_metadata.investmentRange || '',
+              account_type: accountType,
             });
             
           if (insertError) {
             console.error('Error creating profile from metadata:', insertError);
-          } else {
-            setProfile(newProfile);
           }
         }
       }
@@ -129,7 +134,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const initSession = async () => {
       try {
         console.log('Initializing session...');
-        const { data, error } = await supabaseClientRef.current.auth.getSession();
+        const { data, error } = await supabase.auth.getSession();
         
         if (error) {
           console.error('Session fetch error:', error);
@@ -170,7 +175,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
 
     // Subscribe to auth changes
-    const { data: { subscription } } = supabaseClientRef.current.auth.onAuthStateChange(async (event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('Auth state changed:', event, session?.user?.id);
       
       if (session?.user) {
@@ -188,49 +193,50 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     };
   }, []);
 
-  const loginWithDemo = () => {
+  const loginWithDemo = (type: AccountType = 'individual') => {
     setIsLoading(true);
     
+    let demoAccount;
+    switch(type) {
+      case 'vc':
+        demoAccount = DEMO_ACCOUNTS.vc;
+        break;
+      case 'startup':
+        demoAccount = DEMO_ACCOUNTS.startup;
+        break;
+      case 'individual':
+      default:
+        demoAccount = DEMO_ACCOUNTS.investor;
+        break;
+    }
+    
     const mockUser = {
-      id: DEMO_INVESTOR.id,
-      email: DEMO_INVESTOR.email,
+      id: demoAccount.id,
+      email: demoAccount.email,
       app_metadata: { provider: 'demo' },
-      user_metadata: { name: DEMO_INVESTOR.name },
+      user_metadata: { 
+        name: demoAccount.name,
+        accountType: demoAccount.accountType,
+        startupId: demoAccount.startupId
+      },
       aud: 'authenticated',
       created_at: new Date().toISOString(),
     } as User;
     
     setUser(mockUser);
-    setProfile({
-      id: DEMO_INVESTOR.id,
-      email: DEMO_INVESTOR.email,
-      name: DEMO_INVESTOR.name,
-      investmentFocus: DEMO_INVESTOR.investment_focus,
-      investmentRange: DEMO_INVESTOR.investment_range,
-    });
+    setProfile(demoAccount);
     
     localStorage.setItem('demoUser', JSON.stringify(mockUser));
-    localStorage.setItem('demoProfile', JSON.stringify({
-      id: DEMO_INVESTOR.id,
-      email: DEMO_INVESTOR.email,
-      name: DEMO_INVESTOR.name,
-      investmentFocus: DEMO_INVESTOR.investment_focus,
-      investmentRange: DEMO_INVESTOR.investment_range,
-    }));
+    localStorage.setItem('demoProfile', JSON.stringify(demoAccount));
     
     setIsLoading(false);
-    toast.success('Logged in with demo account');
+    toast.success(`Logged in as demo ${demoAccount.accountType}`);
   };
 
   const login = async (email: string, password: string) => {
-    if (!isConfigured) {
-      toast.error('Authentication is not configured. Please set up Supabase credentials.');
-      throw new Error('Authentication is not configured');
-    }
-    
     setIsLoading(true);
     try {
-      const { data, error } = await supabaseClientRef.current.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
@@ -267,17 +273,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const loginWithGoogle = async () => {
-    if (!isConfigured) {
-      toast.error('Authentication is not configured. Please set up Supabase credentials.');
-      throw new Error('Authentication is not configured');
-    }
-    
     setIsLoading(true);
     try {
-      const { data, error } = await supabaseClientRef.current.auth.signInWithOAuth({
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/dashboard`,
+          redirectTo: `${window.location.origin}/account-type`,
         }
       });
 
@@ -297,12 +298,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const register = async (userData: Omit<InvestorProfile, 'id'> & { password: string }) => {
-    if (!isConfigured) {
-      toast.error('Authentication is not configured. Please set up Supabase credentials.');
-      throw new Error('Authentication is not configured');
-    }
-    
+  const register = async (userData: Omit<UserProfile, 'id'> & { password: string, accountType: AccountType }) => {
     setIsLoading(true);
     
     try {
@@ -311,14 +307,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       // Add additional logging to track the registration process
       console.log('Calling Supabase auth.signUp...');
       
-      const { data: authData, error: authError } = await supabaseClientRef.current.auth.signUp({
+      const { data: authData, error: authError } = await supabase.auth.signUp({
         email: userData.email,
         password: userData.password,
         options: {
           data: {
             name: userData.name,
-            investment_focus: userData.investmentFocus,
-            investment_range: userData.investmentRange,
+            accountType: userData.accountType,
+            investmentFocus: userData.investmentFocus,
+            investmentRange: userData.investmentRange,
+            startupId: userData.startupId
           }
         }
       });
@@ -336,7 +334,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       // Create investor profile in the database
       console.log('Creating investor profile in database...');
-      const { error: profileError } = await supabaseClientRef.current
+      const { error: profileError } = await supabase
         .from('investors')
         .insert({
           id: authData.user.id,
@@ -344,6 +342,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           name: userData.name,
           investment_focus: userData.investmentFocus,
           investment_range: userData.investmentRange,
+          account_type: userData.accountType
         });
 
       if (profileError) {
@@ -378,9 +377,38 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const logout = async () => {
-    if (!isConfigured) return;
+  const setAccountType = async (accountType: AccountType) => {
+    if (!user) return;
     
+    try {
+      setIsLoading(true);
+      
+      // Update user metadata
+      const { error } = await supabase.auth.updateUser({
+        data: { accountType }
+      });
+      
+      if (error) throw error;
+      
+      // Update local profile
+      setProfile(prev => prev ? { ...prev, accountType } : null);
+      
+      // Update user in database if applicable
+      await supabase
+        .from('investors')
+        .update({ account_type: accountType })
+        .eq('id', user.id);
+      
+      toast.success(`Account type set to ${accountType}`);
+    } catch (error) {
+      console.error('Error setting account type:', error);
+      toast.error('Failed to update account type');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const logout = async () => {
     try {
       if (localStorage.getItem('demoUser')) {
         localStorage.removeItem('demoUser');
@@ -391,7 +419,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         return;
       }
       
-      const { error } = await supabaseClientRef.current.auth.signOut();
+      const { error } = await supabase.auth.signOut();
       if (error) {
         throw error;
       }
@@ -412,9 +440,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       loginWithGoogle,
       loginWithDemo,
       register, 
-      logout, 
-      isConfigured,
-      updateSupabaseConfig
+      logout,
+      setAccountType
     }}>
       {children}
     </AuthContext.Provider>

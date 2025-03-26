@@ -8,9 +8,12 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 import { Loader } from "lucide-react";
 import { toast } from "sonner";
+
+type AccountType = 'startup' | 'individual' | 'vc';
 
 const InvestorForm = () => {
   const [name, setName] = useState("");
@@ -19,11 +22,12 @@ const InvestorForm = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [investmentFocus, setInvestmentFocus] = useState("");
   const [investmentRange, setInvestmentRange] = useState("");
+  const [accountType, setAccountType] = useState<AccountType>("individual");
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   const { toast: uiToast } = useToast();
-  const { register, isConfigured } = useAuth();
+  const { register } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -51,7 +55,8 @@ const InvestorForm = () => {
         email, 
         passwordLength: password.length,
         investmentFocus,
-        investmentRange
+        investmentRange,
+        accountType
       });
       
       await register({
@@ -59,19 +64,24 @@ const InvestorForm = () => {
         email,
         password,
         investmentFocus,
-        investmentRange
+        investmentRange,
+        accountType
       });
       
       console.log("Registration completed successfully!");
       toast.dismiss(toastId);
       toast.success("Registration Successful!", {
-        description: "Your investor account has been created.",
+        description: "Your account has been created.",
         duration: 5000
       });
       
       // Small delay before navigation to ensure toast is seen
       setTimeout(() => {
-        navigate("/dashboard");
+        if (accountType === 'startup') {
+          navigate("/startup-profile");
+        } else {
+          navigate("/startups");
+        }
       }, 500);
     } catch (err: any) {
       console.error("Registration error:", err);
@@ -98,6 +108,8 @@ const InvestorForm = () => {
     }
   };
 
+  const showInvestmentOptions = accountType === 'individual' || accountType === 'vc';
+
   return (
     <section id="investor-form" className="py-20">
       <div className="container mx-auto px-4">
@@ -110,22 +122,13 @@ const InvestorForm = () => {
         >
           <div className="text-center mb-12">
             <span className="inline-block px-4 py-2 rounded-full font-medium mb-4 bg-white text-primary">
-              For Investors
+              Create Account
             </span>
-            <h2 className="text-4xl font-bold mb-4">Join Our Investor Network</h2>
+            <h2 className="text-4xl font-bold mb-4">Join Our Platform</h2>
             <p className="text-gray-600">
-              Create your account to connect with promising startups.
+              Create your account to get started with Bathra.
             </p>
           </div>
-
-          {!isConfigured && (
-            <Alert variant="destructive" className="mb-6">
-              <ExclamationTriangleIcon className="h-4 w-4" />
-              <AlertDescription>
-                Supabase is not properly configured. Authentication will not work. Please configure Supabase URL and anonymous key in environment variables.
-              </AlertDescription>
-            </Alert>
-          )}
 
           {error && (
             <div className="mb-6 p-4 border rounded-lg bg-red-50 border-red-200 text-red-600">
@@ -198,44 +201,72 @@ const InvestorForm = () => {
             </div>
 
             <div>
-              <Label htmlFor="focus" className="mb-2">
-                Investment Focus *
+              <Label className="mb-2">
+                Account Type *
               </Label>
-              <select
-                id="focus"
-                value={investmentFocus}
-                onChange={(e) => setInvestmentFocus(e.target.value)}
-                required
-                className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent"
+              <RadioGroup 
+                value={accountType} 
+                onValueChange={(value) => setAccountType(value as AccountType)}
+                className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2"
               >
-                <option value="">Select your investment focus</option>
-                <option value="Technology">Technology</option>
-                <option value="Healthcare">Healthcare</option>
-                <option value="Fintech">Fintech</option>
-                <option value="E-commerce">E-commerce</option>
-                <option value="Sustainability">Sustainability</option>
-                <option value="Other">Other</option>
-              </select>
+                <div className="flex items-center space-x-2 border p-3 rounded-md">
+                  <RadioGroupItem value="individual" id="individual" />
+                  <Label htmlFor="individual" className="cursor-pointer">Individual Investor</Label>
+                </div>
+                <div className="flex items-center space-x-2 border p-3 rounded-md">
+                  <RadioGroupItem value="vc" id="vc" />
+                  <Label htmlFor="vc" className="cursor-pointer">Venture Capital</Label>
+                </div>
+                <div className="flex items-center space-x-2 border p-3 rounded-md">
+                  <RadioGroupItem value="startup" id="startup" />
+                  <Label htmlFor="startup" className="cursor-pointer">Startup</Label>
+                </div>
+              </RadioGroup>
             </div>
 
-            <div>
-              <Label htmlFor="investmentRange" className="mb-2">
-                Typical Investment Range *
-              </Label>
-              <select
-                id="investmentRange"
-                value={investmentRange}
-                onChange={(e) => setInvestmentRange(e.target.value)}
-                required
-                className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent"
-              >
-                <option value="">Select investment range</option>
-                <option value="$10K - $50K (Seed)">$10K - $50K (Seed)</option>
-                <option value="$50K - $200K (Angel)">$50K - $200K (Angel)</option>
-                <option value="$200K - $1M (Series A)">$200K - $1M (Series A)</option>
-                <option value="$1M+ (Series B+)">$1M+ (Series B+)</option>
-              </select>
-            </div>
+            {showInvestmentOptions && (
+              <>
+                <div>
+                  <Label htmlFor="focus" className="mb-2">
+                    Investment Focus *
+                  </Label>
+                  <select
+                    id="focus"
+                    value={investmentFocus}
+                    onChange={(e) => setInvestmentFocus(e.target.value)}
+                    required={showInvestmentOptions}
+                    className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent"
+                  >
+                    <option value="">Select your investment focus</option>
+                    <option value="Technology">Technology</option>
+                    <option value="Healthcare">Healthcare</option>
+                    <option value="Fintech">Fintech</option>
+                    <option value="E-commerce">E-commerce</option>
+                    <option value="Sustainability">Sustainability</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+
+                <div>
+                  <Label htmlFor="investmentRange" className="mb-2">
+                    Typical Investment Range *
+                  </Label>
+                  <select
+                    id="investmentRange"
+                    value={investmentRange}
+                    onChange={(e) => setInvestmentRange(e.target.value)}
+                    required={showInvestmentOptions}
+                    className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent"
+                  >
+                    <option value="">Select investment range</option>
+                    <option value="$10K - $50K (Seed)">$10K - $50K (Seed)</option>
+                    <option value="$50K - $200K (Angel)">$50K - $200K (Angel)</option>
+                    <option value="$200K - $1M (Series A)">$200K - $1M (Series A)</option>
+                    <option value="$1M+ (Series B+)">$1M+ (Series B+)</option>
+                  </select>
+                </div>
+              </>
+            )}
 
             <div className="pt-2">
               <Button 
@@ -248,7 +279,7 @@ const InvestorForm = () => {
                     <Loader className="h-4 w-4 mr-2 animate-spin" />
                     Creating Account...
                   </span>
-                ) : "Create Investor Account"}
+                ) : "Create Account"}
               </Button>
               
               <div className="text-center mt-4 text-sm text-gray-600">

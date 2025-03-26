@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -10,6 +11,7 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Progress } from '@/components/ui/progress';
 import {
   Form,
   FormControl,
@@ -138,7 +140,7 @@ const StartupForm = () => {
 
   const checkExistingStartup = async (userId: string) => {
     try {
-      const { data, error } = await supabase
+      const { data, error } = supabase
         .from('startups')
         .select('*')
         .eq('id', userId)
@@ -168,7 +170,7 @@ const StartupForm = () => {
         return;
       }
       
-      const { data, error } = await supabase
+      const { data, error } = supabase
         .from('startups')
         .select('*')
         .eq('id', startupId)
@@ -226,7 +228,7 @@ const StartupForm = () => {
 
       if (startupExists) {
         // Update existing startup profile
-        const { error } = await supabase
+        const { error } = supabase
           .from('startups')
           .update(startupData)
           .eq('id', user.id);
@@ -237,7 +239,7 @@ const StartupForm = () => {
         toast.success("Startup profile updated successfully!");
       } else {
         // Insert new startup profile
-        const { error } = await supabase
+        const { error } = supabase
           .from('startups')
           .insert(startupData);
 

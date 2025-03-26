@@ -16,3 +16,20 @@ export const getFullAccountType = (
   if (mainAccountType === 'startup') return 'startup';
   return investorType;
 };
+
+// Helper functions to check account types
+export const isStartupAccount = (accountType?: AccountType): boolean => {
+  return accountType === 'startup';
+};
+
+export const isInvestorAccount = (accountType?: AccountType): boolean => {
+  return accountType === 'individual' || accountType === 'vc';
+};
+
+export const isVCAccount = (accountType?: AccountType): boolean => {
+  return accountType === 'vc';
+};
+
+export const isIndividualInvestorAccount = (accountType?: AccountType): boolean => {
+  return accountType === 'individual';
+};

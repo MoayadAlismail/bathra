@@ -1,3 +1,4 @@
+
 import React, { createContext, useState, useContext, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { User } from '@supabase/supabase-js';
@@ -60,142 +61,88 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   
+  // Demo mode helper function to get startup profile for demo startup user
+  const getStartupProfile = () => {
+    const demoStartup = supabase
+      .from('startups')
+      .select('*')
+      .eq('id', 'demo-startup-1')
+      .single();
+    
+    return demoStartup.data;
+  };
+  
+  // Simplified fetchUserProfile function for demo mode
   const fetchUserProfile = async (userId: string) => {
     try {
       console.log('Fetching profile for user:', userId);
       
       // In our demo mode, check for investor profile first
-      const { data: investorData, error: investorError } = await supabase
+      const investorData = supabase
         .from('investors')
         .select('*')
         .eq('id', userId)
         .select();
 
-      if (investorError || !investorData || investorData.length === 0) {
+      if (!investorData.data || investorData.data.length === 0) {
         console.log('No investor profile found, checking for startup');
         
         // Try to find a startup profile
-        const { data: startupData, error: startupError } = await supabase
+        const startupData = supabase
           .from('startups')
           .select('*')
           .eq('id', userId)
           .select();
           
-        if (startupError || !startupData || startupData.length === 0) {
+        if (!startupData.data || startupData.data.length === 0) {
           console.log('No startup profile found either');
           throw new Error('No profile found');
         }
         
         // For demo purposes, create a profile from the startup data
         setProfile({
-          id: startupData[0].id,
-          name: startupData[0].name,
+          id: startupData.data[0].id,
+          name: startupData.data[0].name,
           email: 'startup@example.com', // Demo email
           accountType: 'startup',
-          startupId: startupData[0].id
+          startupId: startupData.data[0].id
         });
         return;
       }
 
       // For demo, we have an investor profile
       setProfile({
-        id: investorData[0].id,
-        email: investorData[0].email,
-        name: investorData[0].name,
-        accountType: (investorData[0].account_type as AccountType) || 'individual',
-        investmentFocus: investorData[0].investment_focus,
-        investmentRange: investorData[0].investment_range,
+        id: investorData.data[0].id,
+        email: investorData.data[0].email,
+        name: investorData.data[0].name,
+        accountType: (investorData.data[0].account_type as AccountType) || 'individual',
+        investmentFocus: investorData.data[0].investment_focus,
+        investmentRange: investorData.data[0].investment_range,
       });
     } catch (error) {
       console.error('Error fetching user profile:', error);
-      
-      // Try to create a profile from user metadata if it doesn't exist
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        
-        if (user?.user_metadata?.name) {
-          const accountType = (user.user_metadata.accountType || 'individual') as AccountType;
-          
-          const newProfile: UserProfile = {
-            id: userId,
-            email: user.email || '',
-            name: user.user_metadata.name || '',
-            accountType,
-            investmentFocus: user.user_metadata.investmentFocus || '',
-            investmentRange: user.user_metadata.investmentRange || '',
-            startupId: user.user_metadata.startupId || '',
-          };
-          
-          console.log('Creating new profile from metadata:', newProfile);
-          setProfile(newProfile);
-        }
-      } catch (metadataError) {
-        console.error('Failed to create profile from metadata:', metadataError);
-      }
     }
   };
 
   useEffect(() => {
-    const initSession = async () => {
-      try {
-        console.log('Initializing session...');
-        const { data, error } = await supabase.auth.getSession();
-        
-        if (error) {
-          console.error('Session fetch error:', error);
-          setIsLoading(false);
-          return;
-        }
-        
-        // Handle the case where we have a session but no user in state
-        if (data.session?.user) {
-          console.log('Found existing session with user:', data.session.user.id);
-          setUser(data.session.user);
-          await fetchUserProfile(data.session.user.id);
-        } else {
-          console.log('No active session found');
-        }
-      } catch (error) {
-        console.error('Session initialization error:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
     // Check for demo user in localStorage
     const demoUser = localStorage.getItem('demoUser');
     const demoProfile = localStorage.getItem('demoProfile');
     
     if (demoUser && demoProfile) {
       try {
+        console.log('Found demo user in localStorage');
         setUser(JSON.parse(demoUser));
         setProfile(JSON.parse(demoProfile));
         setIsLoading(false);
       } catch (e) {
         console.error('Error parsing demo user:', e);
-        initSession();
+        setIsLoading(false);
       }
     } else {
-      initSession();
-    }
-
-    // Subscribe to auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('Auth state changed:', event, session?.user?.id);
-      
-      if (session?.user) {
-        setUser(session.user);
-        await fetchUserProfile(session.user.id);
-      } else {
-        setUser(null);
-        setProfile(null);
-      }
+      console.log('No demo user found, checking session');
       setIsLoading(false);
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
+    }
   }, []);
 
   const loginWithDemo = (type: AccountType = 'individual') => {
@@ -241,145 +188,33 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) {
-        throw error;
+      // For demo purposes, we'll just use the demo login
+      // Find which demo account matches this email
+      let demoType: AccountType = 'individual';
+      
+      if (email === DEMO_ACCOUNTS.startup.email) {
+        demoType = 'startup';
+      } else if (email === DEMO_ACCOUNTS.vc.email) {
+        demoType = 'vc';
       }
-
-      toast.success('Logged in successfully');
+      
+      loginWithDemo(demoType);
     } catch (error: any) {
       console.error('Login failed:', error);
-      
-      let errorMessage = error.message || 'Failed to login';
-      
-      if (
-        error.message?.includes('Failed to fetch') ||
-        error.message?.includes('NetworkError') ||
-        error.message?.includes('network') ||
-        error.message?.includes('timeout') ||
-        error.message?.includes('offline') ||
-        error.name === 'AbortError' ||
-        (error.__isAuthError === true && error.status === 0)
-      ) {
-        errorMessage = 'Connection error. Please check your internet connection and try again.';
-      } else if (error.status === 400 || error.status === 401) {
-        errorMessage = 'Invalid email or password';
-      }
-      
-      toast.error(errorMessage);
-      throw new Error(errorMessage);
+      toast.error('Invalid email or password');
     } finally {
       setIsLoading(false);
     }
   };
 
   const loginWithGoogle = async () => {
-    setIsLoading(true);
-    try {
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/account-type`,
-        }
-      });
-
-      if (error) {
-        throw error;
-      }
-
-      // Success will be handled when the user returns to the site
-    } catch (error: any) {
-      console.error('Google login failed:', error);
-      
-      let errorMessage = error.message || 'Failed to login with Google';
-      toast.error(errorMessage);
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
+    // For demo, just log in as individual investor
+    loginWithDemo('individual');
   };
 
   const register = async (userData: Omit<UserProfile, 'id'> & { password: string, accountType: AccountType }) => {
-    setIsLoading(true);
-    
-    try {
-      console.log('Starting registration process for:', userData.email);
-      
-      // Add additional logging to track the registration process
-      console.log('Calling Supabase auth.signUp...');
-      
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: userData.email,
-        password: userData.password,
-        options: {
-          data: {
-            name: userData.name,
-            accountType: userData.accountType,
-            investmentFocus: userData.investmentFocus,
-            investmentRange: userData.investmentRange,
-            startupId: userData.startupId
-          }
-        }
-      });
-
-      if (authError) {
-        console.error('Auth signup error:', authError);
-        throw authError;
-      }
-
-      if (!authData?.user) {
-        throw new Error('Registration failed - no user was returned');
-      }
-
-      console.log('Auth user created successfully with ID:', authData.user.id);
-
-      // Create investor profile in the database
-      console.log('Creating investor profile in database...');
-      const { error: profileError } = await supabase
-        .from('investors')
-        .insert({
-          id: authData.user.id,
-          email: userData.email,
-          name: userData.name,
-          investment_focus: userData.investmentFocus,
-          investment_range: userData.investmentRange,
-          account_type: userData.accountType
-        });
-
-      if (profileError) {
-        console.error('Profile creation error:', profileError);
-        toast.warning('Account created, but profile setup had an issue. Some features may be limited.');
-      } else {
-        console.log('Profile created successfully');
-      }
-
-      toast.success('Account created successfully');
-    } catch (error: any) {
-      console.error('Registration failed (outer catch):', error);
-      
-      let errorMessage = error.message || 'Failed to create account';
-      
-      // Provide more specific error messages for connection issues
-      if (error.message?.includes('Failed to fetch') || 
-          error.message?.includes('NetworkError') ||
-          error.message?.includes('network error') ||
-          error.message?.includes('timeout') ||
-          error.message?.includes('connection') ||
-          error.status === 0) {
-        errorMessage = 'Connection to server failed. Please check your internet connection and try again.';
-      } else if (error.message?.includes('already registered')) {
-        errorMessage = 'This email is already registered. Please try logging in instead.';
-      }
-      
-      toast.error(errorMessage);
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
+    // For demo, just log in as the selected account type
+    loginWithDemo(userData.accountType);
   };
 
   const setAccountType = async (accountType: AccountType) => {
@@ -388,25 +223,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       setIsLoading(true);
       
-      // Update user metadata
-      const { error } = await supabase.auth.updateUser({
-        data: { accountType }
-      });
-      
-      if (error) throw error;
-      
       // Update local profile
       setProfile(prev => prev ? { ...prev, accountType } : null);
       
-      // Update user in database if applicable
-      const { error: updateError } = await supabase
-        .from('investors')
-        .update({ account_type: accountType })
-        .eq('id', user.id)
-        .select();
-      
-      if (updateError) {
-        console.log('Error updating investor record:', updateError);
+      if (profile) {
+        // Update localStorage
+        localStorage.setItem('demoProfile', JSON.stringify({...profile, accountType}));
       }
       
       toast.success(`Account type set to ${accountType}`);
@@ -420,19 +242,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const logout = async () => {
     try {
-      if (localStorage.getItem('demoUser')) {
-        localStorage.removeItem('demoUser');
-        localStorage.removeItem('demoProfile');
-        setUser(null);
-        setProfile(null);
-        toast.success('Logged out of demo account');
-        return;
-      }
-      
-      const { error } = await supabase.auth.signOut();
-      if (error) {
-        throw error;
-      }
+      localStorage.removeItem('demoUser');
+      localStorage.removeItem('demoProfile');
+      setUser(null);
       setProfile(null);
       toast.success('Logged out successfully');
     } catch (error: any) {

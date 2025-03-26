@@ -5,7 +5,7 @@ import { Search, Filter, Building, ArrowRight, ExternalLink } from "lucide-react
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/lib/supabase";
-import { toast } from "sonner";
+import { toast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -32,7 +32,7 @@ const VettedStartups = () => {
       console.log("Fetching startups...");
       
       // For demo purposes, we're filtering 'vetted' startups
-      const { data, error } = await supabase
+      const { data, error } = supabase
         .from('startups')
         .select('*')
         .eq('status', 'vetted');
@@ -45,7 +45,11 @@ const VettedStartups = () => {
       setStartups(data || []);
     } catch (error) {
       console.error("Error fetching startups:", error);
-      toast.error("Failed to load startups");
+      toast({
+        title: "Error",
+        description: "Failed to load startups",
+        variant: "destructive"
+      });
     } finally {
       setIsLoading(false);
     }
@@ -58,7 +62,10 @@ const VettedStartups = () => {
 
   const handleInvest = (startupId: string) => {
     // In a real app, this would initiate the investment process
-    toast.success("Investment interest recorded");
+    toast({
+      title: "Success",
+      description: "Investment interest recorded",
+    });
     setIsModalOpen(false);
   };
 

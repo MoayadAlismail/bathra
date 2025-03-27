@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -76,7 +77,7 @@ const StartupProfile = () => {
       if (!data || data.length === 0) {
         setError('Startup profile not found');
       } else {
-        setStartup(data[0]);
+        setStartup(data[0] as Startup);
       }
     } catch (err: any) {
       console.error('Error fetching startup profile:', err);
@@ -170,7 +171,7 @@ const StartupProfile = () => {
               </div>
               <div>
                 <h3 className="text-sm font-medium leading-none">Valuation</h3>
-                <p className="text-muted-foreground">${startup.valuation}</p>
+                <p className="text-muted-foreground">{startup.valuation}</p>
               </div>
               <div>
                 <h3 className="text-sm font-medium leading-none">ROI</h3>

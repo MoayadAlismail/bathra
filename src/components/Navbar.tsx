@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Menu, X, LogIn } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -41,33 +40,32 @@ const Navbar = () => {
     navigate("/");
   };
 
-  // Get public navigation items (shown to all users)
-  const getPublicNavItems = () => [
-    { label: "Home", path: "/" },
-    { label: "How It Works", path: "/#how-it-works" },
-  ];
-
-  // Get authenticated navigation items based on account type
-  const getAuthenticatedNavItems = () => {
-    if (!user) return [];
+  // Get navigation items based on user type and authentication status
+  const getNavItems = () => {
+    const publicItems = [
+      { label: "Home", path: "/" },
+      { label: "How It Works", path: "/#how-it-works" },
+    ];
     
+    if (!user) return publicItems;
+    
+    // When logged in, don't show "How It Works" for a cleaner experience
     if (accountType === 'startup') {
       return [
+        { label: "Home", path: "/" },
         { label: "My Startup", path: "/startup-profile" }
       ];
     } else {
       // For investors (individual or VC)
       return [
+        { label: "Home", path: "/" },
         { label: "Startups", path: "/startups" }
       ];
     }
   };
 
-  // Combine public and authenticated nav items
-  const navItems = [
-    ...getPublicNavItems(),
-    ...getAuthenticatedNavItems(),
-  ];
+  // Get navigation items
+  const navItems = getNavItems();
 
   const renderAuthButtons = () => {
     if (!user) {

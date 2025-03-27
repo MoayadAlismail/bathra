@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Search, Filter, Building, ArrowRight } from "lucide-react";
@@ -12,7 +11,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import Navbar from "@/components/Navbar";
 import StartupDetailModal from "@/components/StartupDetailModal";
 
-// Mock data for demonstration
 const mockStartups = [
   {
     id: "demo-startup-1",
@@ -188,7 +186,6 @@ const VettedStartups = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Simulate loading delay for better user experience
     const timer = setTimeout(() => {
       setStartups(mockStartups);
       setIsLoading(false);
@@ -206,14 +203,12 @@ const VettedStartups = () => {
     if (!selectedStartup) return;
     
     if (savedStartups.includes(selectedStartup.id)) {
-      // Remove from saved
       setSavedStartups(prev => prev.filter(id => id !== selectedStartup.id));
       toast({
         title: "Removed from saved",
         description: `${selectedStartup.name} has been removed from your saved startups`,
       });
     } else {
-      // Add to saved
       setSavedStartups(prev => [...prev, selectedStartup.id]);
       toast({
         title: "Startup saved",
@@ -223,7 +218,6 @@ const VettedStartups = () => {
   };
 
   const handleRequestInfo = () => {
-    // In a real app, this would send a message to the startup
     toast({
       title: "Request sent",
       description: `Your information request has been sent to ${selectedStartup.name}`,
@@ -231,7 +225,6 @@ const VettedStartups = () => {
     setIsModalOpen(false);
   };
 
-  // Filter startups based on search term
   const filteredStartups = startups.filter(
     (startup) =>
       startup.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -239,7 +232,6 @@ const VettedStartups = () => {
       startup.description.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Render loading skeletons
   const renderSkeletons = () => (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
       {[1, 2, 3].map((i) => (
@@ -316,7 +308,7 @@ const VettedStartups = () => {
                       <div className="mt-4 flex justify-between items-center">
                         <div>
                           <span className="text-sm font-medium">Valuation:</span>
-                          <span className="ml-1 text-sm">${startup.valuation || 'Undisclosed'}</span>
+                          <span className="ml-1 text-sm">{startup.valuation || 'Undisclosed'}</span>
                         </div>
                         <Button 
                           onClick={() => handleStartupClick(startup)}

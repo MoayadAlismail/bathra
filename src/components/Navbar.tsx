@@ -86,13 +86,6 @@ const Navbar = () => {
       return (
         <div className="flex items-center space-x-4">
           <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={() => navigate('/startup-profile')}
-          >
-            My Startup
-          </Button>
-          <Button 
             variant="ghost" 
             size="sm" 
             onClick={handleLogout}

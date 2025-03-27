@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -57,7 +56,6 @@ const StartupProfile = () => {
       setIsLoading(true);
       setError('');
       
-      // Get the startup ID from the user's profile
       const startupId = profile?.startupId || profile?.id;
       
       if (!startupId) {

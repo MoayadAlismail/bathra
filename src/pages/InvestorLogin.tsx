@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -8,6 +7,7 @@ import * as z from "zod";
 import { Loader } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import Navbar from "@/components/Navbar";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -39,7 +39,7 @@ const formSchema = z.object({
 const InvestorLogin = () => {
   const [loginError, setLoginError] = useState("");
   const [isLoggingIn, setIsLoggingIn] = useState(false);
-  const { login, loginWithGoogle, loginWithDemo } = useAuth();
+  const { login,loginWithGoogle, loginWithDemo } = useAuth();
   const navigate = useNavigate();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -51,26 +51,116 @@ const InvestorLogin = () => {
     },
   });
 
+  const handleLogin = async (email: string, password: string) => {
+    try {
+      const response = await fetch("https://localhost:7262/api/User/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          password,
+          accountType: "",
+          responseCode: 0,
+          responseMessage: ""
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.responseMessage || "Login failed");
+      }
+
+      if (data.responseCode !== 200) {
+        throw new Error(data.responseMessage || "Login failed");
+      }
+
+      console.log('[Login] Login successful, updating auth state');
+
+      // Store authentication data
+      // localStorage.setItem("authToken", data.token || "demo-token");
+      localStorage.setItem("accountType", data.accountType);
+      localStorage.setItem("userEmail", email);
+
+      return data;
+    } catch (error) {
+      console.error("Login error:", error);
+      throw error;
+    }
+  };
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       setIsLoggingIn(true);
       setLoginError("");
-      await login(values.email, values.password);
-      navigate("/account-type");
+      
+      const loginData = await handleLogin(values.email, values.password);
+
+      login(loginData.email,loginData.password);
+
+      console.log('datetype is: ',loginData.accountType);
+      // Redirect based on account type
+      
+      if (values.rememberMe) {
+        localStorage.setItem("rememberMe", "true");
+      } else {
+        localStorage.removeItem("rememberMe");
+      }
+
+      toast.success("Succesfully logged in!");
+
+      switch(loginData.accountType) {
+        case "Startup":
+            console.log('in startup case');
+            navigate("/startups");
+            break;
+        case "Individual Investor":
+          navigate("/startups");
+          break;
+        case "Venture Capital":
+          navigate("/startups");
+          break;
+        default:
+            navigate("/account-type");
+      }
     } catch (error: any) {
+      console.error("Login failed:", error);
       setLoginError(error.message);
+      toast.error(error.message || "Login failed. Please try again.");
     } finally {
       setIsLoggingIn(false);
     }
   };
 
   const handleDemoLogin = (type: 'startup' | 'individual' | 'vc') => {
-    loginWithDemo(type);
-    
-    if (type === 'startup') {
-      navigate("/startup-profile");
-    } else {
-      navigate("/startups");
+    try {
+      setIsLoggingIn(true);
+      setLoginError("");
+      
+      // Map demo account types to API account types
+      const accountType = type === 'startup' ? 'Startup' : 
+                        type === 'individual' ? 'Individual Investor' : 'Venture Capital';
+      
+      // Store demo data
+      localStorage.setItem("accountType", accountType);
+      localStorage.setItem("userEmail", `demo-${type}@example.com`);
+      
+      loginWithDemo(type);
+      
+      if (type === 'startup') {
+        navigate("/startup-profile");
+      } else {
+        navigate("/startups");
+      }
+
+      toast.success(`Demo ${accountType} login successful!`);
+    } catch (error: any) {
+      setLoginError(error.message);
+      toast.error(error.message || "Demo login failed");
+    } finally {
+      setIsLoggingIn(false);
     }
   };
 
@@ -185,6 +275,7 @@ const InvestorLogin = () => {
                       variant="outline" 
                       className="w-full justify-start" 
                       onClick={() => handleDemoLogin('startup')}
+                      disabled={isLoggingIn}
                     >
                       <span className="bg-primary/10 text-primary text-xs px-2 py-1 rounded mr-2">Demo</span>
                       Startup Account
@@ -193,6 +284,7 @@ const InvestorLogin = () => {
                       variant="outline" 
                       className="w-full justify-start" 
                       onClick={() => handleDemoLogin('individual')}
+                      disabled={isLoggingIn}
                     >
                       <span className="bg-primary/10 text-primary text-xs px-2 py-1 rounded mr-2">Demo</span>
                       Individual Investor
@@ -201,6 +293,7 @@ const InvestorLogin = () => {
                       variant="outline" 
                       className="w-full justify-start" 
                       onClick={() => handleDemoLogin('vc')}
+                      disabled={isLoggingIn}
                     >
                       <span className="bg-primary/10 text-primary text-xs px-2 py-1 rounded mr-2">Demo</span>
                       Venture Capital

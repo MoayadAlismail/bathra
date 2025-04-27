@@ -1,46 +1,92 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/context/AuthContext";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Loader } from "lucide-react";
 import { toast } from "sonner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-type AccountType = 'startup' | 'individual' | 'vc';
+// Define enums to match your backend values
+enum AccountType {
+  Startup = 4,
+  Individual = 2,
+  VentureCapital = 3
+}
+
+enum InvestmentFocus {
+  Technology = 1,
+  Healthcare = 2,
+  Fintech = 3,
+  ECommerce = 4,
+  Sustainability = 5,
+  Other = 6
+}
+
+enum InvestmentRange {
+  Seed = 1,          // $10K - $50K (Seed)
+  Angel = 2,         // $50K - $200K (Angel)
+  SeriesA = 3        // $200K - $1M (Series A)
+}
+
+// Type for the investment focus options in the select
+type InvestmentFocusOption = {
+  label: string;
+  value: InvestmentFocus;
+};
+
+// Type for the investment range options in the select
+type InvestmentRangeOption = {
+  label: string;
+  value: InvestmentRange;
+};
 
 const InvestorForm = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [investmentFocus, setInvestmentFocus] = useState("");
-  const [investmentRange, setInvestmentRange] = useState("");
+  const [investmentFocus, setInvestmentFocus] = useState<InvestmentFocus | null>(null);
+  const [investmentRange, setInvestmentRange] = useState<InvestmentRange | null>(null);
   const [mainAccountType, setMainAccountType] = useState<'startup' | 'investor'>("investor");
   const [investorType, setInvestorType] = useState<'individual' | 'vc'>("individual");
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   const { toast: uiToast } = useToast();
-  const { register } = useAuth();
   const navigate = useNavigate();
+
+  // Investment focus options for the select
+  const investmentFocusOptions: InvestmentFocusOption[] = [
+    { label: "Technology", value: InvestmentFocus.Technology },
+    { label: "Healthcare", value: InvestmentFocus.Healthcare },
+    { label: "Fintech", value: InvestmentFocus.Fintech },
+    { label: "E-commerce", value: InvestmentFocus.ECommerce },
+    { label: "Sustainability", value: InvestmentFocus.Sustainability },
+    { label: "Other", value: InvestmentFocus.Other }
+  ];
+
+  // Investment range options for the select
+  const investmentRangeOptions: InvestmentRangeOption[] = [
+    { label: "$10K - $50K (Seed)", value: InvestmentRange.Seed },
+    { label: "$50K - $200K (Angel)", value: InvestmentRange.Angel },
+    { label: "$200K - $1M (Series A)", value: InvestmentRange.SeriesA }
+  ];
 
   // Determine the final account type based on main selection and investor subtype
   const getAccountType = (): AccountType => {
-    if (mainAccountType === 'startup') return 'startup';
-    return investorType;
+    if (mainAccountType === 'startup') return AccountType.Startup;
+    return investorType === 'individual' ? AccountType.Individual : AccountType.VentureCapital;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     
+    // Validation
     if (password !== confirmPassword) {
       setError("Passwords don't match");
       return;
@@ -59,54 +105,81 @@ const InvestorForm = () => {
       
       const accountType = getAccountType();
       
-      console.log("Starting registration process with:", { 
-        name, 
-        email, 
-        passwordLength: password.length,
-        investmentFocus: mainAccountType === 'investor' ? investmentFocus : '',
-        investmentRange: mainAccountType === 'investor' ? investmentRange : '',
-        accountType
-      });
+      // Prepare the request body according to your API spec
+      const requestBody = {
+        userName: name,
+        email: email,
+        password: password,
+        accountType: accountType,
+        investmentId: mainAccountType === 'investor' ? investmentFocus : null,
+        investmentRange: mainAccountType === 'investor' ? investmentRange : null
+      };
+
+      console.log("Sending registration request with:", requestBody);
       
-      await register({
-        name,
-        email,
-        password,
-        investmentFocus: mainAccountType === 'investor' ? investmentFocus : '',
-        investmentRange: mainAccountType === 'investor' ? investmentRange : '',
-        accountType
-      });
+      let response;
+      try{
+        response = await fetch("https://localhost:7262/api/User/register", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(requestBody),
+        });
+
+      }catch(fetchError){
+        console.error("Fetch error details:", fetchError);
+        throw new Error(`Failed to connect to server: ${fetchError.message}`);
+      }
+
+      console.log("Response status:", response.status);
+
+      if (!response.ok) {
+        let errorData;
+        try{
+          errorData = await response.json();
+        }catch(parseError){
+          console.error("Error parsing error response:", parseError);
+          throw new Error(`Server responded with status ${response.status} but no error details`);
+        }
+        
+        throw new Error(errorData.message || `Server error: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      console.log("Registration successful:", data);
       
-      console.log("Registration completed successfully!");
       toast.dismiss(toastId);
       toast.success("Registration Successful!", {
         description: "Your account has been created.",
         duration: 5000
       });
       
-      // Small delay before navigation to ensure toast is seen
+      // Redirect based on account type
       setTimeout(() => {
-        if (accountType === 'startup') {
+        if (mainAccountType === 'startup') {
           navigate("/startup-profile");
         } else {
           navigate("/startups");
         }
       }, 500);
     } catch (err: any) {
-      console.error("Registration error:", err);
+      console.error("Full registration error:", {
+        error: err,
+        message: err.message,
+        stack: err.stack
+      });
       
       let errorMessage = err.message || "Registration failed";
       
-      if (
-        errorMessage.includes('Failed to fetch') || 
-        errorMessage.includes('NetworkError') || 
-        errorMessage.includes('network') ||
-        errorMessage.includes('Connection error') ||
-        errorMessage.includes('timeout') ||
-        errorMessage.includes('offline')
-      ) {
-        // More specific error message for connection issues
-        errorMessage = "There was an issue connecting to our servers. Please try again in a moment. If the problem persists, check your internet connection and browser settings.";
+      // Handle specific error cases
+      if (errorMessage.includes('Failed to fetch') || errorMessage.includes('NetworkError')) {
+        errorMessage = `
+          Connection failed. Please check:
+          1. Is your backend server running?
+          2. Are you using the correct URL (https://localhost:7262)?
+          3. Try temporarily disabling CORS restrictions in your browser for testing
+        `;
       }
       
       setError(errorMessage);
@@ -253,17 +326,19 @@ const InvestorForm = () => {
                   <Label htmlFor="focus" className="mb-2">
                     Investment Focus *
                   </Label>
-                  <Select value={investmentFocus} onValueChange={setInvestmentFocus}>
+                  <Select 
+                    value={investmentFocus?.toString() || ""}
+                    onValueChange={(value) => setInvestmentFocus(parseInt(value) as InvestmentFocus)}
+                  >
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Select your investment focus" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Technology">Technology</SelectItem>
-                      <SelectItem value="Healthcare">Healthcare</SelectItem>
-                      <SelectItem value="Fintech">Fintech</SelectItem>
-                      <SelectItem value="E-commerce">E-commerce</SelectItem>
-                      <SelectItem value="Sustainability">Sustainability</SelectItem>
-                      <SelectItem value="Other">Other</SelectItem>
+                      {investmentFocusOptions.map((option) => (
+                        <SelectItem key={option.value} value={option.value.toString()}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
@@ -272,15 +347,19 @@ const InvestorForm = () => {
                   <Label htmlFor="investmentRange" className="mb-2">
                     Typical Investment Range *
                   </Label>
-                  <Select value={investmentRange} onValueChange={setInvestmentRange}>
+                  <Select
+                    value={investmentRange?.toString() || ""}
+                    onValueChange={(value) => setInvestmentRange(parseInt(value) as InvestmentRange)}
+                  >
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Select investment range" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="$10K - $50K (Seed)">$10K - $50K (Seed)</SelectItem>
-                      <SelectItem value="$50K - $200K (Angel)">$50K - $200K (Angel)</SelectItem>
-                      <SelectItem value="$200K - $1M (Series A)">$200K - $1M (Series A)</SelectItem>
-                      <SelectItem value="$1M+ (Series B+)">$1M+ (Series B+)</SelectItem>
+                      {investmentRangeOptions.map((option) => (
+                        <SelectItem key={option.value} value={option.value.toString()}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
@@ -296,7 +375,7 @@ const InvestorForm = () => {
                 {isSubmitting ? (
                   <span className="flex items-center">
                     <Loader className="h-4 w-4 mr-2 animate-spin" />
-                    Creating Account...
+                    Creating Account
                   </span>
                 ) : "Create Account"}
               </Button>

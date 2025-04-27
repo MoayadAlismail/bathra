@@ -1,0 +1,309 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "D:\\Zia\\Practical\\upwork\\MoayadAlismail\\Bathra\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{C6B525CD-511D-4C91-B5AD-4F7A4B5C19DF}|Bathra.Infrastructure\\Bathra.Infrastructure.csproj|d:\\zia\\practical\\upwork\\moayadalismail\\bathra\\bathra.infrastructure\\services\\userservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C6B525CD-511D-4C91-B5AD-4F7A4B5C19DF}|Bathra.Infrastructure\\Bathra.Infrastructure.csproj|solutionrelative:bathra.infrastructure\\services\\userservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C6B525CD-511D-4C91-B5AD-4F7A4B5C19DF}|Bathra.Infrastructure\\Bathra.Infrastructure.csproj|d:\\zia\\practical\\upwork\\moayadalismail\\bathra\\bathra.infrastructure\\context\\appdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C6B525CD-511D-4C91-B5AD-4F7A4B5C19DF}|Bathra.Infrastructure\\Bathra.Infrastructure.csproj|solutionrelative:bathra.infrastructure\\context\\appdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C6B525CD-511D-4C91-B5AD-4F7A4B5C19DF}|Bathra.Infrastructure\\Bathra.Infrastructure.csproj|d:\\zia\\practical\\upwork\\moayadalismail\\bathra\\bathra.infrastructure\\services\\startupservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C6B525CD-511D-4C91-B5AD-4F7A4B5C19DF}|Bathra.Infrastructure\\Bathra.Infrastructure.csproj|solutionrelative:bathra.infrastructure\\services\\startupservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B0BB2D6D-99D2-4AEC-A1EE-73505BBD6A6E}|Bathra.Domain\\Bathra.Domain.csproj|d:\\zia\\practical\\upwork\\moayadalismail\\bathra\\bathra.domain\\entities\\startup.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B0BB2D6D-99D2-4AEC-A1EE-73505BBD6A6E}|Bathra.Domain\\Bathra.Domain.csproj|solutionrelative:bathra.domain\\entities\\startup.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{7BA624D4-A1DD-4BDC-8007-534A3B84F280}|Bathra.Application\\Bathra.Application.csproj|d:\\zia\\practical\\upwork\\moayadalismail\\bathra\\bathra.application\\interfaces\\iuserservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{7BA624D4-A1DD-4BDC-8007-534A3B84F280}|Bathra.Application\\Bathra.Application.csproj|solutionrelative:bathra.application\\interfaces\\iuserservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B954F583-5491-435C-AFCB-8675FC2632E0}|Bathra.API\\Bathra.API.csproj|d:\\zia\\practical\\upwork\\moayadalismail\\bathra\\bathra.api\\controllers\\usercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B954F583-5491-435C-AFCB-8675FC2632E0}|Bathra.API\\Bathra.API.csproj|solutionrelative:bathra.api\\controllers\\usercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B954F583-5491-435C-AFCB-8675FC2632E0}|Bathra.API\\Bathra.API.csproj|d:\\zia\\practical\\upwork\\moayadalismail\\bathra\\bathra.api\\controllers\\startupcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B954F583-5491-435C-AFCB-8675FC2632E0}|Bathra.API\\Bathra.API.csproj|solutionrelative:bathra.api\\controllers\\startupcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B954F583-5491-435C-AFCB-8675FC2632E0}|Bathra.API\\Bathra.API.csproj|d:\\zia\\practical\\upwork\\moayadalismail\\bathra\\bathra.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B954F583-5491-435C-AFCB-8675FC2632E0}|Bathra.API\\Bathra.API.csproj|solutionrelative:bathra.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B0BB2D6D-99D2-4AEC-A1EE-73505BBD6A6E}|Bathra.Domain\\Bathra.Domain.csproj|d:\\zia\\practical\\upwork\\moayadalismail\\bathra\\bathra.domain\\entities\\set_accounttype.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B0BB2D6D-99D2-4AEC-A1EE-73505BBD6A6E}|Bathra.Domain\\Bathra.Domain.csproj|solutionrelative:bathra.domain\\entities\\set_accounttype.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B0BB2D6D-99D2-4AEC-A1EE-73505BBD6A6E}|Bathra.Domain\\Bathra.Domain.csproj|d:\\zia\\practical\\upwork\\moayadalismail\\bathra\\bathra.domain\\entities\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B0BB2D6D-99D2-4AEC-A1EE-73505BBD6A6E}|Bathra.Domain\\Bathra.Domain.csproj|solutionrelative:bathra.domain\\entities\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{7BA624D4-A1DD-4BDC-8007-534A3B84F280}|Bathra.Application\\Bathra.Application.csproj|d:\\zia\\practical\\upwork\\moayadalismail\\bathra\\bathra.application\\dtos\\userlogindto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{7BA624D4-A1DD-4BDC-8007-534A3B84F280}|Bathra.Application\\Bathra.Application.csproj|solutionrelative:bathra.application\\dtos\\userlogindto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{7BA624D4-A1DD-4BDC-8007-534A3B84F280}|Bathra.Application\\Bathra.Application.csproj|d:\\zia\\practical\\upwork\\moayadalismail\\bathra\\bathra.application\\interfaces\\istartupservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{7BA624D4-A1DD-4BDC-8007-534A3B84F280}|Bathra.Application\\Bathra.Application.csproj|solutionrelative:bathra.application\\interfaces\\istartupservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B954F583-5491-435C-AFCB-8675FC2632E0}|Bathra.API\\Bathra.API.csproj|d:\\zia\\practical\\upwork\\moayadalismail\\bathra\\bathra.api\\bathra.api.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{B954F583-5491-435C-AFCB-8675FC2632E0}|Bathra.API\\Bathra.API.csproj|solutionrelative:bathra.api\\bathra.api.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C6B525CD-511D-4C91-B5AD-4F7A4B5C19DF}|Bathra.Infrastructure\\Bathra.Infrastructure.csproj|d:\\zia\\practical\\upwork\\moayadalismail\\bathra\\bathra.infrastructure\\bathra.infrastructure.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{C6B525CD-511D-4C91-B5AD-4F7A4B5C19DF}|Bathra.Infrastructure\\Bathra.Infrastructure.csproj|solutionrelative:bathra.infrastructure\\bathra.infrastructure.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B0BB2D6D-99D2-4AEC-A1EE-73505BBD6A6E}|Bathra.Domain\\Bathra.Domain.csproj|d:\\zia\\practical\\upwork\\moayadalismail\\bathra\\bathra.domain\\entities\\set_investmentrange.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B0BB2D6D-99D2-4AEC-A1EE-73505BBD6A6E}|Bathra.Domain\\Bathra.Domain.csproj|solutionrelative:bathra.domain\\entities\\set_investmentrange.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B0BB2D6D-99D2-4AEC-A1EE-73505BBD6A6E}|Bathra.Domain\\Bathra.Domain.csproj|d:\\zia\\practical\\upwork\\moayadalismail\\bathra\\bathra.domain\\entities\\set_investmentfocus.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B0BB2D6D-99D2-4AEC-A1EE-73505BBD6A6E}|Bathra.Domain\\Bathra.Domain.csproj|solutionrelative:bathra.domain\\entities\\set_investmentfocus.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C6B525CD-511D-4C91-B5AD-4F7A4B5C19DF}|Bathra.Infrastructure\\Bathra.Infrastructure.csproj|d:\\zia\\practical\\upwork\\moayadalismail\\bathra\\bathra.infrastructure\\class1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C6B525CD-511D-4C91-B5AD-4F7A4B5C19DF}|Bathra.Infrastructure\\Bathra.Infrastructure.csproj|solutionrelative:bathra.infrastructure\\class1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B0BB2D6D-99D2-4AEC-A1EE-73505BBD6A6E}|Bathra.Domain\\Bathra.Domain.csproj|d:\\zia\\practical\\upwork\\moayadalismail\\bathra\\bathra.domain\\class1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B0BB2D6D-99D2-4AEC-A1EE-73505BBD6A6E}|Bathra.Domain\\Bathra.Domain.csproj|solutionrelative:bathra.domain\\class1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 6,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "AppDbContext.cs",
+              "DocumentMoniker": "D:\\Zia\\Practical\\upwork\\MoayadAlismail\\Bathra\\Bathra.Infrastructure\\Context\\AppDbContext.cs",
+              "RelativeDocumentMoniker": "Bathra.Infrastructure\\Context\\AppDbContext.cs",
+              "ToolTip": "D:\\Zia\\Practical\\upwork\\MoayadAlismail\\Bathra\\Bathra.Infrastructure\\Context\\AppDbContext.cs",
+              "RelativeToolTip": "Bathra.Infrastructure\\Context\\AppDbContext.cs",
+              "ViewState": "AQIAABAAAAAAAAAAAAAiwBgAAAAkAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-04-26T08:02:08.801Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "Startup.cs",
+              "DocumentMoniker": "D:\\Zia\\Practical\\upwork\\MoayadAlismail\\Bathra\\Bathra.Domain\\Entities\\Startup.cs",
+              "RelativeDocumentMoniker": "Bathra.Domain\\Entities\\Startup.cs",
+              "ToolTip": "D:\\Zia\\Practical\\upwork\\MoayadAlismail\\Bathra\\Bathra.Domain\\Entities\\Startup.cs",
+              "RelativeToolTip": "Bathra.Domain\\Entities\\Startup.cs",
+              "ViewState": "AQIAAB8AAAAAAAAAAAAuwCYAAAAXAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-04-26T07:03:52.387Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "IUserService.cs",
+              "DocumentMoniker": "D:\\Zia\\Practical\\upwork\\MoayadAlismail\\Bathra\\Bathra.Application\\Interfaces\\IUserService.cs",
+              "RelativeDocumentMoniker": "Bathra.Application\\Interfaces\\IUserService.cs",
+              "ToolTip": "D:\\Zia\\Practical\\upwork\\MoayadAlismail\\Bathra\\Bathra.Application\\Interfaces\\IUserService.cs",
+              "RelativeToolTip": "Bathra.Application\\Interfaces\\IUserService.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-04-25T15:50:07.609Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "StartupService.cs",
+              "DocumentMoniker": "D:\\Zia\\Practical\\upwork\\MoayadAlismail\\Bathra\\Bathra.Infrastructure\\Services\\StartupService.cs",
+              "RelativeDocumentMoniker": "Bathra.Infrastructure\\Services\\StartupService.cs",
+              "ToolTip": "D:\\Zia\\Practical\\upwork\\MoayadAlismail\\Bathra\\Bathra.Infrastructure\\Services\\StartupService.cs",
+              "RelativeToolTip": "Bathra.Infrastructure\\Services\\StartupService.cs",
+              "ViewState": "AQIAAAYAAAAAAAAAAAAAABQAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-04-26T10:06:29.7Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "UserController.cs",
+              "DocumentMoniker": "D:\\Zia\\Practical\\upwork\\MoayadAlismail\\Bathra\\Bathra.API\\Controllers\\UserController.cs",
+              "RelativeDocumentMoniker": "Bathra.API\\Controllers\\UserController.cs",
+              "ToolTip": "D:\\Zia\\Practical\\upwork\\MoayadAlismail\\Bathra\\Bathra.API\\Controllers\\UserController.cs",
+              "RelativeToolTip": "Bathra.API\\Controllers\\UserController.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAD8AAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-04-25T18:48:18.863Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "StartupController.cs",
+              "DocumentMoniker": "D:\\Zia\\Practical\\upwork\\MoayadAlismail\\Bathra\\Bathra.API\\Controllers\\StartupController.cs",
+              "RelativeDocumentMoniker": "Bathra.API\\Controllers\\StartupController.cs",
+              "ToolTip": "D:\\Zia\\Practical\\upwork\\MoayadAlismail\\Bathra\\Bathra.API\\Controllers\\StartupController.cs",
+              "RelativeToolTip": "Bathra.API\\Controllers\\StartupController.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAABYAAAAJAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-04-26T10:17:42.376Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "UserService.cs",
+              "DocumentMoniker": "D:\\Zia\\Practical\\upwork\\MoayadAlismail\\Bathra\\Bathra.Infrastructure\\Services\\UserService.cs",
+              "RelativeDocumentMoniker": "Bathra.Infrastructure\\Services\\UserService.cs",
+              "ToolTip": "D:\\Zia\\Practical\\upwork\\MoayadAlismail\\Bathra\\Bathra.Infrastructure\\Services\\UserService.cs",
+              "RelativeToolTip": "Bathra.Infrastructure\\Services\\UserService.cs",
+              "ViewState": "AQIAAB8AAAAAAAAAAAAAACQAAAAuAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-04-25T15:55:14.773Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "Program.cs",
+              "DocumentMoniker": "D:\\Zia\\Practical\\upwork\\MoayadAlismail\\Bathra\\Bathra.API\\Program.cs",
+              "RelativeDocumentMoniker": "Bathra.API\\Program.cs",
+              "ToolTip": "D:\\Zia\\Practical\\upwork\\MoayadAlismail\\Bathra\\Bathra.API\\Program.cs",
+              "RelativeToolTip": "Bathra.API\\Program.cs",
+              "ViewState": "AQIAAAcAAAAAAAAAAAAQwA0AAAAaAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-04-12T20:55:30.849Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "Set_AccountType.cs",
+              "DocumentMoniker": "D:\\Zia\\Practical\\upwork\\MoayadAlismail\\Bathra\\Bathra.Domain\\Entities\\Set_AccountType.cs",
+              "RelativeDocumentMoniker": "Bathra.Domain\\Entities\\Set_AccountType.cs",
+              "ToolTip": "D:\\Zia\\Practical\\upwork\\MoayadAlismail\\Bathra\\Bathra.Domain\\Entities\\Set_AccountType.cs",
+              "RelativeToolTip": "Bathra.Domain\\Entities\\Set_AccountType.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAoAAAAuAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-04-12T21:53:10.901Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "User.cs",
+              "DocumentMoniker": "D:\\Zia\\Practical\\upwork\\MoayadAlismail\\Bathra\\Bathra.Domain\\Entities\\User.cs",
+              "RelativeDocumentMoniker": "Bathra.Domain\\Entities\\User.cs",
+              "ToolTip": "D:\\Zia\\Practical\\upwork\\MoayadAlismail\\Bathra\\Bathra.Domain\\Entities\\User.cs",
+              "RelativeToolTip": "Bathra.Domain\\Entities\\User.cs",
+              "ViewState": "AQIAAAoAAAAAAAAAAAApwBUAAAAUAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-04-12T22:03:21.271Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "UserLoginDto.cs",
+              "DocumentMoniker": "D:\\Zia\\Practical\\upwork\\MoayadAlismail\\Bathra\\Bathra.Application\\DTOs\\UserLoginDto.cs",
+              "RelativeDocumentMoniker": "Bathra.Application\\DTOs\\UserLoginDto.cs",
+              "ToolTip": "D:\\Zia\\Practical\\upwork\\MoayadAlismail\\Bathra\\Bathra.Application\\DTOs\\UserLoginDto.cs",
+              "RelativeToolTip": "Bathra.Application\\DTOs\\UserLoginDto.cs",
+              "ViewState": "AQIAAAEAAAAAAAAAAAAcwA8AAAAVAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-04-26T05:58:20.118Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "IStartupService.cs",
+              "DocumentMoniker": "D:\\Zia\\Practical\\upwork\\MoayadAlismail\\Bathra\\Bathra.Application\\Interfaces\\IStartupService.cs",
+              "RelativeDocumentMoniker": "Bathra.Application\\Interfaces\\IStartupService.cs",
+              "ToolTip": "D:\\Zia\\Practical\\upwork\\MoayadAlismail\\Bathra\\Bathra.Application\\Interfaces\\IStartupService.cs",
+              "RelativeToolTip": "Bathra.Application\\Interfaces\\IStartupService.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAqwAsAAAA5AAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-04-26T10:03:25.282Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "Bathra.API.csproj",
+              "DocumentMoniker": "D:\\Zia\\Practical\\upwork\\MoayadAlismail\\Bathra\\Bathra.API\\Bathra.API.csproj",
+              "RelativeDocumentMoniker": "Bathra.API\\Bathra.API.csproj",
+              "ToolTip": "D:\\Zia\\Practical\\upwork\\MoayadAlismail\\Bathra\\Bathra.API\\Bathra.API.csproj",
+              "RelativeToolTip": "Bathra.API\\Bathra.API.csproj",
+              "ViewState": "AQIAAAkAAAAAAAAAAADwvwAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2025-04-25T16:36:30.605Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "Bathra.Infrastructure.csproj",
+              "DocumentMoniker": "D:\\Zia\\Practical\\upwork\\MoayadAlismail\\Bathra\\Bathra.Infrastructure\\Bathra.Infrastructure.csproj",
+              "RelativeDocumentMoniker": "Bathra.Infrastructure\\Bathra.Infrastructure.csproj",
+              "ToolTip": "D:\\Zia\\Practical\\upwork\\MoayadAlismail\\Bathra\\Bathra.Infrastructure\\Bathra.Infrastructure.csproj",
+              "RelativeToolTip": "Bathra.Infrastructure\\Bathra.Infrastructure.csproj",
+              "ViewState": "AQIAAAkAAAAAAAAAAADwvxYAAAAzAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2025-04-25T16:26:35.356Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "Set_InvestmentRange.cs",
+              "DocumentMoniker": "D:\\Zia\\Practical\\upwork\\MoayadAlismail\\Bathra\\Bathra.Domain\\Entities\\Set_InvestmentRange.cs",
+              "RelativeDocumentMoniker": "Bathra.Domain\\Entities\\Set_InvestmentRange.cs",
+              "ToolTip": "D:\\Zia\\Practical\\upwork\\MoayadAlismail\\Bathra\\Bathra.Domain\\Entities\\Set_InvestmentRange.cs",
+              "RelativeToolTip": "Bathra.Domain\\Entities\\Set_InvestmentRange.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAsAAABAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-04-12T22:01:52.713Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "Set_InvestmentFocus.cs",
+              "DocumentMoniker": "D:\\Zia\\Practical\\upwork\\MoayadAlismail\\Bathra\\Bathra.Domain\\Entities\\Set_InvestmentFocus.cs",
+              "RelativeDocumentMoniker": "Bathra.Domain\\Entities\\Set_InvestmentFocus.cs",
+              "ToolTip": "D:\\Zia\\Practical\\upwork\\MoayadAlismail\\Bathra\\Bathra.Domain\\Entities\\Set_InvestmentFocus.cs",
+              "RelativeToolTip": "Bathra.Domain\\Entities\\Set_InvestmentFocus.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAsAAABAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-04-12T21:55:11.161Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
+              "Title": "Class1.cs",
+              "DocumentMoniker": "D:\\Zia\\Practical\\upwork\\MoayadAlismail\\Bathra\\Bathra.Infrastructure\\Class1.cs",
+              "RelativeDocumentMoniker": "Bathra.Infrastructure\\Class1.cs",
+              "ToolTip": "D:\\Zia\\Practical\\upwork\\MoayadAlismail\\Bathra\\Bathra.Infrastructure\\Class1.cs",
+              "RelativeToolTip": "Bathra.Infrastructure\\Class1.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAQAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-04-11T16:33:46.597Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 17,
+              "Title": "Class1.cs",
+              "DocumentMoniker": "D:\\Zia\\Practical\\upwork\\MoayadAlismail\\Bathra\\Bathra.Domain\\Class1.cs",
+              "RelativeDocumentMoniker": "Bathra.Domain\\Class1.cs",
+              "ToolTip": "D:\\Zia\\Practical\\upwork\\MoayadAlismail\\Bathra\\Bathra.Domain\\Class1.cs",
+              "RelativeToolTip": "Bathra.Domain\\Class1.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAADwvwAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-04-11T16:30:30.444Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+D:\Zia\Practical\upwork\MoayadAlismail\Bathra\Bathra.Application\bin\Debug\net8.0\Bathra.Application.deps.json
+D:\Zia\Practical\upwork\MoayadAlismail\Bathra\Bathra.Application\bin\Debug\net8.0\Bathra.Application.dll
+D:\Zia\Practical\upwork\MoayadAlismail\Bathra\Bathra.Application\bin\Debug\net8.0\Bathra.Application.pdb
+D:\Zia\Practical\upwork\MoayadAlismail\Bathra\Bathra.Application\bin\Debug\net8.0\Bathra.Domain.dll
+D:\Zia\Practical\upwork\MoayadAlismail\Bathra\Bathra.Application\bin\Debug\net8.0\Bathra.Domain.pdb
+D:\Zia\Practical\upwork\MoayadAlismail\Bathra\Bathra.Application\obj\Debug\net8.0\Bathra.Application.csproj.AssemblyReference.cache
+D:\Zia\Practical\upwork\MoayadAlismail\Bathra\Bathra.Application\obj\Debug\net8.0\Bathra.Application.GeneratedMSBuildEditorConfig.editorconfig
+D:\Zia\Practical\upwork\MoayadAlismail\Bathra\Bathra.Application\obj\Debug\net8.0\Bathra.Application.AssemblyInfoInputs.cache
+D:\Zia\Practical\upwork\MoayadAlismail\Bathra\Bathra.Application\obj\Debug\net8.0\Bathra.Application.AssemblyInfo.cs
+D:\Zia\Practical\upwork\MoayadAlismail\Bathra\Bathra.Application\obj\Debug\net8.0\Bathra.Application.csproj.CoreCompileInputs.cache
+D:\Zia\Practical\upwork\MoayadAlismail\Bathra\Bathra.Application\obj\Debug\net8.0\Bathra.A.56336910.Up2Date
+D:\Zia\Practical\upwork\MoayadAlismail\Bathra\Bathra.Application\obj\Debug\net8.0\Bathra.Application.dll
+D:\Zia\Practical\upwork\MoayadAlismail\Bathra\Bathra.Application\obj\Debug\net8.0\refint\Bathra.Application.dll
+D:\Zia\Practical\upwork\MoayadAlismail\Bathra\Bathra.Application\obj\Debug\net8.0\Bathra.Application.pdb
+D:\Zia\Practical\upwork\MoayadAlismail\Bathra\Bathra.Application\obj\Debug\net8.0\ref\Bathra.Application.dll

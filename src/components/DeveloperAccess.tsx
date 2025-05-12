@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,7 +14,7 @@ const DeveloperAccess: React.FC<DeveloperAccessProps> = ({ onAccess }) => {
   const { toast } = useToast();
   
   // Simple developer password - in a real app you would use a more secure approach
-  const DEVELOPER_PASSWORD = 'devaccess';
+  const DEVELOPER_PASSWORD = 'the3dudes';
   
   useEffect(() => {
     // Check if developer access is already granted

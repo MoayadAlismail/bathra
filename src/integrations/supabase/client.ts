@@ -294,10 +294,26 @@ export const supabase = {
         console.log(`Filtering where ${column} = ${value}`);
         filteredData = filteredData.filter((item: any) => item[column] === value);
         return {
-          select: () => ({
-            data: filteredData,
-            error: null
-          }),
+          select: (columns?: string) => {
+            if (columns) {
+              const selectedFields = columns.split(',').map(f => f.trim());
+              filteredData = filteredData.map((item: any) => {
+                const newItem: any = {};
+                selectedFields.forEach(field => {
+                  if (field === '*') {
+                    Object.assign(newItem, item);
+                  } else {
+                    newItem[field] = item[field];
+                  }
+                });
+                return newItem;
+              });
+            }
+            return {
+              data: filteredData,
+              error: null
+            };
+          },
           data: filteredData,
           error: null,
           single: () => ({

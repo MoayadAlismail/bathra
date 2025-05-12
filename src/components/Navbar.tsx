@@ -8,6 +8,12 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabase";
 
+type SubscribedEmail = {
+  id: string;
+  email: string;
+  created_at: string;
+};
+
 const Navbar = () => {
   const navigate = useNavigate();
   const { user, profile, logout } = useAuth();
@@ -49,10 +55,15 @@ const Navbar = () => {
         return;
       }
       
+      if (!data) {
+        setSubscribedEmails([]);
+        return;
+      }
+      
       // Extract email values from the data
-      const emails = data?.map(item => item.email) || [];
+      const emails = data.map((item: SubscribedEmail) => item.email);
       setSubscribedEmails(emails);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error:', err);
       toast({
         title: "Error",

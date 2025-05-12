@@ -49,7 +49,19 @@ const InvestorDashboard = () => {
       
       if (error) throw error;
       
-      setStartups(data || []);
+      if (data) {
+        // Ensure we only process startup data that matches our type
+        const typedStartups: Startup[] = data
+          .filter((item: any): item is Startup => 
+            typeof item.id === 'string' && 
+            typeof item.name === 'string' && 
+            typeof item.industry === 'string' && 
+            typeof item.stage === 'string' && 
+            typeof item.description === 'string'
+          );
+        
+        setStartups(typedStartups);
+      }
     } catch (error) {
       console.error('Error fetching startups:', error);
     } finally {
@@ -61,13 +73,25 @@ const InvestorDashboard = () => {
     try {
       const { data, error } = await supabase
         .from('startups')
-        .select('*')
+        .select('id, name, industry, stage, description')
         .order('created_at', { ascending: false })
         .limit(5);
       
       if (error) throw error;
       
-      setRecentStartups(data || []);
+      if (data) {
+        // Ensure we only process startup data that matches our type
+        const typedStartups: Startup[] = data
+          .filter((item: any): item is Startup => 
+            typeof item.id === 'string' && 
+            typeof item.name === 'string' && 
+            typeof item.industry === 'string' && 
+            typeof item.stage === 'string' && 
+            typeof item.description === 'string'
+          );
+        
+        setRecentStartups(typedStartups);
+      }
     } catch (error) {
       console.error('Error fetching recent startups:', error);
     }

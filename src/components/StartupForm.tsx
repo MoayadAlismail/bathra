@@ -275,10 +275,7 @@ const StartupForm = () => {
 
       const { data, error } = await supabase.storage
         .from('documents')
-        .upload(filePath, file, {
-          cacheControl: '3600',
-          upsert: false,
-        });
+        .upload(filePath, file);
 
       if (error) {
         console.error("File upload error:", error);

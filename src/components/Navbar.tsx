@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Menu, X, LogIn, ArrowLeft, Mail } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -8,11 +7,11 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabase";
 
-type SubscribedEmail = {
+interface SubscribedEmail {
   id: string;
   email: string;
   created_at: string;
-};
+}
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -40,7 +39,7 @@ const Navbar = () => {
     try {
       setIsLoadingEmails(true);
       
-      // Fetch subscribed emails
+      // Fetch subscribed emails from Supabase
       const { data, error } = await supabase
         .from('subscribed_emails')
         .select('email');
@@ -55,7 +54,8 @@ const Navbar = () => {
         return;
       }
       
-      if (!data) {
+      // Handle case when no emails exist yet
+      if (!data || data.length === 0) {
         setSubscribedEmails([]);
         return;
       }

@@ -42,6 +42,7 @@ export type Tables = {
     status: string;
     created_at: string;
     document_path?: string;
+    image?: string;
   };
   subscribed_emails: {
     id: string;

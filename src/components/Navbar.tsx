@@ -7,12 +7,6 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase, SubscribedEmail } from "@/lib/supabase";
 
-interface SubscribedEmail {
-  id: string;
-  email: string;
-  created_at: string;
-}
-
 const Navbar = () => {
   const navigate = useNavigate();
   const { user, profile, logout } = useAuth();

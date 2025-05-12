@@ -61,3 +61,8 @@ export interface SupabaseResponse<T> {
   data: T | null;
   error: Error | null;
 }
+
+// Helper types for filtering
+export type DataFilter<T> = {
+  [K in keyof T]?: T[K];
+};

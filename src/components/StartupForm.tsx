@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -140,11 +139,10 @@ const StartupForm = () => {
 
   const checkExistingStartup = async (userId: string) => {
     try {
-      const { data, error } = supabase
+      const { data, error } = await supabase
         .from('startups')
         .select('*')
-        .eq('id', userId)
-        .select();
+        .eq('id', userId);
 
       if (error) throw error;
       setStartupExists(data && data.length > 0);
@@ -170,11 +168,10 @@ const StartupForm = () => {
         return;
       }
       
-      const { data, error } = supabase
+      const { data, error } = await supabase
         .from('startups')
         .select('*')
-        .eq('id', startupId)
-        .select();
+        .eq('id', startupId);
       
       if (error) throw error;
       
@@ -228,7 +225,7 @@ const StartupForm = () => {
 
       if (startupExists) {
         // Update existing startup profile
-        const { error } = supabase
+        const { error } = await supabase
           .from('startups')
           .update(startupData)
           .eq('id', user.id);
@@ -239,7 +236,7 @@ const StartupForm = () => {
         toast.success("Startup profile updated successfully!");
       } else {
         // Insert new startup profile
-        const { error } = supabase
+        const { error } = await supabase
           .from('startups')
           .insert(startupData);
 
@@ -249,7 +246,7 @@ const StartupForm = () => {
         toast.success("Startup profile created successfully!");
       }
 
-      navigate("/startups");
+      navigate("/startup-profile");
     } catch (err: any) {
       console.error("Form submission error:", err);
       setError(err.message || "Failed to save startup profile.");

@@ -1,8 +1,10 @@
+
 import React, { createContext, useState, useContext, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { User } from '@supabase/supabase-js';
 import { toast } from 'sonner';
 import { AccountType } from '@/lib/account-types';
+import { Investor, Startup } from '@/lib/supabase';
 
 type UserProfile = {
   id: string;
@@ -61,14 +63,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   
   // Demo mode helper function to get startup profile for demo startup user
-  const getStartupProfile = () => {
-    const demoStartup = supabase
+  const getStartupProfile = async () => {
+    const { data, error } = await supabase
       .from('startups')
       .select('*')
-      .eq('id', 'demo-startup-1')
-      .single();
+      .eq('id', 'demo-startup-1');
     
-    return demoStartup.data;
+    return data && data.length > 0 ? data[0] as Startup : null;
   };
   
   // Simplified fetchUserProfile function for demo mode
@@ -96,25 +97,29 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           throw new Error('No profile found');
         }
         
+        const startup = startupData[0] as Startup;
+        
         // For demo purposes, create a profile from the startup data
         setProfile({
-          id: startupData[0].id,
-          name: startupData[0].name,
+          id: startup.id,
+          name: startup.name,
           email: 'startup@example.com', // Demo email
           accountType: 'startup',
-          startupId: startupData[0].id
+          startupId: startup.id
         });
         return;
       }
 
+      const investor = investorData[0] as Investor;
+      
       // For demo, we have an investor profile
       setProfile({
-        id: investorData[0].id,
-        email: investorData[0].email,
-        name: investorData[0].name,
-        accountType: (investorData[0].account_type as AccountType) || 'individual',
-        investmentFocus: investorData[0].investment_focus,
-        investmentRange: investorData[0].investment_range,
+        id: investor.id,
+        email: investor.email,
+        name: investor.name,
+        accountType: (investor.account_type as AccountType) || 'individual',
+        investmentFocus: investor.investment_focus,
+        investmentRange: investor.investment_range,
       });
     } catch (error) {
       console.error('Error fetching user profile:', error);

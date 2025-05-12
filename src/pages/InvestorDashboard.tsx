@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -11,14 +10,7 @@ import { isInvestorAccount } from '@/lib/account-types';
 import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ChevronDown, ChevronUp, FileText } from 'lucide-react';
-
-type Startup = {
-  id: string;
-  name: string;
-  industry: string;
-  stage: string;
-  description: string;
-};
+import { Startup } from '@/lib/supabase';
 
 const InvestorDashboard = () => {
   const { user, profile, logout } = useAuth();

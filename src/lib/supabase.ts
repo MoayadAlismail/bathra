@@ -90,3 +90,57 @@ export const processEmailData = (data: any[]): SubscribedEmail[] => {
     typeof item.email === 'string'
   );
 };
+
+// Helper function to get all subscribed emails
+export const getAllSubscribedEmails = async (): Promise<SubscribedEmail[]> => {
+  try {
+    const { data, error } = await supabase
+      .from('subscribed_emails')
+      .select('*');
+      
+    if (error) throw error;
+    return processEmailData(data || []);
+  } catch (error) {
+    console.error('Error fetching subscribed emails:', error);
+    return [];
+  }
+};
+
+// Helper function to subscribe a new email
+export const subscribeEmail = async (email: string): Promise<{ success: boolean; message: string; }> => {
+  try {
+    // First, check if the email already exists
+    const { data: existingEmails, error: checkError } = await supabase
+      .from('subscribed_emails')
+      .select('email')
+      .eq('email', email);
+    
+    if (checkError) throw checkError;
+    
+    // If email already exists, don't add it again
+    if (existingEmails && existingEmails.length > 0) {
+      return { 
+        success: false, 
+        message: "This email is already subscribed to our updates." 
+      };
+    }
+    
+    // Insert the email into the subscribed_emails table
+    const { error } = await supabase
+      .from('subscribed_emails')
+      .insert([{ email }]);
+    
+    if (error) throw error;
+    
+    return { 
+      success: true, 
+      message: "Thank you for subscribing. We'll notify you when we launch!" 
+    };
+  } catch (error: any) {
+    console.error('Error subscribing email:', error);
+    return { 
+      success: false, 
+      message: error.message || "Failed to subscribe. Please try again later." 
+    };
+  }
+};

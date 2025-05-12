@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -120,7 +121,7 @@ const AppRoutes = () => {
   
   useEffect(() => {
     // Check if developer access is already granted on page load
-    const hasAccess = localStorage.getItem('developerAccess') === 'granted';
+    const hasAccess = localStorage.getItem('developerAccess') === 'true';
     if (hasAccess) {
       setDeveloperAccess(true);
     }
@@ -131,7 +132,9 @@ const AppRoutes = () => {
     return (
       <>
         <ComingSoon />
-        <DeveloperAccess />
+        <div className="fixed bottom-4 right-4 z-50">
+          <DeveloperAccess />
+        </div>
       </>
     );
   }

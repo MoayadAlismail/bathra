@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { Mail } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
+import { subscribeEmail } from '@/lib/supabase';
 
 const ComingSoon = () => {
   const [email, setEmail] = useState('');
@@ -27,40 +27,17 @@ const ComingSoon = () => {
     setLoading(true);
     
     try {
-      // First, check if the email already exists
-      const { data: existingEmails, error: checkError } = await supabase
-        .from('subscribed_emails')
-        .select('email')
-        .eq('email', email);
-      
-      if (checkError) {
-        throw checkError;
-      }
-      
-      // If email already exists, don't add it again
-      if (existingEmails && existingEmails.length > 0) {
-        toast({
-          title: "Already Subscribed",
-          description: "This email is already subscribed to our updates.",
-        });
-        setEmail('');
-        return;
-      }
-      
-      // Insert the email into the subscribed_emails table
-      const { error } = await supabase
-        .from('subscribed_emails')
-        .insert([{ email }]);
-      
-      if (error) {
-        throw error;
-      }
+      const result = await subscribeEmail(email);
       
       toast({
-        title: "Success!",
-        description: "Thank you for subscribing. We'll notify you when we launch!",
+        title: result.success ? "Success!" : "Notice",
+        description: result.message,
+        variant: result.success ? "default" : "destructive"
       });
-      setEmail('');
+      
+      if (result.success) {
+        setEmail('');
+      }
     } catch (error: any) {
       console.error('Error subscribing email:', error);
       toast({

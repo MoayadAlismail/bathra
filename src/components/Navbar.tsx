@@ -1,5 +1,6 @@
+
 import { useState, useEffect } from "react";
-import { Menu, X, LogIn } from "lucide-react";
+import { Menu, X, LogIn, ArrowLeft } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
@@ -38,6 +39,12 @@ const Navbar = () => {
   const handleLogout = () => {
     logout();
     navigate("/");
+  };
+
+  // Return to Coming Soon page and remove developer access
+  const handleReturnToComingSoon = () => {
+    localStorage.removeItem('developerAccess');
+    window.location.reload(); // Reload to show Coming Soon page
   };
 
   // Get navigation items based on user type and authentication status
@@ -201,6 +208,17 @@ const Navbar = () => {
                 </button>
               ))}
               
+              {/* Coming Soon button */}
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={handleReturnToComingSoon}
+                className="flex items-center gap-2 text-sm"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Coming Soon Page
+              </Button>
+              
               {renderAuthButtons()}
             </div>
 
@@ -235,6 +253,15 @@ const Navbar = () => {
                     {item.label}
                   </button>
                 ))}
+                
+                {/* Coming Soon button for mobile */}
+                <button
+                  onClick={handleReturnToComingSoon}
+                  className="flex items-center gap-2 text-foreground hover:text-primary transition-colors duration-200 py-2 text-left"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                  Coming Soon Page
+                </button>
                 
                 {renderMobileAuthButtons()}
               </div>

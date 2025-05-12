@@ -1,3 +1,4 @@
+
 // Mock Supabase client for demo purposes
 const createMockResponse = (data: any = null, error: any = null) => ({
   data,
@@ -203,7 +204,7 @@ export const supabase = {
     const data = demoDb[table as keyof typeof demoDb] || [];
     let filteredData = [...data];
     
-    const query = {
+    return {
       select: (columns?: string) => {
         console.log(`Selecting columns: ${columns || '*'}`);
         if (columns) {
@@ -222,15 +223,16 @@ export const supabase = {
         }
         
         return {
-          data: filteredData,
-          error: null,
-          
           eq: (column: string, value: any) => {
             console.log(`Filtering where ${column} = ${value}`);
             filteredData = filteredData.filter((item: any) => item[column] === value);
             return {
               data: filteredData,
               error: null,
+              single: () => ({
+                data: filteredData.length > 0 ? filteredData[0] : null,
+                error: filteredData.length === 0 ? { message: 'No data found' } : null
+              })
             };
           },
           
@@ -239,7 +241,7 @@ export const supabase = {
             filteredData = filteredData.filter((item: any) => item[column] !== value);
             return {
               data: filteredData,
-              error: null,
+              error: null
             };
           },
           
@@ -255,6 +257,14 @@ export const supabase = {
             return {
               data: filteredData,
               error: null,
+              limit: (count: number) => {
+                console.log(`Limiting to ${count} results`);
+                filteredData = filteredData.slice(0, count);
+                return {
+                  data: filteredData,
+                  error: null
+                };
+              }
             };
           },
           
@@ -263,7 +273,7 @@ export const supabase = {
             filteredData = filteredData.slice(0, count);
             return {
               data: filteredData,
-              error: null,
+              error: null
             };
           },
           
@@ -273,20 +283,37 @@ export const supabase = {
               data: filteredData.length > 0 ? filteredData[0] : null,
               error: filteredData.length === 0 ? { message: 'No data found' } : null
             };
-          }
+          },
+          
+          data: filteredData,
+          error: null
         };
       },
       
       eq: (column: string, value: any) => {
         console.log(`Filtering where ${column} = ${value}`);
         filteredData = filteredData.filter((item: any) => item[column] === value);
-        return query;
+        return {
+          select: () => ({
+            data: filteredData,
+            error: null
+          }),
+          data: filteredData,
+          error: null,
+          single: () => ({
+            data: filteredData.length > 0 ? filteredData[0] : null,
+            error: filteredData.length === 0 ? { message: 'No data found' } : null
+          })
+        };
       },
       
       neq: (column: string, value: any) => {
         console.log(`Filtering where ${column} != ${value}`);
         filteredData = filteredData.filter((item: any) => item[column] !== value);
-        return query;
+        return {
+          data: filteredData,
+          error: null
+        };
       },
       
       order: (column: string, { ascending = true }: { ascending?: boolean } = {}) => {
@@ -298,13 +325,35 @@ export const supabase = {
             return a[column] < b[column] ? 1 : -1;
           }
         });
-        return query;
+        return {
+          limit: (count: number) => {
+            console.log(`Limiting to ${count} results`);
+            filteredData = filteredData.slice(0, count);
+            return {
+              select: () => ({
+                data: filteredData,
+                error: null
+              }),
+              data: filteredData,
+              error: null
+            };
+          },
+          select: () => ({
+            data: filteredData,
+            error: null
+          }),
+          data: filteredData,
+          error: null
+        };
       },
       
       limit: (count: number) => {
         console.log(`Limiting to ${count} results`);
         filteredData = filteredData.slice(0, count);
-        return query;
+        return {
+          data: filteredData,
+          error: null
+        };
       },
       
       insert: (newData: any) => {
@@ -324,7 +373,7 @@ export const supabase = {
             (demoDb as any)[table] = newRecords;
           }
           
-          return createMockResponse({ data: newRecords }, null);
+          return createMockResponse(newRecords, null);
         } else {
           const newRecord = {
             id: `new-mock-id-${Date.now()}`,
@@ -339,7 +388,7 @@ export const supabase = {
             (demoDb as any)[table] = [newRecord];
           }
           
-          return createMockResponse({ data: newRecord }, null);
+          return createMockResponse(newRecord, null);
         }
       },
       
@@ -351,18 +400,8 @@ export const supabase = {
       delete: () => {
         console.log('Delete data from', table);
         return createMockResponse(null, null);
-      },
-      
-      select: (columns?: string) => {
-        console.log(`Selecting columns: ${columns || '*'}`);
-        return {
-          data: filteredData,
-          error: null
-        };
       }
     };
-    
-    return query;
   },
   storage: {
     from: (bucket: string) => ({

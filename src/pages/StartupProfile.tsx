@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/context/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/lib/supabase';
 import Navbar from '@/components/Navbar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
@@ -22,11 +22,11 @@ interface Startup {
   founders: string;
   team_size: string;
   valuation: string;
-  raised: number;
-  roi: number;
+  raised?: number;
+  roi?: number;
   status: string;
   created_at: string;
-  image: string;
+  image?: string;
   founded_date: string;
   target_market: string;
   problem_solved: string;
@@ -68,8 +68,7 @@ const StartupProfile = () => {
       const { data, error } = await supabase
         .from('startups')
         .select('*')
-        .eq('id', startupId)
-        .select();
+        .eq('id', startupId);
       
       if (error) throw error;
       
@@ -174,11 +173,11 @@ const StartupProfile = () => {
               </div>
               <div>
                 <h3 className="text-sm font-medium leading-none">ROI</h3>
-                <p className="text-muted-foreground">{startup?.roi}%</p>
+                <p className="text-muted-foreground">{startup?.roi || 'N/A'}%</p>
               </div>
               <div>
                 <h3 className="text-sm font-medium leading-none">Raised</h3>
-                <p className="text-muted-foreground">${startup?.raised}</p>
+                <p className="text-muted-foreground">${startup?.raised || 'N/A'}</p>
               </div>
               <div>
                 <h3 className="text-sm font-medium leading-none">Team Size</h3>

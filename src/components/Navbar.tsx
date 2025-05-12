@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { Menu, X, LogIn, ArrowLeft, Mail, Eye } from "lucide-react";
+import { Menu, X, LogIn, ArrowLeft, Mail } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
@@ -33,11 +33,6 @@ const Navbar = () => {
   const fetchEmails = async () => {
     try {
       setIsLoadingEmails(true);
-      
-      // Create the emails table if it doesn't exist
-      // This is a simple approach for demo purposes
-      // In production, you would create tables through migrations
-      const { error: tableError } = await supabase.from('subscribed_emails').select('count');
       
       // Fetch subscribed emails
       const { data, error } = await supabase

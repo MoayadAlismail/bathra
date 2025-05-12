@@ -28,7 +28,7 @@ const ComingSoon = () => {
     
     try {
       // First, check if the email already exists
-      const { data: existingEmail, error: checkError } = await supabase
+      const { data: existingEmails, error: checkError } = await supabase
         .from('subscribed_emails')
         .select('email')
         .eq('email', email);
@@ -38,7 +38,7 @@ const ComingSoon = () => {
       }
       
       // If email already exists, don't add it again
-      if (existingEmail && existingEmail.length > 0) {
+      if (existingEmails && existingEmails.length > 0) {
         toast({
           title: "Already Subscribed",
           description: "This email is already subscribed to our updates.",

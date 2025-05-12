@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -7,6 +8,9 @@ import Navbar from '@/components/Navbar';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { PieChart, Pie, Cell, ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, Legend, BarChart, Bar } from 'recharts';
 import { isInvestorAccount } from '@/lib/account-types';
+import { Button } from '@/components/ui/button';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { ChevronDown, ChevronUp, FileText } from 'lucide-react';
 
 type Startup = {
   id: string;
@@ -59,8 +63,7 @@ const InvestorDashboard = () => {
         .from('startups')
         .select('*')
         .order('created_at', { ascending: false })
-        .limit(5)
-        .select();
+        .limit(5);
       
       if (error) throw error;
       

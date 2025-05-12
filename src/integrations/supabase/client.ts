@@ -207,9 +207,11 @@ export const supabase = {
     return {
       select: (columns?: string) => {
         console.log(`Selecting columns: ${columns || '*'}`);
+        let selectedData = filteredData;
+        
         if (columns) {
           const selectedFields = columns.split(',').map(f => f.trim());
-          filteredData = filteredData.map((item: any) => {
+          selectedData = filteredData.map((item: any) => {
             const newItem: any = {};
             selectedFields.forEach(field => {
               if (field === '*') {
@@ -225,29 +227,29 @@ export const supabase = {
         return {
           eq: (column: string, value: any) => {
             console.log(`Filtering where ${column} = ${value}`);
-            filteredData = filteredData.filter((item: any) => item[column] === value);
+            const filtered = selectedData.filter((item: any) => item[column] === value);
             return {
-              data: filteredData,
+              data: filtered.length > 0 ? filtered : [],
               error: null,
               single: () => ({
-                data: filteredData.length > 0 ? filteredData[0] : null,
-                error: filteredData.length === 0 ? { message: 'No data found' } : null
+                data: filtered.length > 0 ? filtered[0] : null,
+                error: filtered.length === 0 ? { message: 'No data found' } : null
               })
             };
           },
           
           neq: (column: string, value: any) => {
             console.log(`Filtering where ${column} != ${value}`);
-            filteredData = filteredData.filter((item: any) => item[column] !== value);
+            const filtered = selectedData.filter((item: any) => item[column] !== value);
             return {
-              data: filteredData,
+              data: filtered,
               error: null
             };
           },
           
           order: (column: string, { ascending = true }: { ascending?: boolean } = {}) => {
             console.log(`Ordering by ${column} ${ascending ? 'ASC' : 'DESC'}`);
-            filteredData.sort((a: any, b: any) => {
+            const sorted = [...selectedData].sort((a: any, b: any) => {
               if (ascending) {
                 return a[column] > b[column] ? 1 : -1;
               } else {
@@ -255,13 +257,13 @@ export const supabase = {
               }
             });
             return {
-              data: filteredData,
+              data: sorted,
               error: null,
               limit: (count: number) => {
                 console.log(`Limiting to ${count} results`);
-                filteredData = filteredData.slice(0, count);
+                const limited = sorted.slice(0, count);
                 return {
-                  data: filteredData,
+                  data: limited,
                   error: null
                 };
               }
@@ -270,9 +272,9 @@ export const supabase = {
           
           limit: (count: number) => {
             console.log(`Limiting to ${count} results`);
-            filteredData = filteredData.slice(0, count);
+            const limited = selectedData.slice(0, count);
             return {
-              data: filteredData,
+              data: limited,
               error: null
             };
           },
@@ -280,24 +282,26 @@ export const supabase = {
           single: () => {
             console.log('Getting single result');
             return {
-              data: filteredData.length > 0 ? filteredData[0] : null,
-              error: filteredData.length === 0 ? { message: 'No data found' } : null
+              data: selectedData.length > 0 ? selectedData[0] : null,
+              error: selectedData.length === 0 ? { message: 'No data found' } : null
             };
           },
           
-          data: filteredData,
+          data: selectedData,
           error: null
         };
       },
       
       eq: (column: string, value: any) => {
         console.log(`Filtering where ${column} = ${value}`);
-        filteredData = filteredData.filter((item: any) => item[column] === value);
+        const filtered = filteredData.filter((item: any) => item[column] === value);
         return {
           select: (columns?: string) => {
+            let selectedData = filtered;
+            
             if (columns) {
               const selectedFields = columns.split(',').map(f => f.trim());
-              filteredData = filteredData.map((item: any) => {
+              selectedData = filtered.map((item: any) => {
                 const newItem: any = {};
                 selectedFields.forEach(field => {
                   if (field === '*') {
@@ -309,32 +313,33 @@ export const supabase = {
                 return newItem;
               });
             }
+            
             return {
-              data: filteredData,
+              data: selectedData,
               error: null
             };
           },
-          data: filteredData,
+          data: filtered,
           error: null,
           single: () => ({
-            data: filteredData.length > 0 ? filteredData[0] : null,
-            error: filteredData.length === 0 ? { message: 'No data found' } : null
+            data: filtered.length > 0 ? filtered[0] : null,
+            error: filtered.length === 0 ? { message: 'No data found' } : null
           })
         };
       },
       
       neq: (column: string, value: any) => {
         console.log(`Filtering where ${column} != ${value}`);
-        filteredData = filteredData.filter((item: any) => item[column] !== value);
+        const filtered = filteredData.filter((item: any) => item[column] !== value);
         return {
-          data: filteredData,
+          data: filtered,
           error: null
         };
       },
       
       order: (column: string, { ascending = true }: { ascending?: boolean } = {}) => {
         console.log(`Ordering by ${column} ${ascending ? 'ASC' : 'DESC'}`);
-        filteredData.sort((a: any, b: any) => {
+        const sorted = [...filteredData].sort((a: any, b: any) => {
           if (ascending) {
             return a[column] > b[column] ? 1 : -1;
           } else {
@@ -344,30 +349,30 @@ export const supabase = {
         return {
           limit: (count: number) => {
             console.log(`Limiting to ${count} results`);
-            filteredData = filteredData.slice(0, count);
+            const limited = sorted.slice(0, count);
             return {
               select: () => ({
-                data: filteredData,
+                data: limited,
                 error: null
               }),
-              data: filteredData,
+              data: limited,
               error: null
             };
           },
           select: () => ({
-            data: filteredData,
+            data: sorted,
             error: null
           }),
-          data: filteredData,
+          data: sorted,
           error: null
         };
       },
       
       limit: (count: number) => {
         console.log(`Limiting to ${count} results`);
-        filteredData = filteredData.slice(0, count);
+        const limited = filteredData.slice(0, count);
         return {
-          data: filteredData,
+          data: limited,
           error: null
         };
       },

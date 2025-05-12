@@ -50,3 +50,14 @@ export type Tables = {
     created_at: string;
   };
 }
+
+// Export specific table types for easier usage
+export type Investor = Tables['investors'];
+export type Startup = Tables['startups'];
+export type SubscribedEmail = Tables['subscribed_emails'];
+
+// Define specific response types to help with TypeScript safety
+export interface SupabaseResponse<T> {
+  data: T | null;
+  error: Error | null;
+}

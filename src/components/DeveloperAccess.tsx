@@ -2,14 +2,15 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useToast } from '@/components/ui/use-toast';
-import { Lock, Eye } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { Lock, Eye, ArrowLeft } from 'lucide-react';
 
 interface DeveloperAccessProps {
   onAccess: () => void;
+  onBack?: () => void;
 }
 
-const DeveloperAccess: React.FC<DeveloperAccessProps> = ({ onAccess }) => {
+const DeveloperAccess: React.FC<DeveloperAccessProps> = ({ onAccess, onBack }) => {
   const [password, setPassword] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [showEmailList, setShowEmailList] = useState(false);
@@ -64,6 +65,17 @@ const DeveloperAccess: React.FC<DeveloperAccessProps> = ({ onAccess }) => {
     setShowEmailList(!showEmailList);
   };
 
+  // Go back to Coming Soon page
+  const handleGoBack = () => {
+    // Clear developer access
+    localStorage.removeItem('developerAccess');
+    
+    // Call onBack function if provided
+    if (onBack) {
+      onBack();
+    }
+  };
+
   // Copy all emails to clipboard
   const copyEmailsToClipboard = () => {
     if (subscribedEmails.length === 0) {
@@ -116,15 +128,26 @@ const DeveloperAccess: React.FC<DeveloperAccessProps> = ({ onAccess }) => {
       {/* Developer Access Controls */}
       <div className="flex gap-2">
         {localStorage.getItem('developerAccess') === 'granted' && (
-          <Button
-            variant="outline"
-            size="sm"
-            className="opacity-30 hover:opacity-100 transition-opacity"
-            onClick={toggleEmailList}
-          >
-            <Eye className="h-4 w-4 mr-2" />
-            {showEmailList ? 'Hide Emails' : 'Show Emails'}
-          </Button>
+          <>
+            <Button
+              variant="outline"
+              size="sm"
+              className="opacity-30 hover:opacity-100 transition-opacity"
+              onClick={handleGoBack}
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Site
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="opacity-30 hover:opacity-100 transition-opacity"
+              onClick={toggleEmailList}
+            >
+              <Eye className="h-4 w-4 mr-2" />
+              {showEmailList ? 'Hide Emails' : 'Show Emails'}
+            </Button>
+          </>
         )}
         
         {!showForm ? (

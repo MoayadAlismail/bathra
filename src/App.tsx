@@ -132,7 +132,10 @@ const AppRoutes = () => {
     return (
       <>
         <ComingSoon />
-        <DeveloperAccess onAccess={() => setDeveloperAccess(true)} />
+        <DeveloperAccess 
+          onAccess={() => setDeveloperAccess(true)} 
+          onBack={() => setDeveloperAccess(false)} 
+        />
       </>
     );
   }

@@ -24,6 +24,135 @@ export type Database = {
         }
         Relationships: []
       }
+      investors: {
+        Row: {
+          account_type: string
+          created_at: string
+          email: string
+          id: string
+          investment_focus: string
+          investment_range: string
+          name: string
+        }
+        Insert: {
+          account_type: string
+          created_at?: string
+          email: string
+          id?: string
+          investment_focus: string
+          investment_range: string
+          name: string
+        }
+        Update: {
+          account_type?: string
+          created_at?: string
+          email?: string
+          id?: string
+          investment_focus?: string
+          investment_range?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      startups: {
+        Row: {
+          created_at: string
+          description: string
+          document_path: string | null
+          exit_strategy: string
+          founded_date: string
+          founders: string
+          funding_required: string
+          id: string
+          image: string | null
+          industry: string
+          key_metrics: string
+          name: string
+          previous_funding: string
+          problem_solved: string
+          roadmap: string
+          stage: string
+          status: string
+          target_market: string
+          team_size: string
+          traction: string
+          use_of_funds: string
+          usp: string
+          valuation: string
+          website: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          document_path?: string | null
+          exit_strategy: string
+          founded_date: string
+          founders: string
+          funding_required: string
+          id?: string
+          image?: string | null
+          industry: string
+          key_metrics: string
+          name: string
+          previous_funding: string
+          problem_solved: string
+          roadmap: string
+          stage: string
+          status: string
+          target_market: string
+          team_size: string
+          traction: string
+          use_of_funds: string
+          usp: string
+          valuation: string
+          website: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          document_path?: string | null
+          exit_strategy?: string
+          founded_date?: string
+          founders?: string
+          funding_required?: string
+          id?: string
+          image?: string | null
+          industry?: string
+          key_metrics?: string
+          name?: string
+          previous_funding?: string
+          problem_solved?: string
+          roadmap?: string
+          stage?: string
+          status?: string
+          target_market?: string
+          team_size?: string
+          traction?: string
+          use_of_funds?: string
+          usp?: string
+          valuation?: string
+          website?: string
+        }
+        Relationships: []
+      }
+      subscribed_emails: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

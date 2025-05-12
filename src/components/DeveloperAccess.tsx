@@ -212,7 +212,7 @@ const DeveloperAccess = () => {
                       {emails.map((item, index) => (
                         <div key={index} className="flex justify-between items-center text-sm py-1 border-b border-muted last:border-0">
                           <span>{item.email}</span>
-                          <Badge variant="outline" size="sm" className="text-xs">
+                          <Badge variant="outline" className="text-xs">
                             {new Date(item.created_at).toLocaleDateString()}
                           </Badge>
                         </div>

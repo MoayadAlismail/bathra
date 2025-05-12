@@ -36,7 +36,7 @@ const Navbar = () => {
       // Fetch subscribed emails from Supabase
       const { data, error } = await supabase
         .from('subscribed_emails')
-        .select('email');
+        .select('*');
       
       if (error) {
         console.error('Error fetching emails:', error);
@@ -54,9 +54,9 @@ const Navbar = () => {
         return;
       }
       
-      // Extract email values from the data
-      const emails = data.map((item: SubscribedEmail) => item.email);
-      setSubscribedEmails(emails);
+      // Process the data through our helper function to ensure proper typing
+      const processedData = data.map((item: any) => item.email);
+      setSubscribedEmails(processedData);
     } catch (err: any) {
       console.error('Error:', err);
       toast({

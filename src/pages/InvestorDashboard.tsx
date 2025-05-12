@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/context/AuthContext';
 import Navbar from '@/components/Navbar';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,7 +10,7 @@ import { isInvestorAccount } from '@/lib/account-types';
 import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ChevronDown, ChevronUp, FileText } from 'lucide-react';
-import { Startup } from '@/lib/supabase';
+import { Startup, processStartupData } from '@/lib/supabase';
 
 const InvestorDashboard = () => {
   const { user, profile, logout } = useAuth();
@@ -42,16 +42,8 @@ const InvestorDashboard = () => {
       if (error) throw error;
       
       if (data) {
-        // Ensure we only process startup data that matches our type
-        const typedStartups: Startup[] = data
-          .filter((item: any): item is Startup => 
-            typeof item.id === 'string' && 
-            typeof item.name === 'string' && 
-            typeof item.industry === 'string' && 
-            typeof item.stage === 'string' && 
-            typeof item.description === 'string'
-          );
-        
+        // Process data using our helper function to ensure correct types
+        const typedStartups = processStartupData(data);
         setStartups(typedStartups);
       }
     } catch (error) {
@@ -72,16 +64,8 @@ const InvestorDashboard = () => {
       if (error) throw error;
       
       if (data) {
-        // Ensure we only process startup data that matches our type
-        const typedStartups: Startup[] = data
-          .filter((item: any): item is Startup => 
-            typeof item.id === 'string' && 
-            typeof item.name === 'string' && 
-            typeof item.industry === 'string' && 
-            typeof item.stage === 'string' && 
-            typeof item.description === 'string'
-          );
-        
+        // Process data using our helper function to ensure correct types
+        const typedStartups = processStartupData(data);
         setRecentStartups(typedStartups);
       }
     } catch (error) {

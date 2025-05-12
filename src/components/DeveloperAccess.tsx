@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Label } from '@/components/ui/label';
 import { AlertCircle, Check, Key } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { supabase, Startup, Investor, SubscribedEmail } from '@/lib/supabase';
+import { supabase, Startup, Investor, SubscribedEmail, processEmailData, processStartupData, processInvestorData } from '@/lib/supabase';
 
 const DeveloperAccess = () => {
   const [password, setPassword] = useState('');
@@ -55,7 +55,7 @@ const DeveloperAccess = () => {
         .select('*');
       
       if (startupError) throw startupError;
-      if (startupData) setStartups(startupData as Startup[]);
+      if (startupData) setStartups(processStartupData(startupData));
       
       // Fetch investors
       const { data: investorData, error: investorError } = await supabase
@@ -63,7 +63,7 @@ const DeveloperAccess = () => {
         .select('*');
       
       if (investorError) throw investorError;
-      if (investorData) setInvestors(investorData as Investor[]);
+      if (investorData) setInvestors(processInvestorData(investorData));
       
       // Fetch subscribed emails
       const { data: emailData, error: emailError } = await supabase
@@ -71,7 +71,10 @@ const DeveloperAccess = () => {
         .select('*');
       
       if (emailError) throw emailError;
-      if (emailData) setEmails(emailData as SubscribedEmail[]);
+      if (emailData) {
+        const processedEmails = processEmailData(emailData);
+        setEmails(processedEmails);
+      }
       
     } catch (err) {
       console.error('Error fetching data:', err);

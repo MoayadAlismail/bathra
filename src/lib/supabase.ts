@@ -66,3 +66,27 @@ export interface SupabaseResponse<T> {
 export type DataFilter<T> = {
   [K in keyof T]?: T[K];
 };
+
+// Define helper functions to properly type the responses from our mock client
+export const processStartupData = (data: any[]): Startup[] => {
+  return data.filter((item): item is Startup => 
+    typeof item.id === 'string' && 
+    typeof item.name === 'string' && 
+    typeof item.industry === 'string'
+  );
+};
+
+export const processInvestorData = (data: any[]): Investor[] => {
+  return data.filter((item): item is Investor => 
+    typeof item.id === 'string' && 
+    typeof item.email === 'string' &&
+    typeof item.name === 'string'
+  );
+};
+
+export const processEmailData = (data: any[]): SubscribedEmail[] => {
+  return data.filter((item): item is SubscribedEmail => 
+    typeof item.id === 'string' && 
+    typeof item.email === 'string'
+  );
+};

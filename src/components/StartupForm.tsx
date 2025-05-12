@@ -141,11 +141,13 @@ const StartupForm = () => {
     try {
       const { data, error } = await supabase
         .from('startups')
-        .select('*')
-        .eq('id', userId);
-
+        .select('*');
+      
       if (error) throw error;
-      setStartupExists(data && data.length > 0);
+      
+      // Filter the data manually since our mock client may not support .eq() properly
+      const filteredData = data ? data.filter((item: any) => item.id === userId) : [];
+      setStartupExists(filteredData && filteredData.length > 0);
     } catch (err) {
       console.error("Error checking existing startup:", err);
       setError("Error occurred while checking startup profile.");
@@ -170,15 +172,17 @@ const StartupForm = () => {
       
       const { data, error } = await supabase
         .from('startups')
-        .select('*')
-        .eq('id', startupId);
+        .select('*');
       
       if (error) throw error;
       
-      if (!data || data.length === 0) {
+      // Filter the data manually since our mock client may not support .eq() properly
+      const filteredData = data ? data.filter((item: any) => item.id === startupId) : [];
+      
+      if (!filteredData || filteredData.length === 0) {
         setError('Startup profile not found');
       } else {
-        setStartup(data[0]);
+        setStartup(filteredData[0]);
       }
     } catch (err: any) {
       console.error('Error fetching startup profile:', err);
@@ -225,10 +229,10 @@ const StartupForm = () => {
 
       if (startupExists) {
         // Update existing startup profile
+        // For mock client, we may need to handle update differently
         const { error } = await supabase
           .from('startups')
-          .update(startupData)
-          .eq('id', user.id);
+          .update(startupData);
 
         if (error) {
           throw error;

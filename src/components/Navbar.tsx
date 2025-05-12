@@ -1,17 +1,21 @@
 
 import { useState, useEffect } from "react";
-import { Menu, X, LogIn, ArrowLeft } from "lucide-react";
+import { Menu, X, LogIn, ArrowLeft, Mail, Eye } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 
 const Navbar = () => {
   const navigate = useNavigate();
   const { user, profile, logout } = useAuth();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
+  const [showEmailsList, setShowEmailsList] = useState(false);
+  const [subscribedEmails, setSubscribedEmails] = useState<string[]>([]);
+  const { toast } = useToast();
+  
   const accountType = profile?.accountType || user?.user_metadata?.accountType;
 
   useEffect(() => {
@@ -21,6 +25,14 @@ const Navbar = () => {
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+  
+  // Load emails from localStorage
+  useEffect(() => {
+    const storedEmails = localStorage.getItem('subscribedEmails');
+    if (storedEmails) {
+      setSubscribedEmails(JSON.parse(storedEmails));
+    }
   }, []);
 
   const handleNavigation = (path: string) => {
@@ -45,6 +57,29 @@ const Navbar = () => {
   const handleReturnToComingSoon = () => {
     localStorage.removeItem('developerAccess');
     window.location.reload(); // Reload to show Coming Soon page
+  };
+  
+  // Toggle emails list visibility
+  const toggleEmailsList = () => {
+    setShowEmailsList(!showEmailsList);
+  };
+  
+  // Copy all emails to clipboard
+  const copyEmailsToClipboard = () => {
+    if (subscribedEmails.length === 0) {
+      toast({
+        title: "No emails to copy",
+        description: "There are no subscribed emails yet.",
+      });
+      return;
+    }
+    
+    const emailsText = subscribedEmails.join('\n');
+    navigator.clipboard.writeText(emailsText);
+    toast({
+      title: "Emails Copied!",
+      description: `${subscribedEmails.length} email(s) copied to clipboard.`,
+    });
   };
 
   // Get navigation items based on user type and authentication status
@@ -208,6 +243,17 @@ const Navbar = () => {
                 </button>
               ))}
               
+              {/* Emails List Button */}
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={toggleEmailsList}
+                className="flex items-center gap-2 text-sm"
+              >
+                <Mail className="h-4 w-4" />
+                Show Emails ({subscribedEmails.length})
+              </Button>
+              
               {/* Coming Soon button */}
               <Button 
                 variant="outline" 
@@ -233,6 +279,46 @@ const Navbar = () => {
           </div>
         </div>
       </motion.nav>
+      
+      {/* Emails List Popup */}
+      {showEmailsList && (
+        <div className="fixed top-20 right-4 z-50 bg-background border rounded-md p-4 shadow-lg w-80">
+          <div className="flex justify-between items-center mb-3">
+            <h3 className="font-medium">Collected Emails ({subscribedEmails.length})</h3>
+            <div className="flex gap-2">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={copyEmailsToClipboard}
+                className="text-xs"
+              >
+                Copy All
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={toggleEmailsList}
+                className="text-xs"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+          <div className="max-h-60 overflow-y-auto">
+            {subscribedEmails.length > 0 ? (
+              <ul className="space-y-1">
+                {subscribedEmails.map((email, index) => (
+                  <li key={index} className="text-sm py-1 px-2 rounded hover:bg-accent">
+                    {email}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-sm text-muted-foreground">No emails collected yet.</p>
+            )}
+          </div>
+        </div>
+      )}
 
       <AnimatePresence>
         {isMobileMenuOpen && (
@@ -253,6 +339,15 @@ const Navbar = () => {
                     {item.label}
                   </button>
                 ))}
+                
+                {/* Emails List Button for mobile */}
+                <button
+                  onClick={toggleEmailsList}
+                  className="flex items-center gap-2 text-foreground hover:text-primary transition-colors duration-200 py-2 text-left"
+                >
+                  <Mail className="h-4 w-4" />
+                  Show Emails ({subscribedEmails.length})
+                </button>
                 
                 {/* Coming Soon button for mobile */}
                 <button

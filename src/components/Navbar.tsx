@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/lib/supabase";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -14,6 +15,7 @@ const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showEmailsList, setShowEmailsList] = useState(false);
   const [subscribedEmails, setSubscribedEmails] = useState<string[]>([]);
+  const [isLoadingEmails, setIsLoadingEmails] = useState(false);
   const { toast } = useToast();
   
   const accountType = profile?.accountType || user?.user_metadata?.accountType;
@@ -27,13 +29,45 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
   
-  // Load emails from localStorage
-  useEffect(() => {
-    const storedEmails = localStorage.getItem('subscribedEmails');
-    if (storedEmails) {
-      setSubscribedEmails(JSON.parse(storedEmails));
+  // Fetch emails from Supabase when the emails list is opened
+  const fetchEmails = async () => {
+    try {
+      setIsLoadingEmails(true);
+      
+      // Create the emails table if it doesn't exist
+      // This is a simple approach for demo purposes
+      // In production, you would create tables through migrations
+      const { error: tableError } = await supabase.from('subscribed_emails').select('count');
+      
+      // Fetch subscribed emails
+      const { data, error } = await supabase
+        .from('subscribed_emails')
+        .select('email');
+      
+      if (error) {
+        console.error('Error fetching emails:', error);
+        toast({
+          title: "Error fetching emails",
+          description: error.message,
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      // Extract email values from the data
+      const emails = data?.map(item => item.email) || [];
+      setSubscribedEmails(emails);
+    } catch (err) {
+      console.error('Error:', err);
+      toast({
+        title: "Error",
+        description: "Failed to fetch subscribed emails",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoadingEmails(false);
     }
-  }, []);
+  };
 
   const handleNavigation = (path: string) => {
     if (path.startsWith('/#')) {
@@ -59,8 +93,11 @@ const Navbar = () => {
     window.location.reload(); // Reload to show Coming Soon page
   };
   
-  // Toggle emails list visibility
-  const toggleEmailsList = () => {
+  // Toggle emails list visibility and fetch emails if opened
+  const toggleEmailsList = async () => {
+    if (!showEmailsList) {
+      await fetchEmails();
+    }
     setShowEmailsList(!showEmailsList);
   };
   
@@ -249,9 +286,10 @@ const Navbar = () => {
                 size="sm"
                 onClick={toggleEmailsList}
                 className="flex items-center gap-2 text-sm"
+                disabled={isLoadingEmails}
               >
                 <Mail className="h-4 w-4" />
-                Show Emails ({subscribedEmails.length})
+                {isLoadingEmails ? "Loading..." : `Emails (${subscribedEmails.length})`}
               </Button>
               
               {/* Coming Soon button */}
@@ -284,7 +322,7 @@ const Navbar = () => {
       {showEmailsList && (
         <div className="fixed top-20 right-4 z-50 bg-background border rounded-md p-4 shadow-lg w-80">
           <div className="flex justify-between items-center mb-3">
-            <h3 className="font-medium">Collected Emails ({subscribedEmails.length})</h3>
+            <h3 className="font-medium">Subscribed Emails ({subscribedEmails.length})</h3>
             <div className="flex gap-2">
               <Button 
                 variant="outline" 
@@ -305,7 +343,9 @@ const Navbar = () => {
             </div>
           </div>
           <div className="max-h-60 overflow-y-auto">
-            {subscribedEmails.length > 0 ? (
+            {isLoadingEmails ? (
+              <div className="text-sm py-4 text-center text-muted-foreground">Loading emails...</div>
+            ) : subscribedEmails.length > 0 ? (
               <ul className="space-y-1">
                 {subscribedEmails.map((email, index) => (
                   <li key={index} className="text-sm py-1 px-2 rounded hover:bg-accent">
@@ -346,7 +386,7 @@ const Navbar = () => {
                   className="flex items-center gap-2 text-foreground hover:text-primary transition-colors duration-200 py-2 text-left"
                 >
                   <Mail className="h-4 w-4" />
-                  Show Emails ({subscribedEmails.length})
+                  {isLoadingEmails ? "Loading..." : `Show Emails (${subscribedEmails.length})`}
                 </button>
                 
                 {/* Coming Soon button for mobile */}

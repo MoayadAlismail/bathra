@@ -1,4 +1,3 @@
-
 // Mock Supabase client for demo purposes
 const createMockResponse = (data: any = null, error: any = null) => ({
   data,
@@ -153,6 +152,13 @@ const demoDb = {
       created_at: new Date().toISOString(),
       image: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3"
     }
+  ],
+  subscribed_emails: [
+    { id: '1', email: 'john.doe@example.com', created_at: new Date().toISOString() },
+    { id: '2', email: 'jane.smith@example.com', created_at: new Date().toISOString() },
+    { id: '3', email: 'michael.johnson@example.com', created_at: new Date().toISOString() },
+    { id: '4', email: 'susan.williams@example.com', created_at: new Date().toISOString() },
+    { id: '5', email: 'david.brown@example.com', created_at: new Date().toISOString() },
   ]
 };
 
@@ -219,17 +225,22 @@ export const supabase = {
           data: filteredData,
           error: null,
           
-          // Add these methods to fix the errors
           eq: (column: string, value: any) => {
             console.log(`Filtering where ${column} = ${value}`);
             filteredData = filteredData.filter((item: any) => item[column] === value);
-            return query;
+            return {
+              data: filteredData,
+              error: null,
+            };
           },
           
           neq: (column: string, value: any) => {
             console.log(`Filtering where ${column} != ${value}`);
             filteredData = filteredData.filter((item: any) => item[column] !== value);
-            return query;
+            return {
+              data: filteredData,
+              error: null,
+            };
           },
           
           order: (column: string, { ascending = true }: { ascending?: boolean } = {}) => {
@@ -241,13 +252,19 @@ export const supabase = {
                 return a[column] < b[column] ? 1 : -1;
               }
             });
-            return query;
+            return {
+              data: filteredData,
+              error: null,
+            };
           },
           
           limit: (count: number) => {
             console.log(`Limiting to ${count} results`);
             filteredData = filteredData.slice(0, count);
-            return query;
+            return {
+              data: filteredData,
+              error: null,
+            };
           },
           
           single: () => {
@@ -292,7 +309,38 @@ export const supabase = {
       
       insert: (newData: any) => {
         console.log('Insert data:', newData);
-        return createMockResponse({ id: 'new-mock-id' }, null);
+        if (Array.isArray(newData)) {
+          // Generate IDs for new records
+          const newRecords = newData.map((item, index) => ({
+            id: `new-mock-id-${Date.now()}-${index}`,
+            ...item,
+            created_at: new Date().toISOString()
+          }));
+          
+          // Add to our mock database
+          if (demoDb[table as keyof typeof demoDb]) {
+            (demoDb[table as keyof typeof demoDb] as any[]).push(...newRecords);
+          } else {
+            (demoDb as any)[table] = newRecords;
+          }
+          
+          return createMockResponse({ data: newRecords }, null);
+        } else {
+          const newRecord = {
+            id: `new-mock-id-${Date.now()}`,
+            ...newData,
+            created_at: new Date().toISOString()
+          };
+          
+          // Add to our mock database
+          if (demoDb[table as keyof typeof demoDb]) {
+            (demoDb[table as keyof typeof demoDb] as any[]).push(newRecord);
+          } else {
+            (demoDb as any)[table] = [newRecord];
+          }
+          
+          return createMockResponse({ data: newRecord }, null);
+        }
       },
       
       update: (updates: any) => {
@@ -303,6 +351,14 @@ export const supabase = {
       delete: () => {
         console.log('Delete data from', table);
         return createMockResponse(null, null);
+      },
+      
+      select: (columns?: string) => {
+        console.log(`Selecting columns: ${columns || '*'}`);
+        return {
+          data: filteredData,
+          error: null
+        };
       }
     };
     

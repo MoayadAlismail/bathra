@@ -43,4 +43,9 @@ export type Tables = {
     created_at: string;
     document_path?: string;
   };
+  subscribed_emails: {
+    id: string;
+    email: string;
+    created_at: string;
+  };
 }

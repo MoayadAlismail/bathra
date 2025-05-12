@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { Lock, Eye, ArrowLeft } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
 
 interface DeveloperAccessProps {
   onAccess: () => void;
@@ -16,6 +17,7 @@ const DeveloperAccess: React.FC<DeveloperAccessProps> = ({ onAccess, onBack }) =
   const [showEmailList, setShowEmailList] = useState(false);
   const [subscribedEmails, setSubscribedEmails] = useState<string[]>([]);
   const [hasAccess, setHasAccess] = useState(false);
+  const [isLoadingEmails, setIsLoadingEmails] = useState(false);
   const { toast } = useToast();
   
   // Simple developer password - in a real app you would use a more secure approach
@@ -29,13 +31,39 @@ const DeveloperAccess: React.FC<DeveloperAccessProps> = ({ onAccess, onBack }) =
     if (hasDevAccess) {
       onAccess();
       
-      // Load emails from localStorage if dev access is granted
-      const storedEmails = localStorage.getItem('subscribedEmails');
-      if (storedEmails) {
-        setSubscribedEmails(JSON.parse(storedEmails));
-      }
+      // Fetch emails if dev access is granted
+      fetchEmails();
     }
   }, [onAccess]);
+  
+  const fetchEmails = async () => {
+    if (!hasAccess) return;
+    
+    try {
+      setIsLoadingEmails(true);
+      const { data, error } = await supabase
+        .from('subscribed_emails')
+        .select('email');
+      
+      if (error) {
+        console.error('Error fetching emails:', error);
+        toast({
+          title: "Error fetching emails",
+          description: error.message,
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      // Extract email values from the data
+      const emails = data?.map(item => item.email) || [];
+      setSubscribedEmails(emails);
+    } catch (err) {
+      console.error('Error:', err);
+    } finally {
+      setIsLoadingEmails(false);
+    }
+  };
   
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,11 +73,8 @@ const DeveloperAccess: React.FC<DeveloperAccessProps> = ({ onAccess, onBack }) =
       setHasAccess(true);
       onAccess();
       
-      // Load emails after access is granted
-      const storedEmails = localStorage.getItem('subscribedEmails');
-      if (storedEmails) {
-        setSubscribedEmails(JSON.parse(storedEmails));
-      }
+      // Fetch emails after access is granted
+      fetchEmails();
       
       toast({
         title: "Developer Access Granted",
@@ -66,6 +91,9 @@ const DeveloperAccess: React.FC<DeveloperAccessProps> = ({ onAccess, onBack }) =
   
   // Toggle email list visibility
   const toggleEmailList = () => {
+    if (!showEmailList) {
+      fetchEmails();
+    }
     setShowEmailList(!showEmailList);
   };
 
@@ -120,7 +148,9 @@ const DeveloperAccess: React.FC<DeveloperAccessProps> = ({ onAccess, onBack }) =
             </Button>
           </div>
           <div className="max-h-40 overflow-y-auto">
-            {subscribedEmails.length > 0 ? (
+            {isLoadingEmails ? (
+              <div className="text-sm py-2 text-center text-muted-foreground">Loading emails...</div>
+            ) : subscribedEmails.length > 0 ? (
               <ul className="space-y-1">
                 {subscribedEmails.map((email, index) => (
                   <li key={index} className="text-sm py-1 px-2 rounded hover:bg-accent">
@@ -153,9 +183,10 @@ const DeveloperAccess: React.FC<DeveloperAccessProps> = ({ onAccess, onBack }) =
               size="sm"
               className="opacity-70 hover:opacity-100 transition-opacity"
               onClick={toggleEmailList}
+              disabled={isLoadingEmails}
             >
               <Eye className="h-4 w-4 mr-2" />
-              {showEmailList ? 'Hide Emails' : 'Show Emails'}
+              {isLoadingEmails ? "Loading..." : showEmailList ? 'Hide Emails' : 'Show Emails'}
             </Button>
           </>
         )}

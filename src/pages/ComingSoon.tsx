@@ -1,24 +1,16 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { Mail } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
 
 const ComingSoon = () => {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
-  const [subscribedEmails, setSubscribedEmails] = useState<string[]>([]);
   const { toast } = useToast();
-
-  // Load emails from localStorage on component mount
-  useEffect(() => {
-    const storedEmails = localStorage.getItem('subscribedEmails');
-    if (storedEmails) {
-      setSubscribedEmails(JSON.parse(storedEmails));
-    }
-  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,21 +26,51 @@ const ComingSoon = () => {
     
     setLoading(true);
     
-    // Add email to the list and store in localStorage
-    setTimeout(() => {
-      const updatedEmails = [...subscribedEmails, email];
-      setSubscribedEmails(updatedEmails);
-      localStorage.setItem('subscribedEmails', JSON.stringify(updatedEmails));
+    try {
+      // First, check if the email already exists
+      const { data: existingEmail, error: checkError } = await supabase
+        .from('subscribed_emails')
+        .select('email')
+        .eq('email', email);
+      
+      if (checkError) {
+        throw checkError;
+      }
+      
+      // If email already exists, don't add it again
+      if (existingEmail && existingEmail.length > 0) {
+        toast({
+          title: "Already Subscribed",
+          description: "This email is already subscribed to our updates.",
+        });
+        setEmail('');
+        return;
+      }
+      
+      // Insert the email into the subscribed_emails table
+      const { error } = await supabase
+        .from('subscribed_emails')
+        .insert([{ email }]);
+      
+      if (error) {
+        throw error;
+      }
       
       toast({
         title: "Success!",
         description: "Thank you for subscribing. We'll notify you when we launch!",
       });
       setEmail('');
+    } catch (error: any) {
+      console.error('Error subscribing email:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to subscribe. Please try again later.",
+        variant: "destructive"
+      });
+    } finally {
       setLoading(false);
-    }, 1000);
-    
-    // In a real implementation, you would send this to your backend/email service
+    }
   };
 
   return (

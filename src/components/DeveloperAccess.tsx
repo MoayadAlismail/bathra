@@ -15,6 +15,7 @@ const DeveloperAccess: React.FC<DeveloperAccessProps> = ({ onAccess, onBack }) =
   const [showForm, setShowForm] = useState(false);
   const [showEmailList, setShowEmailList] = useState(false);
   const [subscribedEmails, setSubscribedEmails] = useState<string[]>([]);
+  const [hasAccess, setHasAccess] = useState(false);
   const { toast } = useToast();
   
   // Simple developer password - in a real app you would use a more secure approach
@@ -22,8 +23,10 @@ const DeveloperAccess: React.FC<DeveloperAccessProps> = ({ onAccess, onBack }) =
   
   useEffect(() => {
     // Check if developer access is already granted
-    const hasAccess = localStorage.getItem('developerAccess') === 'granted';
-    if (hasAccess) {
+    const hasDevAccess = localStorage.getItem('developerAccess') === 'granted';
+    setHasAccess(hasDevAccess);
+    
+    if (hasDevAccess) {
       onAccess();
       
       // Load emails from localStorage if dev access is granted
@@ -39,6 +42,7 @@ const DeveloperAccess: React.FC<DeveloperAccessProps> = ({ onAccess, onBack }) =
     
     if (password === DEVELOPER_PASSWORD) {
       localStorage.setItem('developerAccess', 'granted');
+      setHasAccess(true);
       onAccess();
       
       // Load emails after access is granted
@@ -69,11 +73,17 @@ const DeveloperAccess: React.FC<DeveloperAccessProps> = ({ onAccess, onBack }) =
   const handleGoBack = () => {
     // Clear developer access
     localStorage.removeItem('developerAccess');
+    setHasAccess(false);
     
     // Call onBack function if provided
     if (onBack) {
       onBack();
     }
+    
+    toast({
+      title: "Logged Out",
+      description: "You've returned to the public site.",
+    });
   };
 
   // Copy all emails to clipboard
@@ -127,12 +137,12 @@ const DeveloperAccess: React.FC<DeveloperAccessProps> = ({ onAccess, onBack }) =
       
       {/* Developer Access Controls */}
       <div className="flex gap-2">
-        {localStorage.getItem('developerAccess') === 'granted' && (
+        {hasAccess && (
           <>
             <Button
               variant="outline"
               size="sm"
-              className="opacity-30 hover:opacity-100 transition-opacity"
+              className="bg-red-100 hover:bg-red-200 border-red-300 text-red-700 hover:text-red-800 hover:opacity-100"
               onClick={handleGoBack}
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
@@ -141,7 +151,7 @@ const DeveloperAccess: React.FC<DeveloperAccessProps> = ({ onAccess, onBack }) =
             <Button
               variant="outline"
               size="sm"
-              className="opacity-30 hover:opacity-100 transition-opacity"
+              className="opacity-70 hover:opacity-100 transition-opacity"
               onClick={toggleEmailList}
             >
               <Eye className="h-4 w-4 mr-2" />
@@ -150,7 +160,7 @@ const DeveloperAccess: React.FC<DeveloperAccessProps> = ({ onAccess, onBack }) =
           </>
         )}
         
-        {!showForm ? (
+        {!hasAccess && !showForm ? (
           <Button
             variant="outline"
             size="sm"
@@ -160,7 +170,7 @@ const DeveloperAccess: React.FC<DeveloperAccessProps> = ({ onAccess, onBack }) =
             <Lock className="h-4 w-4 mr-2" />
             Developer
           </Button>
-        ) : (
+        ) : !hasAccess && (
           <form onSubmit={handleSubmit} className="bg-background border rounded-md p-3 shadow-lg flex gap-2">
             <Input
               type="password"

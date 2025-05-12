@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -5,6 +6,9 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { ThemeProvider } from "./components/ThemeProvider";
+import { useState, useEffect, Suspense, Component, ReactNode } from "react";
+import ComingSoon from "./pages/ComingSoon";
+import DeveloperAccess from "./components/DeveloperAccess";
 import Index from "./pages/Index";
 import StartupPitch from "./pages/StartupPitch";
 import InvestorJoin from "./pages/InvestorJoin";
@@ -13,7 +17,6 @@ import VettedStartups from "./pages/VettedStartups";
 import StartupProfile from "./pages/StartupProfile";
 import AccountSelection from "./pages/AccountSelection";
 import NotFound from "./pages/NotFound";
-import { Suspense, Component, ReactNode, useEffect } from "react";
 import "./App.css";
 
 const queryClient = new QueryClient({
@@ -114,6 +117,27 @@ const ProtectedRoute = ({ children, requiredAccountType }: { children: React.Rea
 };
 
 const AppRoutes = () => {
+  const [developerAccess, setDeveloperAccess] = useState(false);
+  
+  useEffect(() => {
+    // Check if developer access is already granted on page load
+    const hasAccess = localStorage.getItem('developerAccess') === 'granted';
+    if (hasAccess) {
+      setDeveloperAccess(true);
+    }
+  }, []);
+
+  // If not in developer mode, show coming soon page
+  if (!developerAccess) {
+    return (
+      <>
+        <ComingSoon />
+        <DeveloperAccess onAccess={() => setDeveloperAccess(true)} />
+      </>
+    );
+  }
+  
+  // Regular routes for developers
   return (
     <BrowserRouter>
       <Routes>
@@ -144,7 +168,7 @@ const AppRoutes = () => {
       </Routes>
     </BrowserRouter>
   );
-}
+};
 
 const App = () => (
   <QueryClientProvider client={queryClient}>

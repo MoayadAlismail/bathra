@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -137,9 +138,9 @@ const StartupProfile = () => {
         <Card className="w-full max-w-5xl mx-auto">
           <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
             <CardTitle className="text-2xl font-bold">
-              {startup.name}
+              {startup?.name}
               <Badge variant="secondary" className="ml-2">
-                {startup.status === 'vetted' ? (
+                {startup?.status === 'vetted' ? (
                   <div className="flex items-center">
                     <Check className="mr-1 h-4 w-4" />
                     Vetted
@@ -161,36 +162,36 @@ const StartupProfile = () => {
             <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
               <div>
                 <h3 className="text-sm font-medium leading-none">Industry</h3>
-                <p className="text-muted-foreground">{startup.industry}</p>
+                <p className="text-muted-foreground">{startup?.industry}</p>
               </div>
               <div>
                 <h3 className="text-sm font-medium leading-none">Stage</h3>
-                <p className="text-muted-foreground">{startup.stage}</p>
+                <p className="text-muted-foreground">{startup?.stage}</p>
               </div>
               <div>
                 <h3 className="text-sm font-medium leading-none">Valuation</h3>
-                <p className="text-muted-foreground">{startup.valuation}</p>
+                <p className="text-muted-foreground">{startup?.valuation}</p>
               </div>
               <div>
                 <h3 className="text-sm font-medium leading-none">ROI</h3>
-                <p className="text-muted-foreground">{startup.roi}%</p>
+                <p className="text-muted-foreground">{startup?.roi}%</p>
               </div>
               <div>
                 <h3 className="text-sm font-medium leading-none">Raised</h3>
-                <p className="text-muted-foreground">${startup.raised}</p>
+                <p className="text-muted-foreground">${startup?.raised}</p>
               </div>
               <div>
                 <h3 className="text-sm font-medium leading-none">Team Size</h3>
-                <p className="text-muted-foreground">{startup.team_size}</p>
+                <p className="text-muted-foreground">{startup?.team_size}</p>
               </div>
             </div>
             <div className="mt-6">
               <h3 className="text-lg font-semibold leading-none mb-2">Description</h3>
-              <p className="text-muted-foreground">{startup.description}</p>
+              <p className="text-muted-foreground">{startup?.description}</p>
             </div>
             <div className="mt-6">
               <Button variant="link" asChild>
-                <a href={startup.website} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                <a href={startup?.website} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
                   Visit Website
                   <ExternalLink className="ml-2 h-4 w-4" />
                 </a>

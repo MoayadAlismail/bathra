@@ -133,29 +133,41 @@ const Navbar = () => {
       );
     }
 
+    // Only show the Sign Out button for startup accounts, as the My Startup link is already in navItems
     if (accountType === 'startup') {
       return (
         <button
           onClick={() => {
-            navigate('/startup-profile');
+            handleLogout();
             setIsMobileMenuOpen(false);
           }}
           className="text-foreground hover:text-primary transition-colors duration-200 py-2 text-left"
         >
-          My Startup
+          Sign Out
         </button>
       );
     } else {
       return (
-        <button
-          onClick={() => {
-            navigate('/startups');
-            setIsMobileMenuOpen(false);
-          }}
-          className="text-foreground hover:text-primary transition-colors duration-200 py-2 text-left"
-        >
-          Vetted Startups
-        </button>
+        <>
+          <button
+            onClick={() => {
+              navigate('/startups');
+              setIsMobileMenuOpen(false);
+            }}
+            className="text-foreground hover:text-primary transition-colors duration-200 py-2 text-left"
+          >
+            Vetted Startups
+          </button>
+          <button
+            onClick={() => {
+              handleLogout();
+              setIsMobileMenuOpen(false);
+            }}
+            className="text-foreground hover:text-primary transition-colors duration-200 py-2 text-left"
+          >
+            Sign Out
+          </button>
+        </>
       );
     }
   };
@@ -225,18 +237,6 @@ const Navbar = () => {
                 ))}
                 
                 {renderMobileAuthButtons()}
-                
-                {user && (
-                  <button
-                    onClick={() => {
-                      handleLogout();
-                      setIsMobileMenuOpen(false);
-                    }}
-                    className="text-foreground hover:text-primary transition-colors duration-200 py-2 text-left"
-                  >
-                    Sign Out
-                  </button>
-                )}
               </div>
             </div>
           </motion.div>

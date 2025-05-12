@@ -33,8 +33,8 @@ const DeveloperAccess = () => {
   const handleAuthenticate = () => {
     setError('');
     
-    // This is a simple demo password - in a real app, this would be a secure authentication system
-    if (password === 'bathra2023') {
+    // Updated developer password from "bathra2023" to "themigos3"
+    if (password === 'themigos3') {
       setIsAuthenticated(true);
       setShowSuccess(true);
       localStorage.setItem('developerAccess', 'true');

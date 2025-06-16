@@ -48,6 +48,34 @@ export type Tables = {
     created_at: string;
     updated_at?: string;
   };
+  articles: {
+    id: string;
+    title: string;
+    slug: string;
+    content: string;
+    excerpt: string;
+    featured_image_url?: string;
+    category:
+      | "news"
+      | "industry_insights"
+      | "startup_tips"
+      | "investment_guide"
+      | "company_updates"
+      | "market_analysis"
+      | "founder_stories"
+      | "investor_spotlight";
+    tags: string[];
+    status: "draft" | "published" | "archived";
+    author_id: string;
+    author_name: string;
+    published_at?: string;
+    created_at: string;
+    updated_at: string;
+    views_count: number;
+    is_featured: boolean;
+    seo_title?: string;
+    seo_description?: string;
+  };
   startups: {
     id: string;
 
@@ -138,6 +166,7 @@ export type Tables = {
 // Export specific table types for easier usage
 export type Investor = Tables["investors"];
 export type Startup = Tables["startups"];
+export type Article = Tables["articles"];
 export type Admin = Tables["admins"];
 export type SubscribedEmail = Tables["subscribed_emails"];
 

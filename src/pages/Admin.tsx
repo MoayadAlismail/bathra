@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import AdminNavbar from "@/components/AdminNavbar";
 import DashboardStats from "@/components/admin/DashboardStats";
 import UserManagement from "@/components/admin/UserManagement";
+import BlogManagement from "@/components/admin/BlogManagement";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,6 +12,7 @@ import {
   Mail,
   TrendingUp,
   Settings,
+  FileText,
 } from "lucide-react";
 import {
   Card,
@@ -21,8 +23,16 @@ import {
 } from "@/components/ui/card";
 
 const Admin = () => {
-  const [activeTab, setActiveTab] = useState<"dashboard" | "users">(
-    "dashboard"
+  // Determine initial tab based on current path
+  const getInitialTab = (): "dashboard" | "users" | "blog" => {
+    const path = window.location.pathname;
+    if (path.includes("/admin/users")) return "users";
+    if (path.includes("/admin/blog")) return "blog";
+    return "dashboard";
+  };
+
+  const [activeTab, setActiveTab] = useState<"dashboard" | "users" | "blog">(
+    getInitialTab()
   );
 
   return (
@@ -64,6 +74,14 @@ const Admin = () => {
                 <Users className="h-4 w-4" />
                 User Management
               </Button>
+              <Button
+                variant={activeTab === "blog" ? "default" : "outline"}
+                onClick={() => setActiveTab("blog")}
+                className="flex items-center gap-2"
+              >
+                <FileText className="h-4 w-4" />
+                Blog Management
+              </Button>
             </div>
           </motion.div>
 
@@ -76,8 +94,10 @@ const Admin = () => {
           >
             {activeTab === "dashboard" ? (
               <DashboardStats />
-            ) : (
+            ) : activeTab === "users" ? (
               <UserManagement />
+            ) : (
+              <BlogManagement />
             )}
           </motion.div>
 

@@ -18,6 +18,7 @@ import InvestorSignup from "./pages/InvestorSignup";
 import VerifyEmail from "./pages/VerifyEmail";
 import NotFound from "./pages/NotFound";
 import Admin from "./pages/Admin";
+import Articles from "./pages/Articles";
 import PendingVerification from "./pages/PendingVerification";
 import StatusGuard from "./components/auth/StatusGuard";
 import "./App.css";
@@ -216,6 +217,24 @@ const AppRoutes = () => {
                 <Admin />
               </ErrorBoundary>
             </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/blog"
+          element={
+            <ProtectedRoute requiredAccountType="admin">
+              <ErrorBoundary>
+                <Admin />
+              </ErrorBoundary>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/articles"
+          element={
+            <ErrorBoundary>
+              <Articles />
+            </ErrorBoundary>
           }
         />
         <Route path="*" element={<NotFound />} />

@@ -17,7 +17,7 @@ const Navbar = () => {
   const [isLoadingEmails, setIsLoadingEmails] = useState(false);
   const { toast } = useToast();
 
-  const accountType = profile?.accountType || user?.user_metadata?.accountType;
+  const accountType = profile?.accountType;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -55,9 +55,9 @@ const Navbar = () => {
       }
 
       // Process the data through our helper function to ensure proper typing
-      const processedData = data.map((item: any) => item.email);
+      const processedData = data.map((item: SubscribedEmail) => item.email);
       setSubscribedEmails(processedData);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Error:", err);
       toast({
         title: "Error",

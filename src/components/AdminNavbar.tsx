@@ -55,76 +55,88 @@ const AdminNavbar = () => {
             : "bg-transparent"
         }`}
       >
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-16">
+        <div className="container mx-auto px-2 sm:px-4">
+          <div className="flex items-center justify-between h-14 sm:h-16">
             {/* Logo */}
             <div
-              className="flex items-center space-x-2 cursor-pointer group"
+              className="flex items-center space-x-1 sm:space-x-2 cursor-pointer group min-w-0 flex-shrink-0"
               onClick={() => handleNavigation("/admin")}
             >
               <img
                 src="/Logo.svg"
                 alt="Bathra Admin"
-                className="h-8 w-auto group-hover:scale-105 transition-transform"
+                className="h-6 sm:h-8 w-auto group-hover:scale-105 transition-transform"
               />
-              <div className="flex items-center space-x-1">
-                <span className="text-xl font-bold text-foreground">
-                  Bathra
-                </span>
-                <span className="px-2 py-1 bg-primary text-primary-foreground text-xs rounded-full font-medium">
-                  Admin
-                </span>
-              </div>
+              <span className="px-1.5 sm:px-2 py-1 bg-primary text-primary-foreground text-xs rounded-full font-medium whitespace-nowrap">
+                Admin
+              </span>
             </div>
 
-            {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-1">
+            {/* Desktop Navigation - Hide on smaller screens, show on large screens */}
+            <div className="hidden lg:flex items-center space-x-1 overflow-hidden">
               {adminNavItems.map((item) => (
                 <Button
                   key={item.path}
                   variant="ghost"
                   size="sm"
                   onClick={() => handleNavigation(item.path)}
-                  className="flex items-center space-x-2 text-foreground hover:text-primary"
+                  className="flex items-center space-x-1 xl:space-x-2 text-foreground hover:text-white text-xs xl:text-sm"
                 >
-                  <item.icon className="w-4 h-4" />
-                  <span>{item.label}</span>
+                  <item.icon className="w-3 h-3 xl:w-4 xl:h-4 flex-shrink-0" />
+                  <span className="hidden xl:inline">{item.label}</span>
+                  <span className="xl:hidden">{item.label.split(" ")[0]}</span>
+                </Button>
+              ))}
+            </div>
+
+            {/* Tablet Navigation - Show limited items */}
+            <div className="hidden md:flex lg:hidden items-center space-x-1">
+              {adminNavItems.slice(0, 3).map((item) => (
+                <Button
+                  key={item.path}
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleNavigation(item.path)}
+                  className="flex items-center space-x-1 text-foreground hover:text-white text-xs"
+                >
+                  <item.icon className="w-3 h-3 flex-shrink-0" />
                 </Button>
               ))}
             </div>
 
             {/* Admin Actions */}
-            <div className="hidden md:flex items-center space-x-4">
+            <div className="hidden lg:flex items-center space-x-2 xl:space-x-4 flex-shrink-0">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => handleNavigation("/")}
-                className="flex items-center gap-2"
+                className="flex items-center gap-1 xl:gap-2 text-xs xl:text-sm"
               >
-                <Home className="w-4 h-4" />
-                Main Site
+                <Home className="w-3 h-3 xl:w-4 xl:h-4" />
+                <span className="hidden xl:inline">Main Site</span>
+                <span className="xl:hidden">Main</span>
               </Button>
               <Button
                 variant="ghost"
                 size="sm"
-                className="flex items-center gap-2"
+                className="flex items-center gap-1 xl:gap-2 text-xs xl:text-sm"
               >
-                <Shield className="w-4 h-4" />
-                Admin
+                <Shield className="w-3 h-3 xl:w-4 xl:h-4" />
+                <span className="hidden xl:inline">Admin</span>
               </Button>
             </div>
 
-            {/* Mobile Menu Button */}
+            {/* Mobile/Tablet Menu Button */}
             <Button
               variant="ghost"
               size="sm"
-              className="md:hidden"
+              className="lg:hidden flex-shrink-0"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             >
               {isMobileMenuOpen ? (
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4 sm:w-5 sm:h-5" />
               ) : (
-                <Menu className="w-5 h-5" />
+                <Menu className="w-4 h-4 sm:w-5 sm:h-5" />
               )}
             </Button>
           </div>
@@ -139,10 +151,10 @@ const AdminNavbar = () => {
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.3 }}
-            className="fixed top-16 left-0 right-0 z-40 bg-background/95 backdrop-blur-md border-b border-border md:hidden"
+            className="fixed top-14 sm:top-16 left-0 right-0 z-40 bg-background/95 backdrop-blur-md border-b border-border lg:hidden"
           >
-            <div className="container mx-auto px-4 py-6">
-              <div className="flex flex-col space-y-4">
+            <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-6">
+              <div className="flex flex-col space-y-3 sm:space-y-4 max-h-[calc(100vh-8rem)] overflow-y-auto">
                 {/* Mobile Navigation Items */}
                 {adminNavItems.map((item) => (
                   <Button
@@ -150,31 +162,31 @@ const AdminNavbar = () => {
                     variant="ghost"
                     size="sm"
                     onClick={() => handleNavigation(item.path)}
-                    className="flex items-center justify-start space-x-3 text-foreground hover:text-primary w-full"
+                    className="flex items-center justify-start space-x-2 sm:space-x-3 text-foreground hover:text-white w-full text-left py-2 sm:py-3"
                   >
-                    <item.icon className="w-4 h-4" />
-                    <span>{item.label}</span>
+                    <item.icon className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
+                    <span className="text-sm sm:text-base">{item.label}</span>
                   </Button>
                 ))}
 
                 {/* Mobile Actions */}
-                <div className="pt-4 border-t border-border space-y-2">
+                <div className="pt-3 sm:pt-4 border-t border-border space-y-2">
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => handleNavigation("/")}
-                    className="flex items-center justify-start space-x-3 w-full"
+                    className="flex items-center justify-start space-x-2 sm:space-x-3 w-full text-left py-2 sm:py-3"
                   >
-                    <Home className="w-4 h-4" />
-                    <span>Main Site</span>
+                    <Home className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
+                    <span className="text-sm sm:text-base">Main Site</span>
                   </Button>
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="flex items-center justify-start space-x-3 w-full"
+                    className="flex items-center justify-start space-x-2 sm:space-x-3 w-full text-left py-2 sm:py-3"
                   >
-                    <Shield className="w-4 h-4" />
-                    <span>Admin Panel</span>
+                    <Shield className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
+                    <span className="text-sm sm:text-base">Admin Panel</span>
                   </Button>
                 </div>
               </div>

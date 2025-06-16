@@ -24,7 +24,7 @@ const StartupPitch = () => {
       
       if (accountType !== 'startup') {
         toast.error("Only startup accounts can submit pitches");
-        navigate('/account-type');
+        navigate('/login');
       }
     }
   }, [user, profile, isLoading, navigate]);

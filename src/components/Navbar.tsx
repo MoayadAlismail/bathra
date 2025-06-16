@@ -137,6 +137,7 @@ const Navbar = () => {
   const getNavItems = () => {
     const publicItems = [
       { label: "Home", path: "/" },
+      { label: "Articles", path: "/articles" },
       { label: "How It Works", path: "/#how-it-works" },
     ];
 
@@ -146,12 +147,14 @@ const Navbar = () => {
     if (accountType === "startup") {
       return [
         { label: "Home", path: "/" },
+        { label: "Articles", path: "/articles" },
         { label: "My Startup", path: "/startup-profile" },
       ];
     } else {
       // For investors (individual or VC)
       return [
         { label: "Home", path: "/" },
+        { label: "Articles", path: "/articles" },
         { label: "Startups", path: "/startups" },
       ];
     }

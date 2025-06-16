@@ -9,6 +9,7 @@ import {
   Settings,
   BarChart3,
   Shield,
+  FileText,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -36,7 +37,6 @@ const AdminNavbar = () => {
   // Admin navigation items
   const adminNavItems = [
     { label: "Dashboard", path: "/admin", icon: BarChart3 },
-    { label: "User Management", path: "/admin/users", icon: Users },
     { label: "Startups", path: "/admin/startups", icon: Building },
     { label: "Investors", path: "/admin/investors", icon: Users },
     { label: "Emails", path: "/admin/emails", icon: Mail },

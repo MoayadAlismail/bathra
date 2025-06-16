@@ -1,281 +1,541 @@
+import React, {
+  createContext,
+  useState,
+  useContext,
+  useEffect,
+  useCallback,
+} from "react";
+import { User as SupabaseUser } from "@supabase/supabase-js";
+import { toast } from "sonner";
+import { simpleAuthService, User } from "@/lib/simple-auth-service";
+import {
+  UserProfile,
+  RegistrationData,
+  LoginCredentials,
+  PasswordResetData,
+  PasswordUpdateData,
+  ProfileUpdateData,
+  OAuthProvider,
+} from "@/lib/auth-types";
+import { AccountType, Permission, hasPermission } from "@/lib/account-types";
+import { getAuthErrorMessage } from "@/lib/auth-utils";
 
-import React, { createContext, useState, useContext, useEffect, useRef } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { User } from '@supabase/supabase-js';
-import { toast } from 'sonner';
-import { AccountType } from '@/lib/account-types';
-import { Investor, Startup } from '@/lib/supabase';
-
-type UserProfile = {
-  id: string;
-  email: string;
-  name: string;
-  accountType: AccountType;
-  investmentFocus?: string;
-  investmentRange?: string;
-  startupId?: string;
-};
-
-type AuthContextType = {
+// Modified AuthState to use our simple User type
+interface AuthState {
   user: User | null;
   profile: UserProfile | null;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  loginWithGoogle: () => Promise<void>;
-  loginWithDemo: (type: AccountType) => void;
-  register: (userData: Omit<UserProfile, 'id'> & { password: string, accountType: AccountType }) => Promise<void>;
-  logout: () => Promise<void>;
-  setAccountType: (accountType: AccountType) => Promise<void>;
-};
+  isAuthenticated: boolean;
+  permissions: Permission[];
+}
+
+interface AuthContextType extends AuthState {
+  // Authentication methods
+  signIn: (credentials: LoginCredentials) => Promise<boolean>;
+  signUp: (data: RegistrationData) => Promise<boolean>;
+  signOut: () => Promise<void>;
+  signInWithOAuth: (provider: OAuthProvider) => Promise<boolean>;
+
+  // Password management
+  resetPassword: (data: PasswordResetData) => Promise<boolean>;
+  updatePassword: (data: PasswordUpdateData) => Promise<boolean>;
+
+  // Profile management
+  updateProfile: (data: ProfileUpdateData) => Promise<boolean>;
+  refreshProfile: () => Promise<void>;
+
+  // Authorization helpers
+  hasPermission: (permission: Permission) => boolean;
+  isRole: (role: AccountType) => boolean;
+
+  // Demo mode (for development/testing)
+  signInWithDemo: (accountType: AccountType) => void;
+}
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Demo accounts for testing purposes
+// Demo accounts for testing (only investor and startup)
 const DEMO_ACCOUNTS = {
   investor: {
-    id: 'demo-investor-id',
-    email: 'demo@investor.com',
-    name: 'Demo Investor',
-    accountType: 'individual' as AccountType,
-    investmentFocus: 'Technology',
-    investmentRange: '$50K - $200K (Angel)',
-  },
-  vc: {
-    id: 'demo-vc-id',
-    email: 'demo@vc.com',
-    name: 'Demo VC Fund',
-    accountType: 'vc' as AccountType,
-    investmentFocus: 'CleanTech, HealthTech',
-    investmentRange: '$1M+ (Series B+)',
+    id: "demo-investor-id",
+    email: "investor@demo.com",
+    name: "Demo Investor",
+    accountType: "investor" as AccountType,
+    role: "investor" as const,
+    isEmailVerified: true,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    investmentFocus: "Technology, Healthcare",
+    investmentRange: "$50K - $200K",
   },
   startup: {
-    id: 'demo-startup-id',
-    email: 'demo@startup.com',
-    name: 'Demo Startup',
-    accountType: 'startup' as AccountType,
-    startupId: 'demo-startup-1',
-  }
+    id: "demo-startup-id",
+    email: "startup@demo.com",
+    name: "Demo Startup",
+    accountType: "startup" as AccountType,
+    role: "startup" as const,
+    isEmailVerified: true,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    startupId: "demo-startup-1",
+    position: "CEO",
+  },
 };
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  
-  // Demo mode helper function to get startup profile for demo startup user
-  const getStartupProfile = async () => {
-    const { data, error } = await supabase
-      .from('startups')
-      .select('*')
-      .eq('id', 'demo-startup-1');
-    
-    return data && data.length > 0 ? data[0] as Startup : null;
-  };
-  
-  // Simplified fetchUserProfile function for demo mode
-  const fetchUserProfile = async (userId: string) => {
-    try {
-      console.log('Fetching profile for user:', userId);
-      
-      // In our demo mode, check for investor profile first
-      const { data: investorData, error: investorError } = await supabase
-        .from('investors')
-        .select('*')
-        .eq('id', userId);
 
-      if (!investorData || investorData.length === 0) {
-        console.log('No investor profile found, checking for startup');
-        
-        // Try to find a startup profile
-        const { data: startupData, error: startupError } = await supabase
-          .from('startups')
-          .select('*')
-          .eq('id', userId);
-          
-        if (!startupData || startupData.length === 0) {
-          console.log('No startup profile found either');
-          throw new Error('No profile found');
-        }
-        
-        const startup = startupData[0] as Startup;
-        
-        // For demo purposes, create a profile from the startup data
-        setProfile({
-          id: startup.id,
-          name: startup.name,
-          email: 'startup@example.com', // Demo email
-          accountType: 'startup',
-          startupId: startup.id
-        });
-        return;
-      }
-
-      const investor = investorData[0] as Investor;
-      
-      // For demo, we have an investor profile
-      setProfile({
-        id: investor.id,
-        email: investor.email,
-        name: investor.name,
-        accountType: (investor.account_type as AccountType) || 'individual',
-        investmentFocus: investor.investment_focus,
-        investmentRange: investor.investment_range,
-      });
-    } catch (error) {
-      console.error('Error fetching user profile:', error);
-    }
-  };
-
+  // Initialize auth state
   useEffect(() => {
-    // Check for demo user in localStorage
-    const demoUser = localStorage.getItem('demoUser');
-    const demoProfile = localStorage.getItem('demoProfile');
-    
-    if (demoUser && demoProfile) {
-      try {
-        console.log('Found demo user in localStorage');
+    initializeAuth();
+  }, []);
+
+  const initializeAuth = async () => {
+    try {
+      setIsLoading(true);
+
+      // Check for demo user first
+      const demoUser = localStorage.getItem("demoUser");
+      const demoProfile = localStorage.getItem("demoProfile");
+
+      if (demoUser && demoProfile) {
         setUser(JSON.parse(demoUser));
         setProfile(JSON.parse(demoProfile));
         setIsLoading(false);
-      } catch (e) {
-        console.error('Error parsing demo user:', e);
-        setIsLoading(false);
+        return;
       }
-    } else {
-      console.log('No demo user found, checking session');
+
+      // Check for real authenticated user
+      const currentUser = await simpleAuthService.getCurrentUser();
+      if (currentUser) {
+        setUser(currentUser);
+
+        // Create a basic profile from the user data
+        const userProfile: UserProfile = {
+          id: currentUser.id,
+          email: currentUser.email,
+          name: currentUser.name,
+          accountType: currentUser.accountType,
+          role: currentUser.accountType, // Use accountType as role
+          isEmailVerified: true, // Assume verified since we have the user
+          createdAt: currentUser.created_at,
+          updatedAt: currentUser.created_at,
+        };
+
+        // Try to load additional profile data based on account type
+        try {
+          if (currentUser.accountType === "admin") {
+            const adminData = await simpleAuthService.getAdminProfile(
+              currentUser.id
+            );
+            if (adminData) {
+              // Enhance profile with admin-specific data
+              userProfile.role = "admin";
+              // Add any admin-specific fields here
+            }
+          } else if (currentUser.accountType === "investor") {
+            const investorData = await simpleAuthService.getInvestorProfile(
+              currentUser.id
+            );
+            if (investorData) {
+              // Enhance profile with investor-specific data
+              userProfile.portfolioSize = undefined; // average_ticket_size is a string
+              userProfile.linkedInUrl = investorData.linkedin_profile;
+              userProfile.bio = investorData.strong_candidate_reason;
+              userProfile.phoneNumber = investorData.phone;
+              userProfile.location = investorData.city;
+            }
+          } else if (currentUser.accountType === "startup") {
+            const startupData = await simpleAuthService.getStartupProfile(
+              currentUser.id
+            );
+            if (startupData) {
+              // Enhance profile with startup-specific data
+              userProfile.startupId = startupData.id;
+              userProfile.position = "Founder"; // Default position
+              userProfile.phoneNumber = startupData.phone;
+            }
+          }
+        } catch (error) {
+          console.error("Error loading additional profile data:", error);
+          // Continue with basic profile
+        }
+
+        setProfile(userProfile);
+      }
+    } catch (error) {
+      console.error("Error initializing auth:", error);
+    } finally {
       setIsLoading(false);
     }
-  }, []);
+  };
 
-  const loginWithDemo = (type: AccountType = 'individual') => {
+  // Authentication methods
+  const signIn = async (credentials: LoginCredentials): Promise<boolean> => {
+    try {
+      setIsLoading(true);
+
+      const loggedInUser = await simpleAuthService.login(credentials);
+
+      if (loggedInUser) {
+        setUser(loggedInUser);
+
+        // Create a basic profile from the user data
+        const userProfile: UserProfile = {
+          id: loggedInUser.id,
+          email: loggedInUser.email,
+          name: loggedInUser.name,
+          accountType: loggedInUser.accountType,
+          role: loggedInUser.accountType, // Use accountType as role
+          isEmailVerified: true, // Assume verified since login succeeded
+          createdAt: loggedInUser.created_at,
+          updatedAt: loggedInUser.created_at,
+        };
+
+        // Try to load additional profile data based on account type
+        try {
+          if (loggedInUser.accountType === "admin") {
+            const adminData = await simpleAuthService.getAdminProfile(
+              loggedInUser.id
+            );
+            if (adminData) {
+              // Enhance profile with admin-specific data
+              userProfile.role = "admin";
+              // Add any admin-specific fields here
+            }
+          } else if (loggedInUser.accountType === "investor") {
+            const investorData = await simpleAuthService.getInvestorProfile(
+              loggedInUser.id
+            );
+            if (investorData) {
+              // Enhance profile with investor-specific data
+              userProfile.portfolioSize = undefined; // average_ticket_size is a string
+              userProfile.linkedInUrl = investorData.linkedin_profile;
+              userProfile.bio = investorData.strong_candidate_reason;
+              userProfile.phoneNumber = investorData.phone;
+              userProfile.location = investorData.city;
+            }
+          } else if (loggedInUser.accountType === "startup") {
+            const startupData = await simpleAuthService.getStartupProfile(
+              loggedInUser.id
+            );
+            if (startupData) {
+              // Enhance profile with startup-specific data
+              userProfile.startupId = startupData.id;
+              userProfile.position = "Founder"; // Default position
+              userProfile.phoneNumber = startupData.phone;
+            }
+          }
+        } catch (error) {
+          console.error("Error loading additional profile data:", error);
+          // Continue with basic profile
+        }
+
+        setProfile(userProfile);
+        toast.success("Successfully signed in");
+        return true;
+      } else {
+        toast.error("Sign in failed");
+        return false;
+      }
+    } catch (error) {
+      console.error("Sign in error:", error);
+      toast.error(getAuthErrorMessage(error));
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const signUp = async (data: RegistrationData): Promise<boolean> => {
+    try {
+      setIsLoading(true);
+
+      const signUpCredentials = {
+        email: data.email,
+        password: data.password,
+        name: data.name,
+        accountType: data.accountType,
+      };
+
+      const result = await simpleAuthService.signUp(signUpCredentials);
+
+      if (result && result.user) {
+        setUser(result.user);
+
+        // Create a basic profile from the user data
+        const userProfile: UserProfile = {
+          id: result.user.id,
+          email: result.user.email,
+          name: result.user.name,
+          accountType: result.user.accountType,
+          role: result.user.accountType, // Use accountType as role
+          isEmailVerified: !result.emailVerificationSent,
+          createdAt: result.user.created_at,
+          updatedAt: result.user.created_at,
+        };
+
+        setProfile(userProfile);
+
+        // For new users, we might need to wait for email verification
+        toast.success(
+          "Account created successfully. Please check your email to verify your account."
+        );
+        return true;
+      } else {
+        toast.error("Sign up failed");
+        return false;
+      }
+    } catch (error) {
+      console.error("Sign up error:", error);
+      toast.error(getAuthErrorMessage(error));
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const signOut = async (): Promise<void> => {
+    try {
+      setIsLoading(true);
+
+      // Clear demo data if exists
+      localStorage.removeItem("demoUser");
+      localStorage.removeItem("demoProfile");
+
+      await simpleAuthService.logout();
+
+      setUser(null);
+      setProfile(null);
+      toast.success("Successfully signed out");
+    } catch (error) {
+      console.error("Sign out error:", error);
+      toast.error(getAuthErrorMessage(error));
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const signInWithOAuth = async (provider: OAuthProvider): Promise<boolean> => {
+    try {
+      setIsLoading(true);
+
+      // This is a placeholder since simpleAuthService doesn't have OAuth support
+      // You would need to implement this in the simple-auth-service.ts file
+      toast.error(`OAuth sign in with ${provider} is not implemented yet`);
+      return false;
+    } catch (error) {
+      console.error("OAuth sign in error:", error);
+      toast.error(getAuthErrorMessage(error));
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Password management
+  const resetPassword = async (data: PasswordResetData): Promise<boolean> => {
+    try {
+      setIsLoading(true);
+
+      // This is a placeholder since simpleAuthService doesn't have resetPassword
+      // You would need to implement this in the simple-auth-service.ts file
+      toast.error("Password reset is not implemented yet");
+      return false;
+    } catch (error) {
+      console.error("Password reset error:", error);
+      toast.error(getAuthErrorMessage(error));
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const updatePassword = async (data: PasswordUpdateData): Promise<boolean> => {
+    try {
+      setIsLoading(true);
+
+      // This is a placeholder since simpleAuthService doesn't have updatePassword
+      // You would need to implement this in the simple-auth-service.ts file
+      toast.error("Password update is not implemented yet");
+      return false;
+    } catch (error) {
+      console.error("Password update error:", error);
+      toast.error(getAuthErrorMessage(error));
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Profile management
+  const updateProfile = async (data: ProfileUpdateData): Promise<boolean> => {
+    try {
+      if (!user) {
+        toast.error("No authenticated user");
+        return false;
+      }
+
+      setIsLoading(true);
+
+      // This is a placeholder since simpleAuthService doesn't have updateUserProfile
+      // You would need to implement this in the simple-auth-service.ts file
+      toast.error("Profile update is not implemented yet");
+      return false;
+    } catch (error) {
+      console.error("Profile update error:", error);
+      toast.error(getAuthErrorMessage(error));
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const refreshProfile = async (): Promise<void> => {
+    try {
+      if (!user) return;
+
+      const currentUser = await simpleAuthService.getCurrentUser();
+      if (currentUser) {
+        setUser(currentUser);
+
+        // Update the profile with the latest user data
+        if (profile) {
+          setProfile({
+            ...profile,
+            name: currentUser.name,
+            email: currentUser.email,
+            accountType: currentUser.accountType,
+          });
+        }
+      }
+    } catch (error) {
+      console.error("Profile refresh error:", error);
+    }
+  };
+
+  // Authorization helpers
+  const checkPermission = useCallback(
+    (permission: Permission): boolean => {
+      if (!profile) return false;
+      return hasPermission(profile.accountType, permission);
+    },
+    [profile]
+  );
+
+  const isRole = useCallback(
+    (accountType: AccountType): boolean => {
+      return profile?.accountType === accountType;
+    },
+    [profile]
+  );
+
+  // Demo mode for development/testing
+  const signInWithDemo = (accountType: AccountType): void => {
     setIsLoading(true);
-    
-    let demoAccount;
-    switch(type) {
-      case 'vc':
-        demoAccount = DEMO_ACCOUNTS.vc;
-        break;
-      case 'startup':
+
+    let demoAccount: UserProfile;
+    switch (accountType) {
+      case "startup":
         demoAccount = DEMO_ACCOUNTS.startup;
         break;
-      case 'individual':
+      case "investor":
       default:
         demoAccount = DEMO_ACCOUNTS.investor;
         break;
     }
-    
-    const mockUser = {
+
+    const mockUser: User = {
       id: demoAccount.id,
       email: demoAccount.email,
-      app_metadata: { provider: 'demo' },
-      user_metadata: { 
-        name: demoAccount.name,
-        accountType: demoAccount.accountType,
-        startupId: demoAccount.startupId
-      },
-      aud: 'authenticated',
-      created_at: new Date().toISOString(),
-    } as User;
-    
+      name: demoAccount.name,
+      accountType: demoAccount.accountType,
+      created_at: demoAccount.createdAt,
+      isProfileComplete: true,
+    };
+
     setUser(mockUser);
     setProfile(demoAccount);
-    
-    localStorage.setItem('demoUser', JSON.stringify(mockUser));
-    localStorage.setItem('demoProfile', JSON.stringify(demoAccount));
-    
+
+    // Store in localStorage for persistence
+    localStorage.setItem("demoUser", JSON.stringify(mockUser));
+    localStorage.setItem("demoProfile", JSON.stringify(demoAccount));
+
     setIsLoading(false);
-    toast.success(`Logged in as demo ${demoAccount.accountType}`);
+    toast.success(`Logged in as demo ${demoAccount.role}`);
   };
 
-  const login = async (email: string, password: string) => {
-    setIsLoading(true);
-    try {
-      // For demo purposes, we'll just use the demo login
-      // Find which demo account matches this email
-      let demoType: AccountType = 'individual';
-      
-      if (email === DEMO_ACCOUNTS.startup.email) {
-        demoType = 'startup';
-      } else if (email === DEMO_ACCOUNTS.vc.email) {
-        demoType = 'vc';
-      }
-      
-      loginWithDemo(demoType);
-    } catch (error: any) {
-      console.error('Login failed:', error);
-      toast.error('Invalid email or password');
-    } finally {
-      setIsLoading(false);
+  // Computed values
+  const isAuthenticated = !!user;
+  const permissions = profile
+    ? getPermissionsForAccountType(profile.accountType)
+    : [];
+
+  // Helper function to get permissions for an account type
+  function getPermissionsForAccountType(
+    accountType: AccountType
+  ): Permission[] {
+    switch (accountType) {
+      case "investor":
+        return [
+          "view_all_startups",
+          "create_investor_profile",
+          "edit_investor_profile",
+          "connect_with_startups",
+        ];
+      case "startup":
+        return [
+          "view_all_investors",
+          "create_startup_profile",
+          "edit_startup_profile",
+          "connect_with_investors",
+        ];
+      default:
+        return [];
     }
-  };
+  }
 
-  const loginWithGoogle = async () => {
-    // For demo, just log in as individual investor
-    loginWithDemo('individual');
-  };
+  const contextValue: AuthContextType = {
+    // State
+    user,
+    profile,
+    isLoading,
+    isAuthenticated,
+    permissions,
 
-  const register = async (userData: Omit<UserProfile, 'id'> & { password: string, accountType: AccountType }) => {
-    // For demo, just log in as the selected account type
-    loginWithDemo(userData.accountType);
-  };
+    // Authentication methods
+    signIn,
+    signUp,
+    signOut,
+    signInWithOAuth,
 
-  const setAccountType = async (accountType: AccountType) => {
-    if (!user) return;
-    
-    try {
-      setIsLoading(true);
-      
-      // Update local profile
-      setProfile(prev => prev ? { ...prev, accountType } : null);
-      
-      if (profile) {
-        // Update localStorage
-        localStorage.setItem('demoProfile', JSON.stringify({...profile, accountType}));
-      }
-      
-      toast.success(`Account type set to ${accountType}`);
-    } catch (error) {
-      console.error('Error setting account type:', error);
-      toast.error('Failed to update account type');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    // Password management
+    resetPassword,
+    updatePassword,
 
-  const logout = async () => {
-    try {
-      localStorage.removeItem('demoUser');
-      localStorage.removeItem('demoProfile');
-      setUser(null);
-      setProfile(null);
-      toast.success('Logged out successfully');
-    } catch (error: any) {
-      console.error('Logout failed:', error);
-      toast.error(error.message || 'Failed to logout');
-    }
+    // Profile management
+    updateProfile,
+    refreshProfile,
+
+    // Authorization helpers
+    hasPermission: checkPermission,
+    isRole,
+
+    // Demo mode
+    signInWithDemo,
   };
 
   return (
-    <AuthContext.Provider value={{ 
-      user, 
-      profile, 
-      isLoading, 
-      login, 
-      loginWithGoogle,
-      loginWithDemo,
-      register, 
-      logout,
-      setAccountType
-    }}>
-      {children}
-    </AuthContext.Provider>
+    <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
   );
 };
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };

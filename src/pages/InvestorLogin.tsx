@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -8,6 +7,7 @@ import * as z from "zod";
 import { Loader } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import Navbar from "@/components/Navbar";
+import UserTypeSelectionModal from "@/components/auth/UserTypeSelectionModal";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -39,7 +39,8 @@ const formSchema = z.object({
 const InvestorLogin = () => {
   const [loginError, setLoginError] = useState("");
   const [isLoggingIn, setIsLoggingIn] = useState(false);
-  const { login, loginWithGoogle, loginWithDemo } = useAuth();
+  const [showUserTypeModal, setShowUserTypeModal] = useState(false);
+  const { signIn, signInWithOAuth, signInWithDemo, user } = useAuth();
   const navigate = useNavigate();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -55,22 +56,51 @@ const InvestorLogin = () => {
     try {
       setIsLoggingIn(true);
       setLoginError("");
-      await login(values.email, values.password);
-      navigate("/account-type");
+
+      const success = await signIn({
+        email: values.email,
+        password: values.password,
+        rememberMe: values.rememberMe,
+      });
+
+      if (success) {
+        // After successful login, redirect based on account type
+        // We can access the user from the auth context since it's been updated by the signIn function
+        const accountType = user?.accountType;
+
+        if (accountType === "investor") {
+          navigate("/investor/dashboard");
+        } else if (accountType === "startup") {
+          navigate("/startup/dashboard");
+        } else if (accountType === "admin") {
+          navigate("/admin");
+        } else {
+          // Default fallback
+          navigate("/");
+        }
+      } else {
+        // Error will be handled by signIn function via toast, but we should also set local error
+        setLoginError(
+          "Login failed. Please check your credentials and try again."
+        );
+      }
     } catch (error: any) {
-      setLoginError(error.message);
+      console.error("Login error:", error);
+      setLoginError(
+        error.message || "An unexpected error occurred during login"
+      );
     } finally {
       setIsLoggingIn(false);
     }
   };
 
-  const handleDemoLogin = (type: 'startup' | 'individual' | 'vc') => {
-    loginWithDemo(type);
-    
-    if (type === 'startup') {
-      navigate("/startup-profile");
+  const handleDemoLogin = (type: "startup" | "investor") => {
+    signInWithDemo(type);
+
+    if (type === "startup") {
+      navigate("/startup/dashboard");
     } else {
-      navigate("/startups");
+      navigate("/investor/dashboard");
     }
   };
 
@@ -98,7 +128,7 @@ const InvestorLogin = () => {
                     <AlertDescription>{loginError}</AlertDescription>
                   </Alert>
                 )}
-                
+
                 <Form {...form}>
                   <form
                     onSubmit={form.handleSubmit(onSubmit)}
@@ -179,31 +209,29 @@ const InvestorLogin = () => {
                 </Form>
 
                 <div className="mt-6 space-y-4">
-                  <p className="text-sm text-muted-foreground text-center">Or use a demo account</p>
+                  <p className="text-sm text-muted-foreground text-center">
+                    Or use a demo account
+                  </p>
                   <div className="grid grid-cols-1 gap-2">
-                    <Button 
-                      variant="outline" 
-                      className="w-full justify-start" 
-                      onClick={() => handleDemoLogin('startup')}
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start"
+                      onClick={() => handleDemoLogin("startup")}
                     >
-                      <span className="bg-primary/10 text-primary text-xs px-2 py-1 rounded mr-2">Demo</span>
+                      <span className="bg-primary/10 text-primary text-xs px-2 py-1 rounded mr-2">
+                        Demo
+                      </span>
                       Startup Account
                     </Button>
-                    <Button 
-                      variant="outline" 
-                      className="w-full justify-start" 
-                      onClick={() => handleDemoLogin('individual')}
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start"
+                      onClick={() => handleDemoLogin("investor")}
                     >
-                      <span className="bg-primary/10 text-primary text-xs px-2 py-1 rounded mr-2">Demo</span>
-                      Individual Investor
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      className="w-full justify-start" 
-                      onClick={() => handleDemoLogin('vc')}
-                    >
-                      <span className="bg-primary/10 text-primary text-xs px-2 py-1 rounded mr-2">Demo</span>
-                      Venture Capital
+                      <span className="bg-primary/10 text-primary text-xs px-2 py-1 rounded mr-2">
+                        Demo
+                      </span>
+                      Investor Account
                     </Button>
                   </div>
                 </div>
@@ -211,15 +239,23 @@ const InvestorLogin = () => {
               <CardFooter className="flex-col">
                 <div className="mt-4 text-center text-sm">
                   Don't have an account?{" "}
-                  <a href="/invest" className="text-primary hover:underline">
+                  <button
+                    onClick={() => setShowUserTypeModal(true)}
+                    className="text-primary hover:underline bg-transparent border-none cursor-pointer"
+                  >
                     Register here
-                  </a>
+                  </button>
                 </div>
               </CardFooter>
             </Card>
           </motion.div>
         </div>
       </div>
+
+      <UserTypeSelectionModal
+        open={showUserTypeModal}
+        onOpenChange={setShowUserTypeModal}
+      />
     </div>
   );
 };

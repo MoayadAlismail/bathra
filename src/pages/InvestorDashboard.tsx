@@ -1,19 +1,42 @@
-import React, { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/lib/supabase';
-import { useAuth } from '@/context/AuthContext';
-import Navbar from '@/components/Navbar';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { PieChart, Pie, Cell, ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, Legend, BarChart, Bar } from 'recharts';
-import { isInvestorAccount } from '@/lib/account-types';
-import { Button } from '@/components/ui/button';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { ChevronDown, ChevronUp, FileText } from 'lucide-react';
-import { Startup, processStartupData } from '@/lib/supabase';
+import React, { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/context/AuthContext";
+import Navbar from "@/components/Navbar";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  Legend,
+  BarChart,
+  Bar,
+} from "recharts";
+import { isInvestorAccount } from "@/lib/account-types";
+import { Button } from "@/components/ui/button";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import { ChevronDown, ChevronUp, FileText } from "lucide-react";
+import { Startup, processStartupData } from "@/lib/supabase";
 
 const InvestorDashboard = () => {
-  const { user, profile, logout } = useAuth();
+  const { user, profile, signOut } = useAuth();
   const navigate = useNavigate();
   const [startups, setStartups] = useState<Startup[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -32,22 +55,22 @@ const InvestorDashboard = () => {
   const fetchStartups = async () => {
     try {
       setIsLoading(true);
-      
+
       const { data, error } = await supabase
-        .from('startups')
-        .select('id, name, industry, stage, description')
-        .order('created_at', { ascending: false })
+        .from("startups")
+        .select("id, name, industry, stage, description")
+        .order("created_at", { ascending: false })
         .limit(5);
-      
+
       if (error) throw error;
-      
+
       if (data) {
         // Process data using our helper function to ensure correct types
         const typedStartups = processStartupData(data);
         setStartups(typedStartups);
       }
     } catch (error) {
-      console.error('Error fetching startups:', error);
+      console.error("Error fetching startups:", error);
     } finally {
       setIsLoading(false);
     }
@@ -56,26 +79,30 @@ const InvestorDashboard = () => {
   const fetchRecentStartups = async () => {
     try {
       const { data, error } = await supabase
-        .from('startups')
-        .select('id, name, industry, stage, description')
-        .order('created_at', { ascending: false })
+        .from("startups")
+        .select("id, name, industry, stage, description")
+        .order("created_at", { ascending: false })
         .limit(5);
-      
+
       if (error) throw error;
-      
+
       if (data) {
         // Process data using our helper function to ensure correct types
         const typedStartups = processStartupData(data);
         setRecentStartups(typedStartups);
       }
     } catch (error) {
-      console.error('Error fetching recent startups:', error);
+      console.error("Error fetching recent startups:", error);
     }
   };
 
   const handleLogout = async () => {
-    await logout();
-    navigate("/");
+    try {
+      await signOut();
+      navigate("/");
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
   };
 
   if (!user || !profile) return null;
@@ -93,33 +120,57 @@ const InvestorDashboard = () => {
           >
             <div className="neo-blur rounded-2xl shadow-lg p-8 mb-8">
               <div className="flex justify-between items-center mb-6">
-                <h1 className="text-3xl font-bold text-gradient">Investor Dashboard</h1>
+                <h1 className="text-3xl font-bold text-gradient">
+                  Investor Dashboard
+                </h1>
                 <Button variant="outline" onClick={handleLogout}>
                   Sign Out
                 </Button>
               </div>
-              
+
               <div className="p-6 glass rounded-xl mb-8 border border-white/10">
-                <h2 className="text-xl font-semibold mb-2">Welcome back, {profile.name || "Investor"}</h2>
-                <p className="text-muted-foreground">Your investment profile is active and visible to startups in your focus area.</p>
+                <h2 className="text-xl font-semibold mb-2">
+                  Welcome back, {profile.name || "Investor"}
+                </h2>
+                <p className="text-muted-foreground">
+                  Your investment profile is active and visible to startups in
+                  your focus area.
+                </p>
               </div>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                 <div className="glass p-6 rounded-xl border border-white/10">
                   <h3 className="text-lg font-semibold mb-3">Your Profile</h3>
                   <ul className="space-y-2">
-                    <li><span className="text-muted-foreground">Investment Focus:</span> <span className="text-foreground">{profile.investmentFocus}</span></li>
-                    <li><span className="text-muted-foreground">Investment Range:</span> <span className="text-foreground">{profile.investmentRange}</span></li>
-                    <li><span className="text-muted-foreground">Email:</span> <span className="text-foreground">{profile.email}</span></li>
+                    <li>
+                      <span className="text-muted-foreground">
+                        Investment Focus:
+                      </span>{" "}
+                      <span className="text-foreground">
+                        {profile.investmentFocus}
+                      </span>
+                    </li>
+                    <li>
+                      <span className="text-muted-foreground">
+                        Investment Range:
+                      </span>{" "}
+                      <span className="text-foreground">
+                        {profile.investmentRange}
+                      </span>
+                    </li>
+                    <li>
+                      <span className="text-muted-foreground">Email:</span>{" "}
+                      <span className="text-foreground">{profile.email}</span>
+                    </li>
                   </ul>
                 </div>
                 <div className="glass p-6 rounded-xl border border-white/10">
                   <h3 className="text-lg font-semibold mb-3">Quick Actions</h3>
                   <div className="space-y-2">
-                    <Button 
-                      variant="outline" 
-                      className="w-full justify-start border-white/10 hover:bg-white/5" 
-                      onClick={() => navigate('/startups')}
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start border-white/10 hover:bg-white/5"
+                      onClick={() => navigate("/startups")}
                     >
                       <FileText className="mr-2 h-4 w-4" />
                       Browse Vetted Startups
@@ -127,9 +178,11 @@ const InvestorDashboard = () => {
                   </div>
                 </div>
               </div>
-              
+
               <div>
-                <h3 className="text-xl font-semibold mb-4 text-gradient">Recommended Startups</h3>
+                <h3 className="text-xl font-semibold mb-4 text-gradient">
+                  Recommended Startups
+                </h3>
                 {isLoading ? (
                   <div className="p-8 text-center glass rounded-xl border border-white/10">
                     <p className="text-muted-foreground">Loading startups...</p>
@@ -137,30 +190,56 @@ const InvestorDashboard = () => {
                 ) : startups.length > 0 ? (
                   <div className="space-y-4">
                     {startups.map((startup) => (
-                      <Card key={startup.id} className="overflow-hidden bg-card border-white/10">
+                      <Card
+                        key={startup.id}
+                        className="overflow-hidden bg-card border-white/10"
+                      >
                         <CardHeader className="pb-2">
                           <div className="flex justify-between items-center">
-                            <CardTitle className="text-lg">{startup.name}</CardTitle>
-                            <Collapsible open={openStartup === startup.id} onOpenChange={() => {
-                              setOpenStartup(openStartup === startup.id ? null : startup.id);
-                            }}>
+                            <CardTitle className="text-lg">
+                              {startup.name}
+                            </CardTitle>
+                            <Collapsible
+                              open={openStartup === startup.id}
+                              onOpenChange={() => {
+                                setOpenStartup(
+                                  openStartup === startup.id ? null : startup.id
+                                );
+                              }}
+                            >
                               <CollapsibleTrigger asChild>
-                                <Button variant="ghost" size="sm" className="p-0 h-8 w-8">
-                                  {openStartup === startup.id ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="p-0 h-8 w-8"
+                                >
+                                  {openStartup === startup.id ? (
+                                    <ChevronUp size={16} />
+                                  ) : (
+                                    <ChevronDown size={16} />
+                                  )}
                                 </Button>
                               </CollapsibleTrigger>
                             </Collapsible>
                           </div>
                           <div className="flex gap-2 mt-1">
-                            <span className="bg-secondary/30 text-foreground text-xs px-2.5 py-0.5 rounded">{startup.industry}</span>
-                            <span className="bg-primary/10 text-primary text-xs px-2.5 py-0.5 rounded">{startup.stage}</span>
+                            <span className="bg-secondary/30 text-foreground text-xs px-2.5 py-0.5 rounded">
+                              {startup.industry}
+                            </span>
+                            <span className="bg-primary/10 text-primary text-xs px-2.5 py-0.5 rounded">
+                              {startup.stage}
+                            </span>
                           </div>
                         </CardHeader>
                         <Collapsible open={openStartup === startup.id}>
                           <CollapsibleContent>
                             <CardContent className="pt-2">
-                              <p className="text-sm text-muted-foreground">{startup.description}</p>
-                              <Button className="mt-3" size="sm">View Details</Button>
+                              <p className="text-sm text-muted-foreground">
+                                {startup.description}
+                              </p>
+                              <Button className="mt-3" size="sm">
+                                View Details
+                              </Button>
                             </CardContent>
                           </CollapsibleContent>
                         </Collapsible>
@@ -169,13 +248,15 @@ const InvestorDashboard = () => {
                   </div>
                 ) : (
                   <div className="p-8 text-center glass rounded-xl border border-white/10">
-                    <p className="text-muted-foreground">No startups to display yet. Check back soon!</p>
+                    <p className="text-muted-foreground">
+                      No startups to display yet. Check back soon!
+                    </p>
                   </div>
                 )}
               </div>
-              
+
               <div className="mt-6 text-center">
-                <Button onClick={() => navigate('/startups')}>
+                <Button onClick={() => navigate("/startups")}>
                   View All Vetted Startups
                 </Button>
               </div>

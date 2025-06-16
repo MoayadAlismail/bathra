@@ -2,9 +2,10 @@ import { supabase } from "./supabase";
 import { Investor, Startup } from "./supabase";
 
 export type UserStatus = "pending" | "approved" | "rejected" | "flagged";
-export type VisibilityStatus = "featured" | "hot" | "normal";
+export type VisibilityStatus = "featured" | "hot" | "normal"; // How startups/investors appear to other users
 export type UserType = "investor" | "startup";
 
+// Interface for users (startups/investors) as seen by admins
 export interface AdminUser {
   id: string;
   name: string;
@@ -13,10 +14,10 @@ export interface AdminUser {
   type: UserType;
   verified: boolean;
   status: UserStatus;
-  visibility_status?: VisibilityStatus;
-  admin_notes?: string;
+  visibility_status?: VisibilityStatus; // How this startup/investor appears to other users
   verified_at?: string;
   verified_by?: string;
+  admin_notes?: string;
   created_at: string;
   updated_at?: string;
 }
@@ -32,7 +33,7 @@ export interface UpdateUserProfileData {
   name?: string;
   email?: string;
   phone?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 class AdminService {
@@ -155,7 +156,7 @@ class AdminService {
   async getUserDetails(
     userId: string,
     userType: UserType
-  ): Promise<{ data: any; error: string | null }> {
+  ): Promise<{ data: unknown; error: string | null }> {
     try {
       const tableName = userType === "investor" ? "investors" : "startups";
       const { data, error } = await supabase
@@ -182,7 +183,7 @@ class AdminService {
   ): Promise<{ success: boolean; error: string | null }> {
     try {
       const tableName = userType === "investor" ? "investors" : "startups";
-      const updateData: any = {
+      const updateData: Record<string, unknown> = {
         status: statusData.status,
         verified: statusData.status === "approved",
         updated_at: new Date().toISOString(),

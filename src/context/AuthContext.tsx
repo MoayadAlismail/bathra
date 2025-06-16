@@ -47,40 +47,9 @@ interface AuthContextType extends AuthState {
   // Authorization helpers
   hasPermission: (permission: Permission) => boolean;
   isRole: (role: AccountType) => boolean;
-
-  // Demo mode (for development/testing)
-  signInWithDemo: (accountType: AccountType) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-// Demo accounts for testing (only investor and startup)
-const DEMO_ACCOUNTS = {
-  investor: {
-    id: "demo-investor-id",
-    email: "investor@demo.com",
-    name: "Demo Investor",
-    accountType: "investor" as AccountType,
-    role: "investor" as const,
-    isEmailVerified: true,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    investmentFocus: "Technology, Healthcare",
-    investmentRange: "$50K - $200K",
-  },
-  startup: {
-    id: "demo-startup-id",
-    email: "startup@demo.com",
-    name: "Demo Startup",
-    accountType: "startup" as AccountType,
-    role: "startup" as const,
-    isEmailVerified: true,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    startupId: "demo-startup-1",
-    position: "CEO",
-  },
-};
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -95,17 +64,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const initializeAuth = async () => {
     try {
       setIsLoading(true);
-
-      // Check for demo user first
-      const demoUser = localStorage.getItem("demoUser");
-      const demoProfile = localStorage.getItem("demoProfile");
-
-      if (demoUser && demoProfile) {
-        setUser(JSON.parse(demoUser));
-        setProfile(JSON.parse(demoProfile));
-        setIsLoading(false);
-        return;
-      }
 
       // Check for real authenticated user
       const currentUser = await simpleAuthService.getCurrentUser();
@@ -146,6 +104,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
               userProfile.bio = investorData.strong_candidate_reason;
               userProfile.phoneNumber = investorData.phone;
               userProfile.location = investorData.city;
+              userProfile.status = investorData.status;
+              userProfile.verified = investorData.verified;
+              userProfile.adminNotes = investorData.admin_notes;
+              userProfile.visibility_status = investorData.visibility_status;
             }
           } else if (currentUser.accountType === "startup") {
             const startupData = await simpleAuthService.getStartupProfile(
@@ -156,6 +118,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
               userProfile.startupId = startupData.id;
               userProfile.position = "Founder"; // Default position
               userProfile.phoneNumber = startupData.phone;
+              userProfile.status = startupData.status;
+              userProfile.verified = startupData.verified;
+              userProfile.adminNotes = startupData.admin_notes;
+              userProfile.visibility_status = startupData.visibility_status;
             }
           }
         } catch (error) {
@@ -216,6 +182,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
               userProfile.bio = investorData.strong_candidate_reason;
               userProfile.phoneNumber = investorData.phone;
               userProfile.location = investorData.city;
+              userProfile.status = investorData.status;
+              userProfile.verified = investorData.verified;
+              userProfile.adminNotes = investorData.admin_notes;
+              userProfile.visibility_status = investorData.visibility_status;
             }
           } else if (loggedInUser.accountType === "startup") {
             const startupData = await simpleAuthService.getStartupProfile(
@@ -226,6 +196,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
               userProfile.startupId = startupData.id;
               userProfile.position = "Founder"; // Default position
               userProfile.phoneNumber = startupData.phone;
+              userProfile.status = startupData.status;
+              userProfile.verified = startupData.verified;
+              userProfile.adminNotes = startupData.admin_notes;
+              userProfile.visibility_status = startupData.visibility_status;
             }
           }
         } catch (error) {
@@ -300,10 +274,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const signOut = async (): Promise<void> => {
     try {
       setIsLoading(true);
-
-      // Clear demo data if exists
-      localStorage.removeItem("demoUser");
-      localStorage.removeItem("demoProfile");
 
       await simpleAuthService.logout();
 
@@ -432,41 +402,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     [profile]
   );
 
-  // Demo mode for development/testing
-  const signInWithDemo = (accountType: AccountType): void => {
-    setIsLoading(true);
-
-    let demoAccount: UserProfile;
-    switch (accountType) {
-      case "startup":
-        demoAccount = DEMO_ACCOUNTS.startup;
-        break;
-      case "investor":
-      default:
-        demoAccount = DEMO_ACCOUNTS.investor;
-        break;
-    }
-
-    const mockUser: User = {
-      id: demoAccount.id,
-      email: demoAccount.email,
-      name: demoAccount.name,
-      accountType: demoAccount.accountType,
-      created_at: demoAccount.createdAt,
-      isProfileComplete: true,
-    };
-
-    setUser(mockUser);
-    setProfile(demoAccount);
-
-    // Store in localStorage for persistence
-    localStorage.setItem("demoUser", JSON.stringify(mockUser));
-    localStorage.setItem("demoProfile", JSON.stringify(demoAccount));
-
-    setIsLoading(false);
-    toast.success(`Logged in as demo ${demoAccount.role}`);
-  };
-
   // Computed values
   const isAuthenticated = !!user;
   const permissions = profile
@@ -522,9 +457,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     // Authorization helpers
     hasPermission: checkPermission,
     isRole,
-
-    // Demo mode
-    signInWithDemo,
   };
 
   return (

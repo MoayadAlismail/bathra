@@ -11,12 +11,15 @@ import StartupPitch from "./pages/StartupPitch";
 import InvestorLogin from "./pages/InvestorLogin";
 import VettedStartups from "./pages/VettedStartups";
 import StartupProfile from "./pages/StartupProfile";
+import InvestorDashboard from "./pages/InvestorDashboard";
 import Signup from "./pages/Signup";
 import StartupSignup from "./pages/StartupSignup";
 import InvestorSignup from "./pages/InvestorSignup";
 import VerifyEmail from "./pages/VerifyEmail";
 import NotFound from "./pages/NotFound";
 import Admin from "./pages/Admin";
+import PendingVerification from "./pages/PendingVerification";
+import StatusGuard from "./components/auth/StatusGuard";
 import "./App.css";
 
 const queryClient = new QueryClient({
@@ -160,13 +163,28 @@ const AppRoutes = () => {
         <Route path="/signup/investor" element={<InvestorSignup />} />
         <Route path="/verify-email" element={<VerifyEmail />} />
         <Route path="/login" element={<InvestorLogin />} />
+        <Route path="/pending-verification" element={<PendingVerification />} />
         <Route
           path="/startups"
           element={
             <ProtectedRoute requiredAccountType="investor">
-              <ErrorBoundary>
-                <VettedStartups />
-              </ErrorBoundary>
+              <StatusGuard>
+                <ErrorBoundary>
+                  <VettedStartups />
+                </ErrorBoundary>
+              </StatusGuard>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/investor-dashboard"
+          element={
+            <ProtectedRoute requiredAccountType="startup">
+              <StatusGuard>
+                <ErrorBoundary>
+                  <InvestorDashboard />
+                </ErrorBoundary>
+              </StatusGuard>
             </ProtectedRoute>
           }
         />

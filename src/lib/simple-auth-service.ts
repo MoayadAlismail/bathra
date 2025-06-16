@@ -195,6 +195,8 @@ class SimpleAuthService {
         secured_lead_investor: registrationData.hasSecuredLeadInvestor,
         participated_as_advisor: registrationData.hasBeenStartupAdvisor,
         strong_candidate_reason: registrationData.whyStrongCandidate,
+        verified: false,
+        status: "pending",
       };
 
       const { error } = await supabase.from("investors").insert(investorData);
@@ -252,6 +254,8 @@ class SimpleAuthService {
         additional_files: JSON.stringify(
           registrationData.additionalFiles || []
         ),
+        verified: false,
+        status: "pending",
       };
 
       const { error } = await supabase.from("startups").insert(startupData);

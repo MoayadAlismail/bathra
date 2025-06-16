@@ -74,15 +74,51 @@ export const getUserRoleDisplay = (role: UserRole): string => {
   }
 };
 
+// Add status checking utilities
+export const isAccountApproved = (profile: UserProfile | null): boolean => {
+  if (!profile) return false;
+  return profile.status === "approved";
+};
+
+export const canBrowseContent = (profile: UserProfile | null): boolean => {
+  if (!profile) return false;
+  return isAccountApproved(profile);
+};
+
+export const getAccountStatusMessage = (
+  profile: UserProfile | null
+): string => {
+  if (!profile) return "No profile found";
+
+  switch (profile.status) {
+    case "pending":
+      return "Your account is pending verification";
+    case "rejected":
+      return "Your account verification was rejected";
+    case "flagged":
+      return "Your account is under additional review";
+    case "approved":
+      return "Your account is verified";
+    default:
+      return "Unknown account status";
+  }
+};
+
 // Permission utilities
 export const canViewAllStartups = (profile: UserProfile | null): boolean => {
   if (!profile) return false;
-  return checkPermission(profile.accountType, "view_all_startups");
+  return (
+    isAccountApproved(profile) &&
+    checkPermission(profile.accountType, "view_all_startups")
+  );
 };
 
 export const canViewAllInvestors = (profile: UserProfile | null): boolean => {
   if (!profile) return false;
-  return checkPermission(profile.accountType, "view_all_investors");
+  return (
+    isAccountApproved(profile) &&
+    checkPermission(profile.accountType, "view_all_investors")
+  );
 };
 
 export const canCreateStartupProfile = (
@@ -120,23 +156,6 @@ export const getProfileSetupPath = (accountType: AccountType): string => {
     default:
       return "/profile/setup";
   }
-};
-
-// Storage utilities for demo mode
-export const DEMO_STORAGE_KEYS = {
-  USER: "demoUser",
-  PROFILE: "demoProfile",
-  PREFERENCES: "demoPreferences",
-} as const;
-
-export const clearDemoData = (): void => {
-  Object.values(DEMO_STORAGE_KEYS).forEach((key) => {
-    localStorage.removeItem(key);
-  });
-};
-
-export const isDemoMode = (): boolean => {
-  return localStorage.getItem(DEMO_STORAGE_KEYS.USER) !== null;
 };
 
 // Error message utilities

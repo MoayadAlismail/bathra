@@ -34,6 +34,7 @@ export interface UserProfile {
   adminApproved?: boolean;
   status?: "pending" | "approved" | "rejected" | "flagged";
   visibility_status?: "featured" | "hot" | "normal";
+  adminNotes?: string;
 }
 
 // User preferences for personalization

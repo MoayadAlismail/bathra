@@ -406,6 +406,8 @@ export class AuthService {
           secured_lead_investor: registrationData.hasSecuredLeadInvestor,
           participated_as_advisor: registrationData.hasBeenStartupAdvisor,
           strong_candidate_reason: registrationData.whyStrongCandidate,
+          verified: false,
+          status: "pending",
         };
 
         const { data: createdProfile, error: createError } = await supabase
@@ -483,6 +485,8 @@ export class AuthService {
           additional_files: JSON.stringify(
             registrationData.additionalFiles || []
           ),
+          verified: false,
+          status: "pending",
         };
 
         const { data: createdProfile, error: createError } = await supabase

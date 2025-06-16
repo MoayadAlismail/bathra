@@ -40,7 +40,7 @@ const InvestorLogin = () => {
   const [loginError, setLoginError] = useState("");
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [showUserTypeModal, setShowUserTypeModal] = useState(false);
-  const { signIn, signInWithOAuth, signInWithDemo, user } = useAuth();
+  const { signIn, signInWithOAuth, user } = useAuth();
   const navigate = useNavigate();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -91,16 +91,6 @@ const InvestorLogin = () => {
       );
     } finally {
       setIsLoggingIn(false);
-    }
-  };
-
-  const handleDemoLogin = (type: "startup" | "investor") => {
-    signInWithDemo(type);
-
-    if (type === "startup") {
-      navigate("/startup/dashboard");
-    } else {
-      navigate("/investor/dashboard");
     }
   };
 
@@ -207,34 +197,6 @@ const InvestorLogin = () => {
                     </Button>
                   </form>
                 </Form>
-
-                <div className="mt-6 space-y-4">
-                  <p className="text-sm text-muted-foreground text-center">
-                    Or use a demo account
-                  </p>
-                  <div className="grid grid-cols-1 gap-2">
-                    <Button
-                      variant="outline"
-                      className="w-full justify-start"
-                      onClick={() => handleDemoLogin("startup")}
-                    >
-                      <span className="bg-primary/10 text-primary text-xs px-2 py-1 rounded mr-2">
-                        Demo
-                      </span>
-                      Startup Account
-                    </Button>
-                    <Button
-                      variant="outline"
-                      className="w-full justify-start"
-                      onClick={() => handleDemoLogin("investor")}
-                    >
-                      <span className="bg-primary/10 text-primary text-xs px-2 py-1 rounded mr-2">
-                        Demo
-                      </span>
-                      Investor Account
-                    </Button>
-                  </div>
-                </div>
               </CardContent>
               <CardFooter className="flex-col">
                 <div className="mt-4 text-center text-sm">

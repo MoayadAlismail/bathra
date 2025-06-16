@@ -6,6 +6,7 @@ import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase, SubscribedEmail } from "@/lib/supabase";
+import { canBrowseContent } from "@/lib/auth-utils";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -70,6 +71,15 @@ const Navbar = () => {
   };
 
   const handleNavigation = (path: string) => {
+    // Check if user is trying to access browsing features
+    const browsingPaths = ["/startups", "/investor-dashboard"];
+
+    if (browsingPaths.includes(path) && !canBrowseContent(profile)) {
+      navigate("/pending-verification");
+      setIsMobileMenuOpen(false);
+      return;
+    }
+
     if (path.startsWith("/#")) {
       const elementId = path.substring(2);
       const element = document.getElementById(elementId);
@@ -180,7 +190,7 @@ const Navbar = () => {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => navigate("/startups")}
+            onClick={() => handleNavigation("/startups")}
           >
             Vetted Startups
           </Button>
@@ -225,10 +235,7 @@ const Navbar = () => {
       return (
         <>
           <button
-            onClick={() => {
-              navigate("/startups");
-              setIsMobileMenuOpen(false);
-            }}
+            onClick={() => handleNavigation("/startups")}
             className="text-foreground hover:text-primary transition-colors duration-200 py-2 text-left"
           >
             Vetted Startups

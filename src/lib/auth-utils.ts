@@ -140,6 +140,7 @@ export const isDemoMode = (): boolean => {
 };
 
 // Error message utilities
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const getAuthErrorMessage = (error: any): string => {
   // Map common Supabase error codes to user-friendly messages
   const errorMap: Record<string, string> = {

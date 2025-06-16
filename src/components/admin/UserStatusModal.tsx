@@ -234,7 +234,12 @@ const UserStatusModal = ({
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium">Visibility Status</label>
+                <label className="text-sm font-medium">
+                  Platform Visibility Status
+                  <span className="text-xs text-muted-foreground block">
+                    How this {user.type} appears to other users on the platform
+                  </span>
+                </label>
                 <Select
                   value={visibilityStatus}
                   onValueChange={(value: VisibilityStatus | "none") =>
@@ -248,13 +253,13 @@ const UserStatusModal = ({
                     <SelectItem value="none">
                       <div className="flex items-center gap-2">
                         <Minus className="h-4 w-4" />
-                        Normal
+                        Normal Visibility
                       </div>
                     </SelectItem>
                     <SelectItem value="normal">
                       <div className="flex items-center gap-2">
                         <Minus className="h-4 w-4" />
-                        Normal
+                        Normal Visibility
                       </div>
                     </SelectItem>
                     <SelectItem value="hot">
@@ -289,26 +294,42 @@ const UserStatusModal = ({
 
           {/* Status Explanations */}
           <div className="space-y-2">
-            <h4 className="font-medium">Status Explanations</h4>
+            <h4 className="font-medium">Status & Visibility Explanations</h4>
             <div className="text-sm text-muted-foreground space-y-1">
               <div>
-                • <strong>Pending:</strong> Awaiting admin review
+                <strong>Approval Status:</strong>
               </div>
-              <div>
-                • <strong>Approved:</strong> Account is verified and active
+              <div className="ml-4">
+                • <strong>Pending:</strong> {user.type} awaiting admin review
               </div>
-              <div>
-                • <strong>Rejected:</strong> Account does not meet criteria
+              <div className="ml-4">
+                • <strong>Approved:</strong> {user.type} is verified and can
+                access all features
               </div>
-              <div>
-                • <strong>Flagged:</strong> Account requires special attention
+              <div className="ml-4">
+                • <strong>Rejected:</strong> {user.type} does not meet platform
+                criteria
               </div>
-              <div>
-                • <strong>Featured:</strong> Highlighted prominently on the
-                platform
+              <div className="ml-4">
+                • <strong>Flagged:</strong> {user.type} requires special
+                attention or review
               </div>
-              <div>
-                • <strong>Hot:</strong> Marked as trending or in-demand
+
+              <div className="pt-2">
+                <strong>
+                  Platform Visibility (for approved {user.type}s):
+                </strong>
+              </div>
+              <div className="ml-4">
+                • <strong>Normal:</strong> Standard visibility to{" "}
+                {user.type === "startup" ? "investors" : "startups"}
+              </div>
+              <div className="ml-4">
+                • <strong>Featured:</strong> Highlighted prominently to attract{" "}
+                {user.type === "startup" ? "investor" : "startup"} attention
+              </div>
+              <div className="ml-4">
+                • <strong>Hot:</strong> Marked as trending or in high demand
               </div>
             </div>
           </div>

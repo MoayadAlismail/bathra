@@ -78,11 +78,15 @@ The admin dashboard includes:
 - **Rejected**: Users who don't meet criteria
 - **Flagged**: Users requiring special attention or investigation
 
-## Visibility Status Types
+## Visibility Status Types (for Startups and Investors)
 
-- **Normal**: Standard visibility on the platform
-- **Hot**: Marked as trending or in-demand
-- **Featured**: Highlighted prominently on the platform
+These visibility settings control how startups and investors appear to other users on the platform:
+
+- **Normal**: Standard visibility - appears normally in listings
+- **Hot**: Marked as trending or in-demand - shows "Hot" badge to attract attention
+- **Featured**: Highlighted prominently - gets priority placement and special styling
+
+Note: Visibility status is assigned BY admins TO startups and investors, not for admin accounts themselves.
 
 ## Security Features
 

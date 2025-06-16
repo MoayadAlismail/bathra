@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
@@ -47,6 +48,7 @@ import {
   UserType,
   VisibilityStatus,
 } from "@/lib/admin-service";
+import { useAuth } from "@/context/AuthContext";
 import UserDetailModal from "./UserDetailModal";
 import UserStatusModal from "./UserStatusModal";
 
@@ -63,6 +65,7 @@ const UserManagement = () => {
   const [detailModalOpen, setDetailModalOpen] = useState(false);
   const [statusModalOpen, setStatusModalOpen] = useState(false);
   const { toast } = useToast();
+  const { user } = useAuth();
 
   useEffect(() => {
     loadUsers();
@@ -103,23 +106,25 @@ const UserManagement = () => {
   };
 
   const handleQuickAction = async (
-    user: AdminUser,
+    adminUser: AdminUser,
     action: "approve" | "reject" | "flag"
   ) => {
     try {
+      const status: UserStatus =
+        action === "approve"
+          ? "approved"
+          : action === "reject"
+          ? "rejected"
+          : "flagged";
+
       const statusData = {
-        status:
-          action === "approve"
-            ? "approved"
-            : action === "reject"
-            ? "rejected"
-            : "flagged",
-        verified_by: "current_admin", // In a real app, this would be the current admin's ID
+        status,
+        verified_by: user?.id || "", // Use current user's ID
       };
 
       const result = await adminService.updateUserStatus(
-        user.id,
-        user.type,
+        adminUser.id,
+        adminUser.type,
         statusData
       );
 

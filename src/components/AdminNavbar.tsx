@@ -6,7 +6,7 @@ import {
   Users,
   Building,
   Mail,
-  Settings,
+  LogOut,
   BarChart3,
   Shield,
   FileText,
@@ -14,11 +14,24 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/context/AuthContext";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const AdminNavbar = () => {
   const navigate = useNavigate();
+  const { signOut } = useAuth();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [showSignOutDialog, setShowSignOutDialog] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -34,13 +47,22 @@ const AdminNavbar = () => {
     setIsMobileMenuOpen(false);
   };
 
+  const handleSignOutClick = () => {
+    setShowSignOutDialog(true);
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/");
+  };
+
   // Admin navigation items
   const adminNavItems = [
     { label: "Dashboard", path: "/admin", icon: BarChart3 },
-    { label: "Startups", path: "/admin/startups", icon: Building },
-    { label: "Investors", path: "/admin/investors", icon: Users },
+    { label: "Startups", path: "/admin?tab=startups", icon: Building },
+    { label: "Investors", path: "/admin?tab=investors", icon: Users },
     { label: "Emails", path: "/admin/emails", icon: Mail },
-    { label: "Settings", path: "/admin/settings", icon: Settings },
+    { label: "Sign Out", action: handleSignOutClick, icon: LogOut },
   ];
 
   return (
@@ -76,10 +98,12 @@ const AdminNavbar = () => {
             <div className="hidden lg:flex items-center space-x-1 overflow-hidden">
               {adminNavItems.map((item) => (
                 <Button
-                  key={item.path}
+                  key={item.path || "signout"}
                   variant="ghost"
                   size="sm"
-                  onClick={() => handleNavigation(item.path)}
+                  onClick={() =>
+                    item.action ? item.action() : handleNavigation(item.path!)
+                  }
                   className="flex items-center space-x-1 xl:space-x-2 text-foreground hover:text-white text-xs xl:text-sm"
                 >
                   <item.icon className="w-3 h-3 xl:w-4 xl:h-4 flex-shrink-0" />
@@ -93,10 +117,12 @@ const AdminNavbar = () => {
             <div className="hidden md:flex lg:hidden items-center space-x-1">
               {adminNavItems.slice(0, 3).map((item) => (
                 <Button
-                  key={item.path}
+                  key={item.path || "signout"}
                   variant="ghost"
                   size="sm"
-                  onClick={() => handleNavigation(item.path)}
+                  onClick={() =>
+                    item.action ? item.action() : handleNavigation(item.path!)
+                  }
                   className="flex items-center space-x-1 text-foreground hover:text-white text-xs"
                 >
                   <item.icon className="w-3 h-3 flex-shrink-0" />
@@ -158,10 +184,12 @@ const AdminNavbar = () => {
                 {/* Mobile Navigation Items */}
                 {adminNavItems.map((item) => (
                   <Button
-                    key={item.path}
+                    key={item.path || "signout"}
                     variant="ghost"
                     size="sm"
-                    onClick={() => handleNavigation(item.path)}
+                    onClick={() =>
+                      item.action ? item.action() : handleNavigation(item.path!)
+                    }
                     className="flex items-center justify-start space-x-2 sm:space-x-3 text-foreground hover:text-white w-full text-left py-2 sm:py-3"
                   >
                     <item.icon className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
@@ -194,6 +222,24 @@ const AdminNavbar = () => {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Sign Out Confirmation Dialog */}
+      <AlertDialog open={showSignOutDialog} onOpenChange={setShowSignOutDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Sign Out</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to sign out of the admin panel?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleSignOut}>
+              Sign Out
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 };

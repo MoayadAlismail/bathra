@@ -5,7 +5,7 @@ import UserManagement from "@/components/admin/UserManagement";
 import BlogManagement from "@/components/admin/BlogManagement";
 import AdminBrowseStartups from "@/components/admin/AdminBrowseStartups";
 import AdminBrowseInvestors from "@/components/admin/AdminBrowseInvestors";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   BarChart3,
@@ -23,9 +23,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useLocation } from "react-router-dom";
 
 const Admin = () => {
-  // Determine initial tab based on current path
+  const location = useLocation();
+
+  // Determine initial tab based on current path or query parameter
   const getInitialTab = ():
     | "dashboard"
     | "users"
@@ -33,6 +36,14 @@ const Admin = () => {
     | "startups"
     | "investors" => {
     const path = window.location.pathname;
+    const params = new URLSearchParams(location.search);
+    const tabParam = params.get("tab");
+
+    if (tabParam === "startups") return "startups";
+    if (tabParam === "investors") return "investors";
+    if (tabParam === "users") return "users";
+    if (tabParam === "blog") return "blog";
+
     if (path.includes("/admin/users")) return "users";
     if (path.includes("/admin/blog")) return "blog";
     if (path.includes("/admin/startups")) return "startups";
@@ -43,6 +54,11 @@ const Admin = () => {
   const [activeTab, setActiveTab] = useState<
     "dashboard" | "users" | "blog" | "startups" | "investors"
   >(getInitialTab());
+
+  // Update active tab when URL changes
+  useEffect(() => {
+    setActiveTab(getInitialTab());
+  }, [location]);
 
   return (
     <div className="min-h-screen bg-background">

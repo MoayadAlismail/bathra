@@ -15,6 +15,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { supabase } from "@/lib/supabase";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 interface InvestorBasicInfo {
   id: string;
@@ -43,81 +50,71 @@ const InvestorDetailModal: React.FC<InvestorDetailModalProps> = ({
   onConnect,
 }) => {
   return (
-    <dialog
-      open={isOpen}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
-      onClick={onClose}
-    >
-      <div
-        className="bg-background rounded-lg shadow-lg max-w-2xl w-full max-h-[80vh] overflow-auto"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="p-6">
-          <div className="flex justify-between items-start mb-4">
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-2xl">
+        <DialogHeader>
+          <div className="flex justify-between items-start">
             <div>
-              <h2 className="text-2xl font-bold">{investor.name}</h2>
+              <DialogTitle className="text-2xl font-bold">
+                {investor.name}
+              </DialogTitle>
               <p className="text-muted-foreground">
                 {investor.role}{" "}
                 {investor.company ? `at ${investor.company}` : ""}
               </p>
             </div>
-            <Button variant="ghost" size="sm" onClick={onClose}>
-              <X className="h-4 w-4" />
-            </Button>
           </div>
+        </DialogHeader>
 
-          <div className="space-y-6">
-            <div>
-              <h3 className="text-lg font-medium mb-2">
-                Investment Preferences
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">
-                    Industries
-                  </p>
-                  <p>{investor.preferred_industries || "Not specified"}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">
-                    Preferred Stage
-                  </p>
-                  <p>{investor.preferred_company_stage || "Not specified"}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">
-                    Ticket Size
-                  </p>
-                  <p>{investor.average_ticket_size || "Not specified"}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">
-                    Previous Investments
-                  </p>
-                  <p>{investor.number_of_investments || "0"}</p>
-                </div>
+        <div className="space-y-6">
+          <div>
+            <h3 className="text-lg font-medium mb-2">Investment Preferences</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">
+                  Industries
+                </p>
+                <p>{investor.preferred_industries || "Not specified"}</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">
+                  Preferred Stage
+                </p>
+                <p>{investor.preferred_company_stage || "Not specified"}</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">
+                  Ticket Size
+                </p>
+                <p>{investor.average_ticket_size || "Not specified"}</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">
+                  Previous Investments
+                </p>
+                <p>{investor.number_of_investments || "0"}</p>
               </div>
             </div>
+          </div>
 
-            <div>
-              <h3 className="text-lg font-medium mb-2">Location</h3>
-              <p>
-                {investor.city && investor.country
-                  ? `${investor.city}, ${investor.country}`
-                  : "Not specified"}
-              </p>
-            </div>
-
-            <div className="flex justify-end pt-4 border-t">
-              <Button variant="outline" className="mr-2" onClick={onClose}>
-                Close
-              </Button>
-              <Button onClick={onConnect}>Connect</Button>
-            </div>
+          <div>
+            <h3 className="text-lg font-medium mb-2">Location</h3>
+            <p>
+              {investor.city && investor.country
+                ? `${investor.city}, ${investor.country}`
+                : "Not specified"}
+            </p>
           </div>
         </div>
-      </div>
-    </dialog>
+
+        <DialogFooter className="pt-4 border-t mt-4">
+          <Button variant="outline" className="mr-2" onClick={onClose}>
+            Close
+          </Button>
+          <Button onClick={onConnect}>Connect</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 };
 
@@ -133,8 +130,9 @@ const StartupBrowseInvestors = ({
   const [investors, setInvestors] = useState<InvestorBasicInfo[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedIndustry, setSelectedIndustry] = useState<string>("");
-  const [selectedStage, setSelectedStage] = useState<string>("");
+  const [selectedIndustry, setSelectedIndustry] =
+    useState<string>("all-industries");
+  const [selectedStage, setSelectedStage] = useState<string>("all-stages");
   const [selectedInvestor, setSelectedInvestor] =
     useState<InvestorBasicInfo | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -177,11 +175,11 @@ const StartupBrowseInvestors = ({
           );
         }
 
-        if (selectedIndustry) {
+        if (selectedIndustry && selectedIndustry !== "all-industries") {
           query = query.ilike("preferred_industries", `%${selectedIndustry}%`);
         }
 
-        if (selectedStage) {
+        if (selectedStage && selectedStage !== "all-stages") {
           query = query.eq("preferred_company_stage", selectedStage);
         }
       }
@@ -220,12 +218,27 @@ const StartupBrowseInvestors = ({
         .select("preferred_industries");
 
       if (industriesData) {
-        // Split comma-separated industries and flatten the array
+        // Process industries - handle both comma-separated strings and JSON arrays
         const allIndustries = industriesData
-          .map(
-            (item) =>
-              item.preferred_industries?.split(",").map((i) => i.trim()) || []
-          )
+          .map((item) => {
+            if (!item.preferred_industries) return [];
+
+            try {
+              // Try to parse as JSON array first
+              const parsed = JSON.parse(item.preferred_industries);
+              if (Array.isArray(parsed)) {
+                return parsed.map((i) => i.trim()).filter(Boolean);
+              }
+            } catch {
+              // If JSON parsing fails, treat as comma-separated string
+            }
+
+            // Handle comma-separated string
+            return item.preferred_industries
+              .split(",")
+              .map((i) => i.trim())
+              .filter(Boolean);
+          })
           .flat()
           .filter(Boolean);
 
@@ -269,8 +282,8 @@ const StartupBrowseInvestors = ({
 
   const clearFilters = () => {
     setSearchTerm("");
-    setSelectedIndustry("");
-    setSelectedStage("");
+    setSelectedIndustry("all-industries");
+    setSelectedStage("all-stages");
   };
 
   const renderSkeletons = () => (
@@ -345,7 +358,9 @@ const StartupBrowseInvestors = ({
                         <SelectValue placeholder="All Industries" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">All Industries</SelectItem>
+                        <SelectItem value="all-industries">
+                          All Industries
+                        </SelectItem>
                         {industries.map((industry) => (
                           <SelectItem key={industry} value={industry}>
                             {industry}
@@ -367,7 +382,7 @@ const StartupBrowseInvestors = ({
                         <SelectValue placeholder="All Stages" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">All Stages</SelectItem>
+                        <SelectItem value="all-stages">All Stages</SelectItem>
                         {stages.map((stage) => (
                           <SelectItem key={stage} value={stage}>
                             {stage}

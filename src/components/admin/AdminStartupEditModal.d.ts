@@ -1,4 +1,4 @@
-import { AdminStartupInfo } from "@/lib/startup-types";
+import { AdminStartupInfo } from "../../lib/startup-types";
 
 interface AdminStartupEditModalProps {
   startup: AdminStartupInfo;

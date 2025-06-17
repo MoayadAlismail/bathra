@@ -44,6 +44,8 @@ import {
   Building2,
 } from "lucide-react";
 import StartupProfileEditModal from "@/components/StartupProfileEditModal";
+import InvestorDetailModal from "@/components/InvestorDetailModal";
+import { toast } from "@/components/ui/use-toast";
 
 const StartupDashboard = () => {
   const { user, profile, signOut } = useAuth();
@@ -53,6 +55,8 @@ const StartupDashboard = () => {
   const [startupDetails, setStartupDetails] = useState<Startup | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [recentInvestors, setRecentInvestors] = useState([]);
+  const [selectedInvestor, setSelectedInvestor] = useState<any>(null);
+  const [isInvestorModalOpen, setIsInvestorModalOpen] = useState(false);
 
   useEffect(() => {
     if (!user) {
@@ -116,6 +120,19 @@ const StartupDashboard = () => {
 
   const handleProfileUpdate = (updatedStartup: Startup) => {
     setStartupDetails(updatedStartup);
+  };
+
+  const handleInvestorClick = (investor: any) => {
+    setSelectedInvestor(investor);
+    setIsInvestorModalOpen(true);
+  };
+
+  const handleConnectInvestor = () => {
+    toast({
+      title: "Connection Request Sent",
+      description: `Your request to connect with ${selectedInvestor?.name} has been sent.`,
+    });
+    setIsInvestorModalOpen(false);
   };
 
   if (!user || !profile) return null;
@@ -327,9 +344,7 @@ const StartupDashboard = () => {
                             variant="outline"
                             size="sm"
                             className="w-full mt-2"
-                            onClick={() => {
-                              /* View investor profile */
-                            }}
+                            onClick={() => handleInvestorClick(investor)}
                           >
                             View Profile
                           </Button>
@@ -361,6 +376,16 @@ const StartupDashboard = () => {
           onClose={() => setIsEditModalOpen(false)}
           startup={startupDetails}
           onUpdate={handleProfileUpdate}
+        />
+      )}
+
+      {/* Investor Detail Modal */}
+      {selectedInvestor && (
+        <InvestorDetailModal
+          investor={selectedInvestor}
+          isOpen={isInvestorModalOpen}
+          onClose={() => setIsInvestorModalOpen(false)}
+          onConnect={handleConnectInvestor}
         />
       )}
     </div>

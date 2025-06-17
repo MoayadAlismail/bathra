@@ -236,6 +236,26 @@ const AppRoutes = () => {
           }
         />
         <Route
+          path="/admin/startups"
+          element={
+            <ProtectedRoute requiredAccountType="admin">
+              <ErrorBoundary>
+                <Admin />
+              </ErrorBoundary>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/investors"
+          element={
+            <ProtectedRoute requiredAccountType="admin">
+              <ErrorBoundary>
+                <Admin />
+              </ErrorBoundary>
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/articles"
           element={
             <ErrorBoundary>

@@ -4,7 +4,7 @@ import Navbar from "@/components/Navbar";
 import StartupBrowseInvestors from "@/components/StartupBrowseInvestors";
 import { useAuth } from "@/context/AuthContext";
 import { Navigate } from "react-router-dom";
-import { isStartupAccount } from "@/lib/account-types";
+import { AccountType, isStartupAccount } from "@/lib/account-types";
 
 const Investors = () => {
   const { user, profile } = useAuth();
@@ -14,7 +14,7 @@ const Investors = () => {
     return <Navigate to="/login" />;
   }
 
-  if (!isStartupAccount(profile)) {
+  if (!isStartupAccount(profile.accountType as AccountType)) {
     return <Navigate to="/" />;
   }
 

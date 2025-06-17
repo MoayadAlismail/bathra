@@ -5,6 +5,7 @@ import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
 import Navbar from "@/components/Navbar";
 import InvestorBrowseStartups from "@/components/InvestorBrowseStartups";
+import InvestorProfileEditModal from "@/components/InvestorProfileEditModal";
 import { Investor } from "@/lib/supabase";
 import {
   Card,
@@ -40,6 +41,8 @@ import {
   FileText,
   Building2,
   TrendingUp,
+  Edit,
+  LogOut,
 } from "lucide-react";
 import { Startup, processStartupData } from "@/lib/supabase";
 
@@ -51,6 +54,7 @@ const InvestorDashboard = () => {
   const [openStartup, setOpenStartup] = useState<string | null>(null);
   const [recentStartups, setRecentStartups] = useState<Startup[]>([]);
   const [investorDetails, setInvestorDetails] = useState<Investor | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   useEffect(() => {
     if (!user) {
@@ -135,6 +139,10 @@ const InvestorDashboard = () => {
     }
   };
 
+  const handleProfileUpdate = (updatedInvestor: Investor) => {
+    setInvestorDetails(updatedInvestor);
+  };
+
   if (!user || !profile) return null;
 
   return (
@@ -154,8 +162,13 @@ const InvestorDashboard = () => {
                 <h1 className="text-3xl font-bold text-gradient">
                   Investor Dashboard
                 </h1>
-                <Button variant="outline" onClick={handleLogout}>
-                  Sign Out
+                <Button
+                  variant="outline"
+                  onClick={() => setIsEditModalOpen(true)}
+                  disabled={!investorDetails}
+                >
+                  <Edit className="mr-2 h-4 w-4" />
+                  Edit Profile
                 </Button>
               </div>
 
@@ -267,7 +280,7 @@ const InvestorDashboard = () => {
                   <div className="space-y-2">
                     <Button
                       variant="outline"
-                      className="w-full justify-start border-white/10 hover:bg-white/5"
+                      className="w-full justify-start border-white/10 hover:bg-white/5 hover:text-black"
                       onClick={() => navigate("/startups")}
                     >
                       <FileText className="mr-2 h-4 w-4" />
@@ -275,11 +288,19 @@ const InvestorDashboard = () => {
                     </Button>
                     <Button
                       variant="outline"
-                      className="w-full justify-start border-white/10 hover:bg-white/5"
+                      className="w-full justify-start border-white/10 hover:bg-white/5 hover:text-black"
                       onClick={() => navigate("/saved-startups")}
                     >
                       <Building2 className="mr-2 h-4 w-4" />
                       View Saved Startups
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start border-white/10 hover:bg-white/5 text-red-400 hover:text-red-500"
+                      onClick={handleLogout}
+                    >
+                      <LogOut className="mr-2 h-4 w-4" />
+                      Sign Out
                     </Button>
                   </div>
                 </div>
@@ -308,6 +329,16 @@ const InvestorDashboard = () => {
           </motion.div>
         </div>
       </section>
+
+      {/* Edit Profile Modal */}
+      {investorDetails && (
+        <InvestorProfileEditModal
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+          investor={investorDetails}
+          onUpdate={handleProfileUpdate}
+        />
+      )}
     </div>
   );
 };

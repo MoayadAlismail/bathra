@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
 import Navbar from "@/components/Navbar";
+import InvestorBrowseStartups from "@/components/InvestorBrowseStartups";
+import { Investor } from "@/lib/supabase";
 import {
   Card,
   CardContent,
@@ -32,7 +34,13 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { ChevronDown, ChevronUp, FileText } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronUp,
+  FileText,
+  Building2,
+  TrendingUp,
+} from "lucide-react";
 import { Startup, processStartupData } from "@/lib/supabase";
 
 const InvestorDashboard = () => {
@@ -42,6 +50,7 @@ const InvestorDashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [openStartup, setOpenStartup] = useState<string | null>(null);
   const [recentStartups, setRecentStartups] = useState<Startup[]>([]);
+  const [investorDetails, setInvestorDetails] = useState<Investor | null>(null);
 
   useEffect(() => {
     if (!user) {
@@ -49,6 +58,7 @@ const InvestorDashboard = () => {
     } else {
       fetchStartups();
       fetchRecentStartups();
+      fetchInvestorDetails();
     }
   }, [user, navigate]);
 
@@ -96,6 +106,26 @@ const InvestorDashboard = () => {
     }
   };
 
+  const fetchInvestorDetails = async () => {
+    try {
+      if (!user?.id) return;
+
+      const { data, error } = await supabase
+        .from("investors")
+        .select("*")
+        .eq("id", user.id)
+        .single();
+
+      if (error) throw error;
+
+      if (data) {
+        setInvestorDetails(data);
+      }
+    } catch (error) {
+      console.error("Error fetching investor details:", error);
+    }
+  };
+
   const handleLogout = async () => {
     try {
       await signOut();
@@ -116,8 +146,9 @@ const InvestorDashboard = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="max-w-4xl mx-auto"
+            className="max-w-7xl mx-auto"
           >
+            {/* Dashboard Header */}
             <div className="neo-blur rounded-2xl shadow-lg p-8 mb-8">
               <div className="flex justify-between items-center mb-6">
                 <h1 className="text-3xl font-bold text-gradient">
@@ -138,32 +169,99 @@ const InvestorDashboard = () => {
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+              {/* Quick Stats */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">
+                      Saved Startups
+                    </CardTitle>
+                    <Building2 className="h-4 w-4 text-blue-600" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">0</div>
+                    <p className="text-xs text-muted-foreground">
+                      Startups in your watchlist
+                    </p>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">
+                      Active Deals
+                    </CardTitle>
+                    <TrendingUp className="h-4 w-4 text-green-600" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">0</div>
+                    <p className="text-xs text-muted-foreground">
+                      Ongoing investment discussions
+                    </p>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">
+                      Total Investments
+                    </CardTitle>
+                    <FileText className="h-4 w-4 text-purple-600" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-lg font-bold">
+                      {investorDetails?.number_of_investments || 0}
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Investment experience
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Profile Overview */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="glass p-6 rounded-xl border border-white/10">
                   <h3 className="text-lg font-semibold mb-3">Your Profile</h3>
                   <ul className="space-y-2">
                     <li>
                       <span className="text-muted-foreground">
-                        Investment Focus:
+                        Preferred Industries:
                       </span>{" "}
                       <span className="text-foreground">
-                        {profile.investmentFocus}
+                        {investorDetails?.preferred_industries ||
+                          "Not specified"}
                       </span>
                     </li>
                     <li>
                       <span className="text-muted-foreground">
-                        Investment Range:
+                        Preferred Stage:
                       </span>{" "}
                       <span className="text-foreground">
-                        {profile.investmentRange}
+                        {investorDetails?.preferred_company_stage ||
+                          "Not specified"}
                       </span>
                     </li>
                     <li>
-                      <span className="text-muted-foreground">Email:</span>{" "}
-                      <span className="text-foreground">{profile.email}</span>
+                      <span className="text-muted-foreground">
+                        Average Ticket Size:
+                      </span>{" "}
+                      <span className="text-foreground">
+                        {investorDetails?.average_ticket_size ||
+                          "Not specified"}
+                      </span>
+                    </li>
+                    <li>
+                      <span className="text-muted-foreground">Location:</span>{" "}
+                      <span className="text-foreground">
+                        {investorDetails?.city
+                          ? `${investorDetails.city}, ${investorDetails.country}`
+                          : "Not specified"}
+                      </span>
                     </li>
                   </ul>
                 </div>
+
                 <div className="glass p-6 rounded-xl border border-white/10">
                   <h3 className="text-lg font-semibold mb-3">Quick Actions</h3>
                   <div className="space-y-2">
@@ -173,93 +271,39 @@ const InvestorDashboard = () => {
                       onClick={() => navigate("/startups")}
                     >
                       <FileText className="mr-2 h-4 w-4" />
-                      Browse Vetted Startups
+                      Browse All Vetted Startups
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start border-white/10 hover:bg-white/5"
+                      onClick={() => navigate("/saved-startups")}
+                    >
+                      <Building2 className="mr-2 h-4 w-4" />
+                      View Saved Startups
                     </Button>
                   </div>
                 </div>
               </div>
+            </div>
 
-              <div>
-                <h3 className="text-xl font-semibold mb-4 text-gradient">
-                  Recommended Startups
-                </h3>
-                {isLoading ? (
-                  <div className="p-8 text-center glass rounded-xl border border-white/10">
-                    <p className="text-muted-foreground">Loading startups...</p>
-                  </div>
-                ) : startups.length > 0 ? (
-                  <div className="space-y-4">
-                    {startups.map((startup) => (
-                      <Card
-                        key={startup.id}
-                        className="overflow-hidden bg-card border-white/10"
-                      >
-                        <CardHeader className="pb-2">
-                          <div className="flex justify-between items-center">
-                            <CardTitle className="text-lg">
-                              {startup.name}
-                            </CardTitle>
-                            <Collapsible
-                              open={openStartup === startup.id}
-                              onOpenChange={() => {
-                                setOpenStartup(
-                                  openStartup === startup.id ? null : startup.id
-                                );
-                              }}
-                            >
-                              <CollapsibleTrigger asChild>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="p-0 h-8 w-8"
-                                >
-                                  {openStartup === startup.id ? (
-                                    <ChevronUp size={16} />
-                                  ) : (
-                                    <ChevronDown size={16} />
-                                  )}
-                                </Button>
-                              </CollapsibleTrigger>
-                            </Collapsible>
-                          </div>
-                          <div className="flex gap-2 mt-1">
-                            <span className="bg-secondary/30 text-foreground text-xs px-2.5 py-0.5 rounded">
-                              {startup.industry}
-                            </span>
-                            <span className="bg-primary/10 text-primary text-xs px-2.5 py-0.5 rounded">
-                              {startup.stage}
-                            </span>
-                          </div>
-                        </CardHeader>
-                        <Collapsible open={openStartup === startup.id}>
-                          <CollapsibleContent>
-                            <CardContent className="pt-2">
-                              <p className="text-sm text-muted-foreground">
-                                {startup.description}
-                              </p>
-                              <Button className="mt-3" size="sm">
-                                View Details
-                              </Button>
-                            </CardContent>
-                          </CollapsibleContent>
-                        </Collapsible>
-                      </Card>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="p-8 text-center glass rounded-xl border border-white/10">
-                    <p className="text-muted-foreground">
-                      No startups to display yet. Check back soon!
-                    </p>
-                  </div>
-                )}
-              </div>
-
-              <div className="mt-6 text-center">
+            {/* Browse Startups Section */}
+            <div className="neo-blur rounded-2xl shadow-lg p-8">
+              <div className="flex justify-between items-center mb-6">
+                <div>
+                  <h2 className="text-2xl font-bold text-gradient mb-2">
+                    Browse Startups
+                  </h2>
+                  <p className="text-muted-foreground">
+                    Discover and connect with promising startups
+                  </p>
+                </div>
                 <Button onClick={() => navigate("/startups")}>
-                  View All Vetted Startups
+                  View All Startups
                 </Button>
               </div>
+
+              {/* Browse Startups Component */}
+              <InvestorBrowseStartups isDashboard={true} maxStartups={6} />
             </div>
           </motion.div>
         </div>

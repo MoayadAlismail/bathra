@@ -28,9 +28,6 @@ const NotFound = () => {
           <Button asChild size="lg" className="w-full">
             <Link to="/">Go to Home</Link>
           </Button>
-          <Button asChild variant="outline" size="lg" className="w-full">
-            <Link to="/dashboard">Go to Dashboard</Link>
-          </Button>
         </div>
       </div>
     </div>

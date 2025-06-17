@@ -53,24 +53,26 @@ const INDUSTRIES = [
   "Other",
 ];
 
-const COMPANY_STAGES = [
-  "Pre-Seed",
+const INVESTMENT_STAGES = [
+  "Pre-seed",
   "Seed",
   "Series A",
   "Series B",
   "Series C+",
-  "Growth Stage",
-  "Any Stage",
+  "Growth",
+  "Late Stage",
+  "All Stages",
 ];
 
 const TICKET_SIZES = [
-  "$1K - $10K",
+  "< $10K",
   "$10K - $50K",
   "$50K - $100K",
-  "$100K - $500K",
+  "$100K - $250K",
+  "$250K - $500K",
   "$500K - $1M",
   "$1M - $5M",
-  "$5M+",
+  "> $5M",
 ];
 
 const HOW_DID_YOU_HEAR = [
@@ -511,7 +513,7 @@ const AdminInvestorEditModal: React.FC<AdminInvestorEditModalProps> = ({
                       <SelectValue placeholder="Select preferred stage" />
                     </SelectTrigger>
                     <SelectContent>
-                      {COMPANY_STAGES.map((stage) => (
+                      {INVESTMENT_STAGES.map((stage) => (
                         <SelectItem key={stage} value={stage}>
                           {stage}
                         </SelectItem>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Search, Filter, Users, ArrowRight, X, Edit } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "@/hooks/use-toast";
@@ -28,8 +28,8 @@ const AdminBrowseInvestors = () => {
   const [investors, setInvestors] = useState<AdminInvestorInfo[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedIndustry, setSelectedIndustry] = useState<string>("");
-  const [selectedStage, setSelectedStage] = useState<string>("");
+  const [selectedIndustry, setSelectedIndustry] = useState<string>("all");
+  const [selectedStage, setSelectedStage] = useState<string>("all");
   const [selectedInvestor, setSelectedInvestor] =
     useState<AdminInvestorInfo | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
@@ -54,8 +54,11 @@ const AdminBrowseInvestors = () => {
 
       const filters: InvestorFilters = {
         searchTerm: searchTerm || undefined,
-        industry: selectedIndustry || undefined,
-        stage: selectedStage || undefined,
+        industry:
+          selectedIndustry === "all"
+            ? undefined
+            : selectedIndustry || undefined,
+        stage: selectedStage === "all" ? undefined : selectedStage || undefined,
       };
 
       const { data, error } = await InvestorService.getAllInvestors(filters);
@@ -122,8 +125,8 @@ const AdminBrowseInvestors = () => {
 
   const clearFilters = () => {
     setSearchTerm("");
-    setSelectedIndustry("");
-    setSelectedStage("");
+    setSelectedIndustry("all");
+    setSelectedStage("all");
   };
 
   const renderSkeletons = () => (
@@ -177,50 +180,55 @@ const AdminBrowseInvestors = () => {
               </Button>
             </div>
 
-            {showFilters && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-muted rounded-lg"
-              >
-                <Select
-                  value={selectedIndustry}
-                  onValueChange={setSelectedIndustry}
+            <AnimatePresence>
+              {showFilters && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-muted rounded-lg"
                 >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Industry" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="">All Industries</SelectItem>
-                    {industries.map((industry) => (
-                      <SelectItem key={industry} value={industry}>
-                        {industry}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  <Select
+                    value={selectedIndustry}
+                    onValueChange={setSelectedIndustry}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Industry" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Industries</SelectItem>
+                      {industries.map((industry) => (
+                        <SelectItem key={industry} value={industry}>
+                          {industry}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
 
-                <Select value={selectedStage} onValueChange={setSelectedStage}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Stage" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="">All Stages</SelectItem>
-                    {stages.map((stage) => (
-                      <SelectItem key={stage} value={stage}>
-                        {stage}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  <Select
+                    value={selectedStage}
+                    onValueChange={setSelectedStage}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Stage" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Stages</SelectItem>
+                      {stages.map((stage) => (
+                        <SelectItem key={stage} value={stage}>
+                          {stage}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
 
-                <Button variant="outline" onClick={clearFilters}>
-                  <X className="mr-2 h-4 w-4" />
-                  Clear Filters
-                </Button>
-              </motion.div>
-            )}
+                  <Button variant="outline" onClick={clearFilters}>
+                    <X className="mr-2 h-4 w-4" />
+                    Clear Filters
+                  </Button>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
           {isLoading ? (

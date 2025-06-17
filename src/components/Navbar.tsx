@@ -72,7 +72,12 @@ const Navbar = () => {
 
   const handleNavigation = (path: string) => {
     // Check if user is trying to access browsing features
-    const browsingPaths = ["/startups", "/investor-dashboard"];
+    const browsingPaths = [
+      "/startups",
+      "/investor-dashboard",
+      "/investors",
+      "/startup-dashboard",
+    ];
 
     if (browsingPaths.includes(path) && !canBrowseContent(profile)) {
       navigate("/pending-verification");
@@ -146,9 +151,9 @@ const Navbar = () => {
     // When logged in, don't show "How It Works" for a cleaner experience
     if (accountType === "startup") {
       return [
-        { label: "Home", path: "/" },
+        { label: "Dashboard", path: "/startup-dashboard" },
         { label: "Articles", path: "/articles" },
-        { label: "My Startup", path: "/startup-profile" },
+        { label: "Investors", path: "/investors" },
       ];
     } else {
       // For investors (individual or VC)

@@ -153,7 +153,7 @@ const Navbar = () => {
     } else {
       // For investors (individual or VC)
       return [
-        { label: "Home", path: "/" },
+        { label: "Dashboard", path: "/investor-dashboard" },
         { label: "Articles", path: "/articles" },
         { label: "Startups", path: "/startups" },
       ];
@@ -190,13 +190,6 @@ const Navbar = () => {
       // For investors (individual or VC)
       return (
         <div className="flex items-center space-x-4">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => handleNavigation("/startups")}
-          >
-            Vetted Startups
-          </Button>
           <Button variant="ghost" size="sm" onClick={handleLogout}>
             Sign Out
           </Button>

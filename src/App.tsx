@@ -180,7 +180,7 @@ const AppRoutes = () => {
         <Route
           path="/investor-dashboard"
           element={
-            <ProtectedRoute requiredAccountType="startup">
+            <ProtectedRoute requiredAccountType="investor">
               <StatusGuard>
                 <ErrorBoundary>
                   <InvestorDashboard />

@@ -7,7 +7,7 @@ import { AuthProvider, useAuth } from "./context/AuthContext";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { useEffect, Suspense, Component, ReactNode } from "react";
 import Index from "./pages/Index";
-import InvestorLogin from "./pages/InvestorLogin";
+import Login from "./pages/Login";
 import VettedStartups from "./pages/VettedStartups";
 import InvestorDashboard from "./pages/InvestorDashboard";
 import StartupDashboard from "./pages/StartupDashboard";
@@ -155,7 +155,7 @@ const AppRoutes = () => {
         <Route path="/signup/startup" element={<StartupSignup />} />
         <Route path="/signup/investor" element={<InvestorSignup />} />
         <Route path="/verify-email" element={<VerifyEmail />} />
-        <Route path="/login" element={<InvestorLogin />} />
+        <Route path="/login" element={<Login />} />
         <Route path="/pending-verification" element={<PendingVerification />} />
         <Route
           path="/startups"

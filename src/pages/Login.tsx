@@ -36,7 +36,7 @@ const formSchema = z.object({
   rememberMe: z.boolean().default(false),
 });
 
-const InvestorLogin = () => {
+const Login = () => {
   const [loginError, setLoginError] = useState("");
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [showUserTypeModal, setShowUserTypeModal] = useState(false);
@@ -68,9 +68,9 @@ const InvestorLogin = () => {
         const accountType = result.user.accountType;
         console.log("accountType", accountType, result.user);
         if (accountType === "investor") {
-          navigate("/investor/dashboard");
+          navigate("/investor-dashboard");
         } else if (accountType === "startup") {
-          navigate("/startup/dashboard");
+          navigate("/startup-dashboard");
         } else if (accountType === "admin") {
           navigate("/admin");
         } else {
@@ -223,4 +223,4 @@ const InvestorLogin = () => {
   );
 };
 
-export default InvestorLogin;
+export default Login;

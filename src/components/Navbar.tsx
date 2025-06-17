@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Menu, X, LogIn, ArrowLeft, Mail } from "lucide-react";
+import { Menu, X, LogIn, ArrowLeft, Mail, Home, Shield } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
@@ -148,6 +148,11 @@ const Navbar = () => {
 
     if (!user) return publicItems;
 
+    // For admin users, show public items (what non-logged-in users see)
+    if (accountType === "admin") {
+      return publicItems;
+    }
+
     // When logged in, don't show "How It Works" for a cleaner experience
     if (accountType === "startup") {
       return [
@@ -179,6 +184,35 @@ const Navbar = () => {
           <LogIn className="w-4 h-4" />
           Sign In
         </Button>
+      );
+    }
+
+    // Render admin buttons when user is admin
+    if (accountType === "admin") {
+      return (
+        <div className="flex items-center space-x-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => navigate("/")}
+            className="flex items-center gap-2"
+          >
+            <Home className="w-4 h-4" />
+            Main Site
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate("/admin")}
+            className="flex items-center gap-2"
+          >
+            <Shield className="w-4 h-4" />
+            Admin
+          </Button>
+          <Button variant="ghost" size="sm" onClick={handleLogout}>
+            Sign Out
+          </Button>
+        </div>
       );
     }
 
@@ -216,6 +250,37 @@ const Navbar = () => {
           <LogIn className="w-4 h-4" />
           Sign In
         </button>
+      );
+    }
+
+    // Render admin buttons for mobile when user is admin
+    if (accountType === "admin") {
+      return (
+        <>
+          <button
+            onClick={() => handleNavigation("/")}
+            className="flex items-center gap-2 text-foreground hover:text-primary transition-colors duration-200 py-2 text-left"
+          >
+            <Home className="w-4 h-4" />
+            Main Site
+          </button>
+          <button
+            onClick={() => handleNavigation("/admin")}
+            className="flex items-center gap-2 text-foreground hover:text-primary transition-colors duration-200 py-2 text-left"
+          >
+            <Shield className="w-4 h-4" />
+            Admin
+          </button>
+          <button
+            onClick={() => {
+              handleLogout();
+              setIsMobileMenuOpen(false);
+            }}
+            className="text-foreground hover:text-primary transition-colors duration-200 py-2 text-left"
+          >
+            Sign Out
+          </button>
+        </>
       );
     }
 

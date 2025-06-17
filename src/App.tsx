@@ -7,11 +7,11 @@ import { AuthProvider, useAuth } from "./context/AuthContext";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { useEffect, Suspense, Component, ReactNode } from "react";
 import Index from "./pages/Index";
-import StartupPitch from "./pages/StartupPitch";
 import InvestorLogin from "./pages/InvestorLogin";
 import VettedStartups from "./pages/VettedStartups";
-import StartupProfile from "./pages/StartupProfile";
 import InvestorDashboard from "./pages/InvestorDashboard";
+import StartupDashboard from "./pages/StartupDashboard";
+import Investors from "./pages/Investors";
 import Signup from "./pages/Signup";
 import StartupSignup from "./pages/StartupSignup";
 import InvestorSignup from "./pages/InvestorSignup";
@@ -151,14 +151,6 @@ const AppRoutes = () => {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Index />} />
-        <Route
-          path="/pitch"
-          element={
-            <ErrorBoundary>
-              <StartupPitch />
-            </ErrorBoundary>
-          }
-        />
         <Route path="/signup" element={<Signup />} />
         <Route path="/signup/startup" element={<StartupSignup />} />
         <Route path="/signup/investor" element={<InvestorSignup />} />
@@ -190,12 +182,26 @@ const AppRoutes = () => {
           }
         />
         <Route
-          path="/startup-profile"
+          path="/startup-dashboard"
           element={
             <ProtectedRoute requiredAccountType="startup">
-              <ErrorBoundary>
-                <StartupProfile />
-              </ErrorBoundary>
+              <StatusGuard>
+                <ErrorBoundary>
+                  <StartupDashboard />
+                </ErrorBoundary>
+              </StatusGuard>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/investors"
+          element={
+            <ProtectedRoute requiredAccountType="startup">
+              <StatusGuard>
+                <ErrorBoundary>
+                  <Investors />
+                </ErrorBoundary>
+              </StatusGuard>
             </ProtectedRoute>
           }
         />

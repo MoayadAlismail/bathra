@@ -57,17 +57,16 @@ const InvestorLogin = () => {
       setIsLoggingIn(true);
       setLoginError("");
 
-      const success = await signIn({
+      const result = await signIn({
         email: values.email,
         password: values.password,
         rememberMe: values.rememberMe,
       });
 
-      if (success) {
-        // After successful login, redirect based on account type
-        // We can access the user from the auth context since it's been updated by the signIn function
-        const accountType = user?.accountType;
-
+      if (result.success && result.user) {
+        // After successful login, redirect based on account type using the returned user data
+        const accountType = result.user.accountType;
+        console.log("accountType", accountType, result.user);
         if (accountType === "investor") {
           navigate("/investor/dashboard");
         } else if (accountType === "startup") {
@@ -84,10 +83,12 @@ const InvestorLogin = () => {
           "Login failed. Please check your credentials and try again."
         );
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error("Login error:", error);
       setLoginError(
-        error.message || "An unexpected error occurred during login"
+        error instanceof Error
+          ? error.message
+          : "An unexpected error occurred during login"
       );
     } finally {
       setIsLoggingIn(false);

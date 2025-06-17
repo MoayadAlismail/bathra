@@ -31,7 +31,9 @@ interface AuthState {
 
 interface AuthContextType extends AuthState {
   // Authentication methods
-  signIn: (credentials: LoginCredentials) => Promise<boolean>;
+  signIn: (
+    credentials: LoginCredentials
+  ) => Promise<{ success: boolean; user?: User }>;
   signUp: (data: RegistrationData) => Promise<boolean>;
   signOut: () => Promise<void>;
   signInWithOAuth: (provider: OAuthProvider) => Promise<boolean>;
@@ -67,6 +69,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       // Check for real authenticated user
       const currentUser = await simpleAuthService.getCurrentUser();
+      console.log("currentUser", currentUser);
       if (currentUser) {
         setUser(currentUser);
 
@@ -139,12 +142,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   // Authentication methods
-  const signIn = async (credentials: LoginCredentials): Promise<boolean> => {
+  const signIn = async (
+    credentials: LoginCredentials
+  ): Promise<{ success: boolean; user?: User }> => {
     try {
       setIsLoading(true);
 
       const loggedInUser = await simpleAuthService.login(credentials);
-
+      console.log("loggedInUser", loggedInUser);
       if (loggedInUser) {
         setUser(loggedInUser);
 
@@ -209,15 +214,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
         setProfile(userProfile);
         toast.success("Successfully signed in");
-        return true;
+        return { success: true, user: loggedInUser };
       } else {
         toast.error("Sign in failed");
-        return false;
+        return { success: false };
       }
     } catch (error) {
       console.error("Sign in error:", error);
       toast.error(getAuthErrorMessage(error));
-      return false;
+      return { success: false };
     } finally {
       setIsLoading(false);
     }

@@ -3,6 +3,8 @@ import AdminNavbar from "@/components/AdminNavbar";
 import DashboardStats from "@/components/admin/DashboardStats";
 import UserManagement from "@/components/admin/UserManagement";
 import BlogManagement from "@/components/admin/BlogManagement";
+import AdminBrowseStartups from "@/components/admin/AdminBrowseStartups";
+import AdminBrowseInvestors from "@/components/admin/AdminBrowseInvestors";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -24,16 +26,23 @@ import {
 
 const Admin = () => {
   // Determine initial tab based on current path
-  const getInitialTab = (): "dashboard" | "users" | "blog" => {
+  const getInitialTab = ():
+    | "dashboard"
+    | "users"
+    | "blog"
+    | "startups"
+    | "investors" => {
     const path = window.location.pathname;
     if (path.includes("/admin/users")) return "users";
     if (path.includes("/admin/blog")) return "blog";
+    if (path.includes("/admin/startups")) return "startups";
+    if (path.includes("/admin/investors")) return "investors";
     return "dashboard";
   };
 
-  const [activeTab, setActiveTab] = useState<"dashboard" | "users" | "blog">(
-    getInitialTab()
-  );
+  const [activeTab, setActiveTab] = useState<
+    "dashboard" | "users" | "blog" | "startups" | "investors"
+  >(getInitialTab());
 
   return (
     <div className="min-h-screen bg-background">
@@ -57,7 +66,7 @@ const Admin = () => {
             </p>
 
             {/* Tab Navigation */}
-            <div className="flex gap-2 mt-6">
+            <div className="flex gap-2 mt-6 flex-wrap">
               <Button
                 variant={activeTab === "dashboard" ? "default" : "outline"}
                 onClick={() => setActiveTab("dashboard")}
@@ -65,6 +74,22 @@ const Admin = () => {
               >
                 <BarChart3 className="h-4 w-4" />
                 Dashboard
+              </Button>
+              <Button
+                variant={activeTab === "startups" ? "default" : "outline"}
+                onClick={() => setActiveTab("startups")}
+                className="flex items-center gap-2"
+              >
+                <Building className="h-4 w-4" />
+                Startups
+              </Button>
+              <Button
+                variant={activeTab === "investors" ? "default" : "outline"}
+                onClick={() => setActiveTab("investors")}
+                className="flex items-center gap-2"
+              >
+                <Users className="h-4 w-4" />
+                Investors
               </Button>
               <Button
                 variant={activeTab === "users" ? "default" : "outline"}
@@ -94,6 +119,10 @@ const Admin = () => {
           >
             {activeTab === "dashboard" ? (
               <DashboardStats />
+            ) : activeTab === "startups" ? (
+              <AdminBrowseStartups />
+            ) : activeTab === "investors" ? (
+              <AdminBrowseInvestors />
             ) : activeTab === "users" ? (
               <UserManagement />
             ) : (

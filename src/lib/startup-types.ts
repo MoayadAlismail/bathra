@@ -1,27 +1,61 @@
+// Basic startup information visible to regular users
 export interface StartupBasicInfo {
   id: string;
   name: string;
+  startup_name: string;
   industry: string;
   stage: string;
   description: string;
   website?: string;
-  founders: string;
-  team_size?: string;
-  founded_date: string;
+  founders?: string;
+  team_size?: number;
+  founded_date?: string;
   target_market?: string;
-  problem_solved: string;
+  problem_solved?: string;
   usp?: string;
   traction?: string;
   key_metrics?: string;
-  previous_funding?: string;
   funding_required?: string;
   valuation?: string;
+  verified?: boolean;
+  image?: string;
+  logo?: string;
+}
+
+// Extended startup information visible to admins
+export interface AdminStartupInfo extends StartupBasicInfo {
+  email?: string;
+  phone?: string;
+  founder_info?: string;
+  problem_solving?: string;
+  solution?: string;
+  uniqueness?: string;
+
+  // Financial details
+  previous_financial_year_revenue?: number;
+  monthly_burn_rate?: number;
+  capital_seeking?: number;
+  pre_money_valuation?: number;
+  funding_already_raised?: number;
+  previous_funding?: string;
+  investment_instrument?: string;
+  has_received_funding?: boolean;
+
+  // Additional details
   use_of_funds?: string;
   roadmap?: string;
   exit_strategy?: string;
+  achievements?: string;
+  risks?: string;
+  risk_mitigation?: string;
+  participated_in_accelerator?: boolean;
+  pitch_deck?: string;
+  calendly_link?: string;
+  video_link?: string;
+
+  // Status
   status: string;
   created_at: string;
-  image?: string;
   business_model?: string;
   contact_email?: string;
   investment_terms?: string;
@@ -30,6 +64,14 @@ export interface StartupBasicInfo {
   competition?: string;
   video_url?: string;
   document_path?: string;
+  additional_files?: string[];
+
+  // Admin fields
+  admin_notes?: string;
+  verified_at?: string;
+  verified_by?: string;
+  visibility_status?: string;
+  updated_at?: string;
 }
 
 export interface StartupCardProps {

@@ -3,3 +3,7 @@ export { default as UserDetailModal } from "./UserDetailModal";
 export { default as UserStatusModal } from "./UserStatusModal";
 export { default as DashboardStats } from "./DashboardStats";
 export { default as BlogManagement } from "./BlogManagement";
+export { default as AdminBrowseStartups } from "./AdminBrowseStartups";
+export { default as AdminBrowseInvestors } from "./AdminBrowseInvestors";
+export { default as AdminStartupEditModal } from "./AdminStartupEditModal";
+export { default as AdminInvestorEditModal } from "./AdminInvestorEditModal";

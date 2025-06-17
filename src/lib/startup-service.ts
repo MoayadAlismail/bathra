@@ -1,34 +1,77 @@
 import { supabase } from "./supabase";
 import { Startup } from "./supabase";
-import { StartupBasicInfo, StartupFilters } from "./startup-types";
+import {
+  StartupBasicInfo,
+  AdminStartupInfo,
+  StartupFilters,
+} from "./startup-types";
 
 export class StartupService {
-  // Convert database Startup to our simplified StartupBasicInfo
+  // Convert database Startup to our simplified StartupBasicInfo for regular users
   private static transformStartup(startup: Startup): StartupBasicInfo {
     return {
       id: startup.id.toString(),
-      name: startup.startup_name || startup.name,
+      name: startup.name,
+      startup_name: startup.startup_name || startup.name,
       industry: startup.industry,
       stage: startup.stage || "Unknown",
       description: startup.problem_solving,
       website: startup.website,
       founders: startup.founder_info,
-      team_size: startup.team_size?.toString(),
+      team_size: startup.team_size,
       founded_date: startup.created_at,
       target_market: startup.problem_solving,
       problem_solved: startup.problem_solving,
       usp: startup.uniqueness,
       traction: startup.achievements,
       key_metrics: startup.achievements,
-      previous_funding: startup.funding_already_raised?.toString(),
       funding_required: startup.capital_seeking?.toString(),
       valuation: startup.pre_money_valuation?.toString(),
+      verified: startup.verified,
+      image: startup.logo,
+      logo: startup.logo,
+    };
+  }
+
+  // Convert database Startup to AdminStartupInfo with all fields for admin views
+  private static transformStartupForAdmin(startup: Startup): AdminStartupInfo {
+    return {
+      // Include all basic info
+      ...StartupService.transformStartup(startup),
+
+      // Add admin-specific fields
+      email: startup.email,
+      phone: startup.phone,
+      founder_info: startup.founder_info,
+      problem_solving: startup.problem_solving,
+      solution: startup.solution,
+      uniqueness: startup.uniqueness,
+
+      // Financial details
+      previous_financial_year_revenue: startup.previous_financial_year_revenue,
+      monthly_burn_rate: startup.monthly_burn_rate,
+      capital_seeking: startup.capital_seeking,
+      pre_money_valuation: startup.pre_money_valuation,
+      funding_already_raised: startup.funding_already_raised,
+      previous_funding: startup.funding_already_raised?.toString(),
+      investment_instrument: startup.investment_instrument,
+      has_received_funding: startup.has_received_funding,
+
+      // Additional details
       use_of_funds: startup.capital_seeking?.toString(),
       roadmap: startup.achievements,
       exit_strategy: startup.exit_strategy,
+      achievements: startup.achievements,
+      risks: startup.risks,
+      risk_mitigation: startup.risk_mitigation,
+      participated_in_accelerator: startup.participated_in_accelerator,
+      pitch_deck: startup.pitch_deck,
+      calendly_link: startup.calendly_link,
+      video_link: startup.video_link,
+
+      // Status and admin fields
       status: startup.status,
       created_at: startup.created_at,
-      image: startup.logo,
       business_model: "SaaS", // Default as this field doesn't exist in DB
       contact_email: startup.email,
       investment_terms: startup.investment_instrument,
@@ -37,6 +80,16 @@ export class StartupService {
       competition: startup.risks,
       video_url: startup.video_link,
       document_path: startup.pitch_deck,
+      admin_notes: startup.admin_notes,
+      verified_at: startup.verified_at,
+      verified_by: startup.verified_by,
+      visibility_status: startup.visibility_status,
+      updated_at: startup.updated_at,
+      additional_files: startup.additional_files
+        ? typeof startup.additional_files === "string"
+          ? JSON.parse(startup.additional_files)
+          : startup.additional_files
+        : [],
     };
   }
 
@@ -74,7 +127,9 @@ export class StartupService {
         return { data: [], error: error.message };
       }
 
-      const transformedData = (data || []).map(this.transformStartup);
+      const transformedData = (data || []).map((startup) =>
+        StartupService.transformStartup(startup)
+      );
       return { data: transformedData, error: null };
     } catch (error) {
       return {
@@ -103,7 +158,9 @@ export class StartupService {
         return { data: [], error: error.message };
       }
 
-      const transformedData = (data || []).map(this.transformStartup);
+      const transformedData = (data || []).map((startup) =>
+        StartupService.transformStartup(startup)
+      );
       return { data: transformedData, error: null };
     } catch (error) {
       return {
@@ -130,7 +187,9 @@ export class StartupService {
         return { data: null, error: error.message };
       }
 
-      const transformedData = data ? this.transformStartup(data) : null;
+      const transformedData = data
+        ? StartupService.transformStartup(data)
+        : null;
       return { data: transformedData, error: null };
     } catch (error) {
       return {
@@ -190,6 +249,51 @@ export class StartupService {
         ...new Set((data || []).map((item) => item.stage).filter(Boolean)),
       ];
       return { data: stages, error: null };
+    } catch (error) {
+      return {
+        data: [],
+        error:
+          error instanceof Error ? error.message : "Unknown error occurred",
+      };
+    }
+  }
+
+  // Fetch ALL startups for admin use (not just verified/approved)
+  static async getAllStartups(filters?: StartupFilters): Promise<{
+    data: AdminStartupInfo[];
+    error: string | null;
+  }> {
+    try {
+      let query = supabase
+        .from("startups")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      // Apply filters
+      if (filters?.industry) {
+        query = query.ilike("industry", `%${filters.industry}%`);
+      }
+
+      if (filters?.stage) {
+        query = query.eq("stage", filters.stage);
+      }
+
+      if (filters?.searchTerm) {
+        query = query.or(
+          `startup_name.ilike.%${filters.searchTerm}%,name.ilike.%${filters.searchTerm}%,industry.ilike.%${filters.searchTerm}%,problem_solving.ilike.%${filters.searchTerm}%`
+        );
+      }
+
+      const { data, error } = await query;
+
+      if (error) {
+        return { data: [], error: error.message };
+      }
+
+      const transformedData = (data || []).map((startup) =>
+        StartupService.transformStartupForAdmin(startup)
+      );
+      return { data: transformedData, error: null };
     } catch (error) {
       return {
         data: [],

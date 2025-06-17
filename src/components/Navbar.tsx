@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Menu, X, LogIn, ArrowLeft, Mail, Home, Shield } from "lucide-react";
+import { Menu, X, LogIn, Mail, Home, Shield } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
@@ -104,12 +104,6 @@ const Navbar = () => {
     } catch (error) {
       console.error("Logout error:", error);
     }
-  };
-
-  // Return to Coming Soon page and remove developer access
-  const handleReturnToComingSoon = () => {
-    localStorage.removeItem("developerAccess");
-    window.location.reload(); // Reload to show Coming Soon page
   };
 
   // Toggle emails list visibility and fetch emails if opened
@@ -301,12 +295,6 @@ const Navbar = () => {
       return (
         <>
           <button
-            onClick={() => handleNavigation("/startups")}
-            className="text-foreground hover:text-primary transition-colors duration-200 py-2 text-left"
-          >
-            Vetted Startups
-          </button>
-          <button
             onClick={() => {
               handleLogout();
               setIsMobileMenuOpen(false);
@@ -363,17 +351,6 @@ const Navbar = () => {
                 {isLoadingEmails
                   ? "Loading..."
                   : `Emails (${subscribedEmails.length})`}
-              </Button>
-
-              {/* Coming Soon button */}
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleReturnToComingSoon}
-                className="flex items-center gap-2 text-sm"
-              >
-                <ArrowLeft className="h-4 w-4" />
-                Coming Soon Page
               </Button>
 
               {renderAuthButtons()}
@@ -471,15 +448,6 @@ const Navbar = () => {
                   {isLoadingEmails
                     ? "Loading..."
                     : `Show Emails (${subscribedEmails.length})`}
-                </button>
-
-                {/* Coming Soon button for mobile */}
-                <button
-                  onClick={handleReturnToComingSoon}
-                  className="flex items-center gap-2 text-foreground hover:text-primary transition-colors duration-200 py-2 text-left"
-                >
-                  <ArrowLeft className="h-4 w-4" />
-                  Coming Soon Page
                 </button>
 
                 {renderMobileAuthButtons()}

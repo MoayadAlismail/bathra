@@ -227,6 +227,7 @@ const AdminStartupEditModal: React.FC<AdminStartupEditModalProps> = ({
     }
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleInputChange = (field: string, value: any) => {
     setFormData((prev) => ({
       ...prev,

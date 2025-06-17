@@ -30,8 +30,9 @@ const InvestorBrowseStartups = ({
   const [startups, setStartups] = useState<StartupBasicInfo[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedIndustry, setSelectedIndustry] = useState<string>("");
-  const [selectedStage, setSelectedStage] = useState<string>("");
+  const [selectedIndustry, setSelectedIndustry] =
+    useState<string>("all-industries");
+  const [selectedStage, setSelectedStage] = useState<string>("all-stages");
   const [selectedStartup, setSelectedStartup] =
     useState<StartupBasicInfo | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -60,8 +61,14 @@ const InvestorBrowseStartups = ({
 
       const filters: StartupFilters = {
         searchTerm: searchTerm || undefined,
-        industry: selectedIndustry || undefined,
-        stage: selectedStage || undefined,
+        industry:
+          selectedIndustry && selectedIndustry !== "all-industries"
+            ? selectedIndustry
+            : undefined,
+        stage:
+          selectedStage && selectedStage !== "all-stages"
+            ? selectedStage
+            : undefined,
       };
 
       const { data, error } = isDashboard
@@ -144,8 +151,8 @@ const InvestorBrowseStartups = ({
 
   const clearFilters = () => {
     setSearchTerm("");
-    setSelectedIndustry("");
-    setSelectedStage("");
+    setSelectedIndustry("all-industries");
+    setSelectedStage("all-stages");
   };
 
   const renderSkeletons = () => (
@@ -221,7 +228,9 @@ const InvestorBrowseStartups = ({
                         <SelectValue placeholder="All Industries" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">All Industries</SelectItem>
+                        <SelectItem value="all-industries">
+                          All Industries
+                        </SelectItem>
                         {industries.map((industry) => (
                           <SelectItem key={industry} value={industry}>
                             {industry}
@@ -243,7 +252,7 @@ const InvestorBrowseStartups = ({
                         <SelectValue placeholder="All Stages" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">All Stages</SelectItem>
+                        <SelectItem value="all-stages">All Stages</SelectItem>
                         {stages.map((stage) => (
                           <SelectItem key={stage} value={stage}>
                             {stage}

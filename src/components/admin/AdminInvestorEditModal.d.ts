@@ -1,4 +1,4 @@
-import { AdminInvestorInfo } from "@/lib/investor-types";
+import { AdminInvestorInfo } from "../../lib/investor-types";
 
 interface AdminInvestorEditModalProps {
   investor: AdminInvestorInfo;

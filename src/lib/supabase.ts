@@ -161,6 +161,53 @@ export type Tables = {
     created_at: string;
     user_id?: string;
   };
+  notifications: {
+    id: string;
+    user_id: string;
+    type:
+      | "newsletter"
+      | "admin_action"
+      | "connection_request"
+      | "message"
+      | "profile_update"
+      | "match_suggestion"
+      | "investment_interest"
+      | "meeting_request"
+      | "system_update"
+      | "reminder"
+      | "other";
+    title: string;
+    content: string;
+    metadata?: Record<string, unknown>;
+    is_read: boolean;
+    read_at?: string;
+    priority: "low" | "normal" | "high" | "urgent";
+    newsletter_id?: string;
+    recipient_type?: "all" | "investors" | "startups" | "specific";
+    action_url?: string;
+    action_label?: string;
+    is_archived: boolean;
+    created_at: string;
+    updated_at: string;
+    scheduled_for?: string;
+    sent_at?: string;
+  };
+  newsletter_campaigns: {
+    id: string;
+    title: string;
+    subject: string;
+    content: string;
+    recipient_type: "all" | "investors" | "startups" | "specific";
+    specific_recipients?: string[];
+    status: "draft" | "scheduled" | "sending" | "sent" | "cancelled";
+    scheduled_for?: string;
+    sent_at?: string;
+    total_recipients: number;
+    created_by: string;
+    metadata?: Record<string, unknown>;
+    created_at: string;
+    updated_at: string;
+  };
 };
 
 // Export specific table types for easier usage
@@ -169,6 +216,8 @@ export type Startup = Tables["startups"];
 export type Article = Tables["articles"];
 export type Admin = Tables["admins"];
 export type SubscribedEmail = Tables["subscribed_emails"];
+export type Notification = Tables["notifications"];
+export type NewsletterCampaign = Tables["newsletter_campaigns"];
 
 // Define specific response types to help with TypeScript safety
 export interface SupabaseResponse<T> {

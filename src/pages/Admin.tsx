@@ -5,6 +5,7 @@ import UserManagement from "@/components/admin/UserManagement";
 import BlogManagement from "@/components/admin/BlogManagement";
 import AdminBrowseStartups from "@/components/admin/AdminBrowseStartups";
 import AdminBrowseInvestors from "@/components/admin/AdminBrowseInvestors";
+import NewsletterManagement from "@/components/admin/NewsletterManagement";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -34,7 +35,8 @@ const Admin = () => {
     | "users"
     | "blog"
     | "startups"
-    | "investors" => {
+    | "investors"
+    | "newsletter" => {
     const path = window.location.pathname;
     const params = new URLSearchParams(location.search);
     const tabParam = params.get("tab");
@@ -43,16 +45,18 @@ const Admin = () => {
     if (tabParam === "investors") return "investors";
     if (tabParam === "users") return "users";
     if (tabParam === "blog") return "blog";
+    if (tabParam === "newsletter") return "newsletter";
 
     if (path.includes("/admin/users")) return "users";
     if (path.includes("/admin/blog")) return "blog";
     if (path.includes("/admin/startups")) return "startups";
     if (path.includes("/admin/investors")) return "investors";
+    if (path.includes("/admin/newsletter")) return "newsletter";
     return "dashboard";
   };
 
   const [activeTab, setActiveTab] = useState<
-    "dashboard" | "users" | "blog" | "startups" | "investors"
+    "dashboard" | "users" | "blog" | "startups" | "investors" | "newsletter"
   >(getInitialTab());
 
   // Update active tab when URL changes
@@ -123,6 +127,14 @@ const Admin = () => {
                 <FileText className="h-4 w-4" />
                 Blog Management
               </Button>
+              <Button
+                variant={activeTab === "newsletter" ? "default" : "outline"}
+                onClick={() => setActiveTab("newsletter")}
+                className="flex items-center gap-2"
+              >
+                <Mail className="h-4 w-4" />
+                Newsletter
+              </Button>
             </div>
           </motion.div>
 
@@ -141,6 +153,8 @@ const Admin = () => {
               <AdminBrowseInvestors />
             ) : activeTab === "users" ? (
               <UserManagement />
+            ) : activeTab === "newsletter" ? (
+              <NewsletterManagement />
             ) : (
               <BlogManagement />
             )}

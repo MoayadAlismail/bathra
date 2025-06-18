@@ -21,7 +21,9 @@ const Investors = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <StartupBrowseInvestors />
+      <div className="pt-28">
+        <StartupBrowseInvestors />
+      </div>
     </div>
   );
 };

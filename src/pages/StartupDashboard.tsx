@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/lib/supabase";
+import { Investor, supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
 import Navbar from "@/components/Navbar";
 import { Startup } from "@/lib/supabase";
@@ -60,6 +60,48 @@ const StartupDashboard = () => {
   const [isInvestorModalOpen, setIsInvestorModalOpen] = useState(false);
 
   useEffect(() => {
+    const fetchStartupDetails = async () => {
+      try {
+        if (!user?.id) return;
+
+        const { data, error } = await supabase
+          .from("startups")
+          .select("*")
+          .eq("id", user.id)
+          .single();
+
+        if (error) throw error;
+
+        if (data) {
+          setStartupDetails(data);
+        }
+      } catch (error) {
+        console.error("Error fetching startup details:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    const fetchRecentInvestors = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("investors")
+          .select(
+            "id, name, preferred_industries, preferred_company_stage, average_ticket_size"
+          )
+          .order("created_at", { ascending: false })
+          .limit(5);
+
+        if (error) throw error;
+
+        if (data) {
+          setRecentInvestors(data);
+        }
+      } catch (error) {
+        console.error("Error fetching recent investors:", error);
+      }
+    };
+
     if (!user) {
       navigate("/login");
     } else {
@@ -67,48 +109,6 @@ const StartupDashboard = () => {
       fetchRecentInvestors();
     }
   }, [user, navigate]);
-
-  const fetchStartupDetails = async () => {
-    try {
-      if (!user?.id) return;
-
-      const { data, error } = await supabase
-        .from("startups")
-        .select("*")
-        .eq("id", user.id)
-        .single();
-
-      if (error) throw error;
-
-      if (data) {
-        setStartupDetails(data);
-      }
-    } catch (error) {
-      console.error("Error fetching startup details:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const fetchRecentInvestors = async () => {
-    try {
-      const { data, error } = await supabase
-        .from("investors")
-        .select(
-          "id, name, preferred_industries, preferred_company_stage, average_ticket_size"
-        )
-        .order("created_at", { ascending: false })
-        .limit(5);
-
-      if (error) throw error;
-
-      if (data) {
-        setRecentInvestors(data);
-      }
-    } catch (error) {
-      console.error("Error fetching recent investors:", error);
-    }
-  };
 
   const handleLogout = async () => {
     try {
@@ -123,7 +123,7 @@ const StartupDashboard = () => {
     setStartupDetails(updatedStartup);
   };
 
-  const handleInvestorClick = (investor: any) => {
+  const handleInvestorClick = (investor: Investor) => {
     setSelectedInvestor(investor);
     setIsInvestorModalOpen(true);
   };
@@ -141,7 +141,7 @@ const StartupDashboard = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <section className="py-16">
+      <section className="pt-28 pb-16">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -171,8 +171,8 @@ const StartupDashboard = () => {
                 </h2>
                 <p className="text-muted-foreground">
                   Your startup profile is{" "}
-                  {startupDetails?.status === "vetted"
-                    ? "vetted"
+                  {startupDetails?.status === "approved"
+                    ? "approved"
                     : "pending verification"}{" "}
                   and visible to investors in your industry.
                 </p>
@@ -219,7 +219,7 @@ const StartupDashboard = () => {
                   </CardHeader>
                   <CardContent>
                     <div className="text-lg font-bold">
-                      {startupDetails?.funding_required || "$0"}
+                      {startupDetails?.pre_money_valuation || "$0"}
                     </div>
                     <p className="text-xs text-muted-foreground">
                       Target funding amount
@@ -248,7 +248,7 @@ const StartupDashboard = () => {
                     <li>
                       <span className="text-muted-foreground">Valuation:</span>{" "}
                       <span className="text-foreground">
-                        {startupDetails?.valuation || "Not specified"}
+                        {startupDetails?.pre_money_valuation || "Not specified"}
                       </span>
                     </li>
                     <li>
@@ -293,7 +293,7 @@ const StartupDashboard = () => {
             </div>
 
             {/* Development Tools Section - Only in dev mode */}
-            {process.env.NODE_ENV === "development" && (
+            {/* {process.env.NODE_ENV === "development" && (
               <div className="neo-blur rounded-2xl shadow-lg p-8 mb-8">
                 <div className="mb-6">
                   <h2 className="text-2xl font-bold text-gradient mb-2">
@@ -307,7 +307,7 @@ const StartupDashboard = () => {
                   <TestNotificationCreator />
                 </div>
               </div>
-            )}
+            )} */}
 
             {/* Recent Investors Section */}
             <div className="neo-blur rounded-2xl shadow-lg p-8">
@@ -328,7 +328,7 @@ const StartupDashboard = () => {
               {/* Recent Investors List */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {recentInvestors.length > 0 ? (
-                  recentInvestors.map((investor: any) => (
+                  recentInvestors.map((investor: Investor) => (
                     <Card
                       key={investor.id}
                       className="hover:shadow-md transition-shadow"

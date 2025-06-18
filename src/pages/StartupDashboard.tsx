@@ -46,6 +46,7 @@ import {
 import StartupProfileEditModal from "@/components/StartupProfileEditModal";
 import InvestorDetailModal from "@/components/InvestorDetailModal";
 import { toast } from "@/components/ui/use-toast";
+import TestNotificationCreator from "@/components/TestNotificationCreator";
 
 const StartupDashboard = () => {
   const { user, profile, signOut } = useAuth();
@@ -290,6 +291,23 @@ const StartupDashboard = () => {
                 </div>
               </div>
             </div>
+
+            {/* Development Tools Section - Only in dev mode */}
+            {process.env.NODE_ENV === "development" && (
+              <div className="neo-blur rounded-2xl shadow-lg p-8 mb-8">
+                <div className="mb-6">
+                  <h2 className="text-2xl font-bold text-gradient mb-2">
+                    Development Tools
+                  </h2>
+                  <p className="text-muted-foreground">
+                    Test notification system functionality
+                  </p>
+                </div>
+                <div className="flex justify-center">
+                  <TestNotificationCreator />
+                </div>
+              </div>
+            )}
 
             {/* Recent Investors Section */}
             <div className="neo-blur rounded-2xl shadow-lg p-8">

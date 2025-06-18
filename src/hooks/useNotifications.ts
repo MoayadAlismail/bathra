@@ -45,44 +45,6 @@ export function useNotifications(
   const [offset, setOffset] = useState(0);
   const [hasMore, setHasMore] = useState(true);
 
-  // Fetch notifications
-  const fetchNotifications = useCallback(
-    async (reset = false) => {
-      if (!userId) return;
-
-      try {
-        setLoading(true);
-        setError(null);
-
-        const currentOffset = reset ? 0 : offset;
-        const fetchedNotifications =
-          await NotificationService.getUserNotifications(userId, {
-            limit,
-            offset: currentOffset,
-            unreadOnly,
-            type,
-          });
-
-        if (reset) {
-          setNotifications(fetchedNotifications);
-          setOffset(fetchedNotifications.length);
-        } else {
-          setNotifications((prev) => [...prev, ...fetchedNotifications]);
-          setOffset((prev) => prev + fetchedNotifications.length);
-        }
-
-        setHasMore(fetchedNotifications.length === limit);
-      } catch (err) {
-        setError(
-          err instanceof Error ? err.message : "Failed to fetch notifications"
-        );
-      } finally {
-        setLoading(false);
-      }
-    },
-    [userId, limit, offset, unreadOnly, type]
-  );
-
   // Fetch unread count
   const fetchUnreadCount = useCallback(async () => {
     if (!userId) return;
@@ -97,15 +59,62 @@ export function useNotifications(
 
   // Refresh notifications
   const refresh = useCallback(async () => {
-    setOffset(0);
-    await Promise.all([fetchNotifications(true), fetchUnreadCount()]);
-  }, [fetchNotifications, fetchUnreadCount]);
+    if (!userId) return;
+
+    try {
+      setLoading(true);
+      setError(null);
+      setOffset(0);
+      setHasMore(true);
+
+      const [notificationData, unreadCountData] = await Promise.all([
+        NotificationService.getUserNotifications(userId, {
+          limit,
+          offset: 0,
+          unreadOnly,
+          type,
+        }),
+        NotificationService.getUnreadCount(userId),
+      ]);
+
+      setNotifications(notificationData);
+      setUnreadCount(unreadCountData);
+      setOffset(notificationData.length);
+      setHasMore(notificationData.length === limit);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Failed to refresh notifications"
+      );
+    } finally {
+      setLoading(false);
+    }
+  }, [userId, limit, unreadOnly, type]);
 
   // Load more notifications
   const loadMore = useCallback(async () => {
-    if (!hasMore || loading) return;
-    await fetchNotifications(false);
-  }, [fetchNotifications, hasMore, loading]);
+    if (!hasMore || loading || !userId) return;
+
+    try {
+      setLoading(true);
+      const fetchedNotifications =
+        await NotificationService.getUserNotifications(userId, {
+          limit,
+          offset,
+          unreadOnly,
+          type,
+        });
+
+      setNotifications((prev) => [...prev, ...fetchedNotifications]);
+      setOffset((prev) => prev + fetchedNotifications.length);
+      setHasMore(fetchedNotifications.length === limit);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Failed to load more notifications"
+      );
+    } finally {
+      setLoading(false);
+    }
+  }, [hasMore, loading, userId, limit, offset, unreadOnly, type]);
 
   // Mark notification as read
   const markAsRead = useCallback(
@@ -180,20 +189,48 @@ export function useNotifications(
   // Initial load
   useEffect(() => {
     if (userId) {
-      refresh();
+      setOffset(0);
+      setHasMore(true);
+      setLoading(true);
+      setError(null);
+
+      // Fetch initial data
+      Promise.all([
+        NotificationService.getUserNotifications(userId, {
+          limit,
+          offset: 0,
+          unreadOnly,
+          type,
+        }),
+        NotificationService.getUnreadCount(userId),
+      ])
+        .then(([notificationData, unreadCountData]) => {
+          setNotifications(notificationData);
+          setUnreadCount(unreadCountData);
+          setOffset(notificationData.length);
+          setHasMore(notificationData.length === limit);
+          setLoading(false);
+        })
+        .catch((err) => {
+          setError(
+            err instanceof Error ? err.message : "Failed to fetch notifications"
+          );
+          setLoading(false);
+        });
     }
-  }, [userId, refresh]);
+  }, [userId, limit, unreadOnly, type]); // Stable dependencies
 
   // Auto-refresh
   useEffect(() => {
     if (!autoRefresh || !userId) return;
 
     const interval = setInterval(() => {
-      fetchUnreadCount();
+      // Only refresh unread count to avoid disrupting UI
+      NotificationService.getUnreadCount(userId).then(setUnreadCount);
     }, refreshInterval);
 
     return () => clearInterval(interval);
-  }, [autoRefresh, userId, refreshInterval, fetchUnreadCount]);
+  }, [autoRefresh, userId, refreshInterval]); // Removed fetchUnreadCount dependency
 
   return {
     notifications,

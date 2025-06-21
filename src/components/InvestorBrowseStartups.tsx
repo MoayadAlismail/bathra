@@ -16,12 +16,19 @@ import {
 } from "@/components/ui/select";
 import StartupDetailModal from "@/components/StartupDetailModal";
 import { StartupService } from "@/lib/startup-service";
-import { StartupBasicInfo, StartupFilters } from "@/lib/startup-types";
+import {
+  StartupBasicInfo,
+  StartupFilters,
+  PaginatedStartups,
+} from "@/lib/startup-types";
+import { Pagination } from "@/components/ui/pagination";
 
 interface InvestorBrowseStartupsProps {
   isDashboard?: boolean;
   maxStartups?: number;
 }
+
+const ITEMS_PER_PAGE = 12;
 
 const InvestorBrowseStartups = ({
   isDashboard = false,
@@ -40,6 +47,9 @@ const InvestorBrowseStartups = ({
   const [industries, setIndustries] = useState<string[]>([]);
   const [stages, setStages] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [total, setTotal] = useState(0);
   const { user, profile } = useAuth();
 
   useEffect(() => {
@@ -53,7 +63,7 @@ const InvestorBrowseStartups = ({
     if (!isDashboard) {
       fetchStartups();
     }
-  }, [searchTerm, selectedIndustry, selectedStage, isDashboard]);
+  }, [searchTerm, selectedIndustry, selectedStage, currentPage, isDashboard]);
 
   const fetchStartups = async () => {
     try {
@@ -73,7 +83,11 @@ const InvestorBrowseStartups = ({
 
       const { data, error } = isDashboard
         ? await StartupService.getDashboardStartups(maxStartups || 6)
-        : await StartupService.getVettedStartups(filters);
+        : await StartupService.getVettedStartups({
+            ...filters,
+            limit: ITEMS_PER_PAGE,
+            offset: (currentPage - 1) * ITEMS_PER_PAGE,
+          });
 
       if (error) {
         toast({
@@ -84,7 +98,17 @@ const InvestorBrowseStartups = ({
         return;
       }
 
-      setStartups(data);
+      // Handle both paginated and non-paginated responses
+      if (isDashboard || Array.isArray(data)) {
+        setStartups(data as StartupBasicInfo[]);
+        setTotalPages(1);
+        setTotal(Array.isArray(data) ? data.length : 0);
+      } else {
+        const paginatedData = data as PaginatedStartups;
+        setStartups(paginatedData.startups);
+        setTotalPages(paginatedData.totalPages);
+        setTotal(paginatedData.total);
+      }
     } catch (error) {
       console.error("Error fetching startups:", error);
       toast({
@@ -121,6 +145,25 @@ const InvestorBrowseStartups = ({
     setIsModalOpen(true);
   };
 
+  const handleSearchTermChange = (value: string) => {
+    setSearchTerm(value);
+    setCurrentPage(1);
+  };
+
+  const handleIndustryChange = (value: string) => {
+    setSelectedIndustry(value);
+    setCurrentPage(1);
+  };
+
+  const handleStageChange = (value: string) => {
+    setSelectedStage(value);
+    setCurrentPage(1);
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
   const handleSaveStartup = () => {
     if (!selectedStartup) return;
 
@@ -153,6 +196,7 @@ const InvestorBrowseStartups = ({
     setSearchTerm("");
     setSelectedIndustry("all-industries");
     setSelectedStage("all-stages");
+    setCurrentPage(1);
   };
 
   const renderSkeletons = () => (
@@ -196,7 +240,7 @@ const InvestorBrowseStartups = ({
                     placeholder="Search by name, industry, or description"
                     className="pl-10"
                     value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onChange={(e) => handleSearchTermChange(e.target.value)}
                   />
                 </div>
                 <Button
@@ -222,7 +266,7 @@ const InvestorBrowseStartups = ({
                     </label>
                     <Select
                       value={selectedIndustry}
-                      onValueChange={setSelectedIndustry}
+                      onValueChange={handleIndustryChange}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="All Industries" />
@@ -246,7 +290,7 @@ const InvestorBrowseStartups = ({
                     </label>
                     <Select
                       value={selectedStage}
-                      onValueChange={setSelectedStage}
+                      onValueChange={handleStageChange}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="All Stages" />
@@ -330,6 +374,17 @@ const InvestorBrowseStartups = ({
             </div>
           )}
 
+          {/* Results count */}
+          {!isDashboard && !isLoading && (
+            <div className="text-center mb-8">
+              <p className="text-muted-foreground">
+                {total === 0
+                  ? "No startups found"
+                  : `${total} startup${total !== 1 ? "s" : ""} found`}
+              </p>
+            </div>
+          )}
+
           {startups.length === 0 && !isLoading && (
             <div className="text-center py-12">
               <Building className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
@@ -341,12 +396,29 @@ const InvestorBrowseStartups = ({
               </p>
             </div>
           )}
+
+          {/* Pagination */}
+          {!isDashboard && !isLoading && totalPages > 1 && (
+            <div className="mt-8">
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+                loading={isLoading}
+              />
+            </div>
+          )}
         </motion.div>
       </div>
 
       {selectedStartup && (
         <StartupDetailModal
-          startup={selectedStartup}
+          startup={{
+            ...selectedStartup,
+            funding_required:
+              selectedStartup.funding_required || "Not specified",
+            valuation: selectedStartup.valuation || "Not specified",
+          }}
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           onSave={handleSaveStartup}

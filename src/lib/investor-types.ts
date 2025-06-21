@@ -39,6 +39,8 @@ export interface InvestorFilters {
   searchTerm?: string;
   ticketSize?: string;
   status?: string;
+  limit?: number;
+  offset?: number;
 }
 
 export interface InvestorCardProps {
@@ -54,4 +56,13 @@ export interface InvestorModalProps {
   onSave?: () => void;
   isSaved?: boolean;
   onRequestInfo?: () => void;
+}
+
+// Paginated response type for investors
+export interface PaginatedInvestors<T = InvestorBasicInfo> {
+  investors: T[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
 }

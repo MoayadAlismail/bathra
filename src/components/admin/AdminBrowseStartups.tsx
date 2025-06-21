@@ -21,8 +21,15 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { StartupService } from "@/lib/startup-service";
-import { AdminStartupInfo, StartupFilters } from "@/lib/startup-types";
+import {
+  AdminStartupInfo,
+  StartupFilters,
+  PaginatedStartups,
+} from "@/lib/startup-types";
+import { Pagination } from "@/components/ui/pagination";
 import AdminStartupEditModal from "./AdminStartupEditModal";
+
+const ITEMS_PER_PAGE = 12;
 
 const AdminBrowseStartups = () => {
   const [startups, setStartups] = useState<AdminStartupInfo[]>([]);
@@ -37,6 +44,9 @@ const AdminBrowseStartups = () => {
   const [industries, setIndustries] = useState<string[]>([]);
   const [stages, setStages] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [total, setTotal] = useState(0);
   const { user } = useAuth();
 
   useEffect(() => {
@@ -46,7 +56,7 @@ const AdminBrowseStartups = () => {
 
   useEffect(() => {
     fetchStartups();
-  }, [searchTerm, selectedIndustry, selectedStage]);
+  }, [searchTerm, selectedIndustry, selectedStage, currentPage]);
 
   const fetchStartups = async () => {
     try {
@@ -59,6 +69,8 @@ const AdminBrowseStartups = () => {
             ? undefined
             : selectedIndustry || undefined,
         stage: selectedStage === "all" ? undefined : selectedStage || undefined,
+        limit: ITEMS_PER_PAGE,
+        offset: (currentPage - 1) * ITEMS_PER_PAGE,
       };
 
       const { data, error } = await StartupService.getAllStartups(filters);
@@ -72,7 +84,17 @@ const AdminBrowseStartups = () => {
         return;
       }
 
-      setStartups(data);
+      // Handle both paginated and non-paginated responses
+      if (Array.isArray(data)) {
+        setStartups(data);
+        setTotalPages(1);
+        setTotal(data.length);
+      } else {
+        const paginatedData = data as PaginatedStartups<AdminStartupInfo>;
+        setStartups(paginatedData.startups);
+        setTotalPages(paginatedData.totalPages);
+        setTotal(paginatedData.total);
+      }
     } catch (error) {
       console.error("Error fetching startups:", error);
       toast({
@@ -120,10 +142,30 @@ const AdminBrowseStartups = () => {
     setIsEditModalOpen(false);
   };
 
+  const handleSearchTermChange = (value: string) => {
+    setSearchTerm(value);
+    setCurrentPage(1);
+  };
+
+  const handleIndustryChange = (value: string) => {
+    setSelectedIndustry(value);
+    setCurrentPage(1);
+  };
+
+  const handleStageChange = (value: string) => {
+    setSelectedStage(value);
+    setCurrentPage(1);
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
   const clearFilters = () => {
     setSearchTerm("");
     setSelectedIndustry("all");
     setSelectedStage("all");
+    setCurrentPage(1);
   };
 
   const renderSkeletons = () => (
@@ -164,7 +206,7 @@ const AdminBrowseStartups = () => {
                   placeholder="Search by name, industry, or description"
                   className="pl-10"
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={(e) => handleSearchTermChange(e.target.value)}
                 />
               </div>
               <Button
@@ -187,7 +229,7 @@ const AdminBrowseStartups = () => {
                 >
                   <Select
                     value={selectedIndustry}
-                    onValueChange={setSelectedIndustry}
+                    onValueChange={handleIndustryChange}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Industry" />
@@ -204,7 +246,7 @@ const AdminBrowseStartups = () => {
 
                   <Select
                     value={selectedStage}
-                    onValueChange={setSelectedStage}
+                    onValueChange={handleStageChange}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Stage" />
@@ -287,6 +329,17 @@ const AdminBrowseStartups = () => {
             </div>
           )}
 
+          {/* Results count */}
+          {!isLoading && (
+            <div className="text-center mb-8">
+              <p className="text-muted-foreground">
+                {total === 0
+                  ? "No startups found"
+                  : `${total} startup${total !== 1 ? "s" : ""} found`}
+              </p>
+            </div>
+          )}
+
           {!isLoading && startups.length === 0 && (
             <div className="text-center py-12">
               <Building className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
@@ -294,6 +347,18 @@ const AdminBrowseStartups = () => {
               <p className="text-muted-foreground">
                 Try adjusting your search filters
               </p>
+            </div>
+          )}
+
+          {/* Pagination */}
+          {!isLoading && totalPages > 1 && (
+            <div className="mt-8">
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+                loading={isLoading}
+              />
             </div>
           )}
         </motion.div>

@@ -4,6 +4,7 @@ import {
   StartupBasicInfo,
   AdminStartupInfo,
   StartupFilters,
+  PaginatedStartups,
 } from "./startup-types";
 
 export class StartupService {
@@ -95,16 +96,61 @@ export class StartupService {
 
   // Fetch all approved/vetted startups
   static async getVettedStartups(filters?: StartupFilters): Promise<{
-    data: StartupBasicInfo[];
+    data: PaginatedStartups | StartupBasicInfo[];
     error: string | null;
   }> {
     try {
+      // If no pagination parameters are provided, return all results (for backward compatibility)
+      if (!filters?.limit && !filters?.offset) {
+        let query = supabase
+          .from("startups")
+          .select("*")
+          .eq("status", "approved")
+          .eq("verified", true)
+          .order("created_at", { ascending: false });
+
+        // Apply filters
+        if (filters?.industry) {
+          query = query.ilike("industry", `%${filters.industry}%`);
+        }
+
+        if (filters?.stage) {
+          query = query.eq("stage", filters.stage);
+        }
+
+        if (filters?.searchTerm) {
+          query = query.or(
+            `startup_name.ilike.%${filters.searchTerm}%,name.ilike.%${filters.searchTerm}%,industry.ilike.%${filters.searchTerm}%,problem_solving.ilike.%${filters.searchTerm}%`
+          );
+        }
+
+        const { data, error } = await query;
+
+        if (error) {
+          return { data: [], error: error.message };
+        }
+
+        const transformedData = (data || []).map((startup) =>
+          StartupService.transformStartup(startup)
+        );
+        return { data: transformedData, error: null };
+      }
+
+      // Paginated request
+      const page = Math.max(
+        1,
+        Math.floor((filters?.offset || 0) / (filters?.limit || 10)) + 1
+      );
+      const limit = Math.min(50, Math.max(1, filters?.limit || 12));
+      const offset = (page - 1) * limit;
+
       let query = supabase
         .from("startups")
-        .select("*")
+        .select("*", { count: "exact" })
         .eq("status", "approved")
         .eq("verified", true)
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: false })
+        .range(offset, offset + limit - 1);
 
       // Apply filters
       if (filters?.industry) {
@@ -121,7 +167,7 @@ export class StartupService {
         );
       }
 
-      const { data, error } = await query;
+      const { data, error, count } = await query;
 
       if (error) {
         return { data: [], error: error.message };
@@ -130,7 +176,18 @@ export class StartupService {
       const transformedData = (data || []).map((startup) =>
         StartupService.transformStartup(startup)
       );
-      return { data: transformedData, error: null };
+
+      const totalPages = Math.ceil((count || 0) / limit);
+
+      const paginatedResult: PaginatedStartups = {
+        startups: transformedData,
+        total: count || 0,
+        page,
+        limit,
+        totalPages,
+      };
+
+      return { data: paginatedResult, error: null };
     } catch (error) {
       return {
         data: [],
@@ -260,14 +317,57 @@ export class StartupService {
 
   // Fetch ALL startups for admin use (not just verified/approved)
   static async getAllStartups(filters?: StartupFilters): Promise<{
-    data: AdminStartupInfo[];
+    data: PaginatedStartups<AdminStartupInfo> | AdminStartupInfo[];
     error: string | null;
   }> {
     try {
+      // If no pagination parameters are provided, return all results (for backward compatibility)
+      if (!filters?.limit && !filters?.offset) {
+        let query = supabase
+          .from("startups")
+          .select("*")
+          .order("created_at", { ascending: false });
+
+        // Apply filters
+        if (filters?.industry) {
+          query = query.ilike("industry", `%${filters.industry}%`);
+        }
+
+        if (filters?.stage) {
+          query = query.eq("stage", filters.stage);
+        }
+
+        if (filters?.searchTerm) {
+          query = query.or(
+            `startup_name.ilike.%${filters.searchTerm}%,name.ilike.%${filters.searchTerm}%,industry.ilike.%${filters.searchTerm}%,problem_solving.ilike.%${filters.searchTerm}%`
+          );
+        }
+
+        const { data, error } = await query;
+
+        if (error) {
+          return { data: [], error: error.message };
+        }
+
+        const transformedData = (data || []).map((startup) =>
+          StartupService.transformStartupForAdmin(startup)
+        );
+        return { data: transformedData, error: null };
+      }
+
+      // Paginated request
+      const page = Math.max(
+        1,
+        Math.floor((filters?.offset || 0) / (filters?.limit || 10)) + 1
+      );
+      const limit = Math.min(50, Math.max(1, filters?.limit || 12));
+      const offset = (page - 1) * limit;
+
       let query = supabase
         .from("startups")
-        .select("*")
-        .order("created_at", { ascending: false });
+        .select("*", { count: "exact" })
+        .order("created_at", { ascending: false })
+        .range(offset, offset + limit - 1);
 
       // Apply filters
       if (filters?.industry) {
@@ -284,7 +384,7 @@ export class StartupService {
         );
       }
 
-      const { data, error } = await query;
+      const { data, error, count } = await query;
 
       if (error) {
         return { data: [], error: error.message };
@@ -293,7 +393,18 @@ export class StartupService {
       const transformedData = (data || []).map((startup) =>
         StartupService.transformStartupForAdmin(startup)
       );
-      return { data: transformedData, error: null };
+
+      const totalPages = Math.ceil((count || 0) / limit);
+
+      const paginatedResult: PaginatedStartups<AdminStartupInfo> = {
+        startups: transformedData,
+        total: count || 0,
+        page,
+        limit,
+        totalPages,
+      };
+
+      return { data: paginatedResult, error: null };
     } catch (error) {
       return {
         data: [],

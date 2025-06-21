@@ -5,7 +5,6 @@ import {
   Home,
   Users,
   Building,
-  Mail,
   LogOut,
   BarChart3,
   Shield,
@@ -61,7 +60,6 @@ const AdminNavbar = () => {
     { label: "Dashboard", path: "/admin", icon: BarChart3 },
     { label: "Startups", path: "/admin?tab=startups", icon: Building },
     { label: "Investors", path: "/admin?tab=investors", icon: Users },
-    { label: "Emails", path: "/admin/emails", icon: Mail },
     { label: "Sign-Out", action: handleSignOutClick, icon: LogOut },
   ];
 

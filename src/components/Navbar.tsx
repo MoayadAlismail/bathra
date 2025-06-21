@@ -1,11 +1,9 @@
 import { useState, useEffect } from "react";
-import { Menu, X, LogIn, Mail, Home, Shield } from "lucide-react";
+import { Menu, X, LogIn, Home, Shield } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
-import { supabase, SubscribedEmail } from "@/lib/supabase";
 import { canBrowseContent } from "@/lib/auth-utils";
 import NotificationDropdown from "@/components/NotificationDropdown";
 
@@ -14,10 +12,6 @@ const Navbar = () => {
   const { user, profile, signOut } = useAuth();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [showEmailsList, setShowEmailsList] = useState(false);
-  const [subscribedEmails, setSubscribedEmails] = useState<string[]>([]);
-  const [isLoadingEmails, setIsLoadingEmails] = useState(false);
-  const { toast } = useToast();
 
   const accountType = profile?.accountType;
 
@@ -29,47 +23,6 @@ const Navbar = () => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
-  // Fetch emails from Supabase when the emails list is opened
-  const fetchEmails = async () => {
-    try {
-      setIsLoadingEmails(true);
-
-      // Fetch subscribed emails from Supabase
-      const { data, error } = await supabase
-        .from("subscribed_emails")
-        .select("*");
-
-      if (error) {
-        console.error("Error fetching emails:", error);
-        toast({
-          title: "Error fetching emails",
-          description: error.message,
-          variant: "destructive",
-        });
-        return;
-      }
-
-      // Handle case when no emails exist yet
-      if (!data || data.length === 0) {
-        setSubscribedEmails([]);
-        return;
-      }
-
-      // Process the data through our helper function to ensure proper typing
-      const processedData = data.map((item: SubscribedEmail) => item.email);
-      setSubscribedEmails(processedData);
-    } catch (err: unknown) {
-      console.error("Error:", err);
-      toast({
-        title: "Error",
-        description: "Failed to fetch subscribed emails",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoadingEmails(false);
-    }
-  };
 
   const handleNavigation = (path: string) => {
     // Check if user is trying to access browsing features
@@ -118,32 +71,6 @@ const Navbar = () => {
     } catch (error) {
       console.error("Logout error:", error);
     }
-  };
-
-  // Toggle emails list visibility and fetch emails if opened
-  const toggleEmailsList = async () => {
-    if (!showEmailsList) {
-      await fetchEmails();
-    }
-    setShowEmailsList(!showEmailsList);
-  };
-
-  // Copy all emails to clipboard
-  const copyEmailsToClipboard = () => {
-    if (subscribedEmails.length === 0) {
-      toast({
-        title: "No emails to copy",
-        description: "There are no subscribed emails yet.",
-      });
-      return;
-    }
-
-    const emailsText = subscribedEmails.join("\n");
-    navigator.clipboard.writeText(emailsText);
-    toast({
-      title: "Emails Copied!",
-      description: `${subscribedEmails.length} email(s) copied to clipboard.`,
-    });
   };
 
   // Get navigation items based on user type and authentication status
@@ -356,22 +283,6 @@ const Navbar = () => {
               {/* Notifications for logged in users */}
               {user && accountType !== "admin" && <NotificationDropdown />}
 
-              {/* Emails List Button - Only for admins */}
-              {accountType === "admin" && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={toggleEmailsList}
-                  className="flex items-center gap-2 text-sm"
-                  disabled={isLoadingEmails}
-                >
-                  <Mail className="h-4 w-4" />
-                  {isLoadingEmails
-                    ? "Loading..."
-                    : `Emails (${subscribedEmails.length})`}
-                </Button>
-              )}
-
               {renderAuthButtons()}
             </div>
 
@@ -386,57 +297,6 @@ const Navbar = () => {
           </div>
         </div>
       </motion.nav>
-
-      {/* Emails List Popup */}
-      {showEmailsList && (
-        <div className="fixed top-20 right-4 z-50 bg-background border rounded-md p-4 shadow-lg w-80">
-          <div className="flex justify-between items-center mb-3">
-            <h3 className="font-medium">
-              Subscribed Emails ({subscribedEmails.length})
-            </h3>
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={copyEmailsToClipboard}
-                className="text-xs"
-              >
-                Copy All
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={toggleEmailsList}
-                className="text-xs"
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-          <div className="max-h-60 overflow-y-auto">
-            {isLoadingEmails ? (
-              <div className="text-sm py-4 text-center text-muted-foreground">
-                Loading emails...
-              </div>
-            ) : subscribedEmails.length > 0 ? (
-              <ul className="space-y-1">
-                {subscribedEmails.map((email, index) => (
-                  <li
-                    key={index}
-                    className="text-sm py-1 px-2 rounded hover:bg-accent"
-                  >
-                    {email}
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-sm text-muted-foreground">
-                No emails collected yet.
-              </p>
-            )}
-          </div>
-        </div>
-      )}
 
       <AnimatePresence>
         {isMobileMenuOpen && (
@@ -463,19 +323,6 @@ const Navbar = () => {
                   <div className="py-2">
                     <NotificationDropdown />
                   </div>
-                )}
-
-                {/* Emails List Button for mobile - Only for admins */}
-                {accountType === "admin" && (
-                  <button
-                    onClick={toggleEmailsList}
-                    className="flex items-center gap-2 text-foreground hover:text-primary transition-colors duration-200 py-2 text-left"
-                  >
-                    <Mail className="h-4 w-4" />
-                    {isLoadingEmails
-                      ? "Loading..."
-                      : `Show Emails (${subscribedEmails.length})`}
-                  </button>
                 )}
 
                 {renderMobileAuthButtons()}

@@ -155,12 +155,6 @@ export type Tables = {
     created_at: string;
     updated_at: string;
   };
-  subscribed_emails: {
-    id: string;
-    email: string;
-    created_at: string;
-    user_id?: string;
-  };
   notifications: {
     id: string;
     user_id: string;
@@ -210,12 +204,10 @@ export type Tables = {
   };
 };
 
-// Export specific table types for easier usage
-export type Investor = Tables["investors"];
+// Export common types for convenience
 export type Startup = Tables["startups"];
-export type Article = Tables["articles"];
+export type Investor = Tables["investors"];
 export type Admin = Tables["admins"];
-export type SubscribedEmail = Tables["subscribed_emails"];
 export type Notification = Tables["notifications"];
 export type NewsletterCampaign = Tables["newsletter_campaigns"];
 
@@ -278,72 +270,4 @@ export const processAdminData = (data: unknown[]): Admin[] => {
       typeof obj.admin_level === "string"
     );
   });
-};
-
-export const processEmailData = (data: unknown[]): SubscribedEmail[] => {
-  return data.filter((item): item is SubscribedEmail => {
-    if (typeof item !== "object" || item === null) return false;
-    const obj = item as Record<string, unknown>;
-    return typeof obj.id === "string" && typeof obj.email === "string";
-  });
-};
-
-// Helper function to get all subscribed emails
-export const getAllSubscribedEmails = async (): Promise<SubscribedEmail[]> => {
-  try {
-    const { data, error } = await supabase
-      .from("subscribed_emails")
-      .select("*");
-
-    if (error) throw error;
-    return processEmailData(data || []);
-  } catch (error) {
-    console.error("Error fetching subscribed emails:", error);
-    return [];
-  }
-};
-
-// Helper function to subscribe a new email
-export const subscribeEmail = async (
-  email: string
-): Promise<{ success: boolean; message: string }> => {
-  try {
-    // First, check if the email already exists
-    const { data: existingEmails, error: checkError } = await supabase
-      .from("subscribed_emails")
-      .select("email")
-      .eq("email", email);
-
-    if (checkError) throw checkError;
-
-    // If email already exists, don't add it again
-    if (existingEmails && existingEmails.length > 0) {
-      return {
-        success: false,
-        message: "This email is already subscribed to our updates.",
-      };
-    }
-
-    // Insert the email into the subscribed_emails table
-    const { error } = await supabase
-      .from("subscribed_emails")
-      .insert([{ email }]);
-
-    if (error) throw error;
-
-    return {
-      success: true,
-      message: "Thank you for subscribing. We'll notify you when we launch!",
-    };
-  } catch (error: unknown) {
-    console.error("Error subscribing email:", error);
-    const errorMessage =
-      error instanceof Error
-        ? error.message
-        : "Failed to subscribe. Please try again later.";
-    return {
-      success: false,
-      message: errorMessage,
-    };
-  }
 };

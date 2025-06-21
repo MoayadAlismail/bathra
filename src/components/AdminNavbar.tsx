@@ -62,7 +62,7 @@ const AdminNavbar = () => {
     { label: "Startups", path: "/admin?tab=startups", icon: Building },
     { label: "Investors", path: "/admin?tab=investors", icon: Users },
     { label: "Emails", path: "/admin/emails", icon: Mail },
-    { label: "Sign Out", action: handleSignOutClick, icon: LogOut },
+    { label: "Sign-Out", action: handleSignOutClick, icon: LogOut },
   ];
 
   return (

@@ -102,7 +102,7 @@ const Articles = () => {
       <Navbar />
 
       {/* Header Section */}
-      <div className="pt-20 pb-10">
+      <div className="pt-28 pb-10">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}

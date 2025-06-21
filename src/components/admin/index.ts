@@ -7,3 +7,4 @@ export { default as AdminBrowseStartups } from "./AdminBrowseStartups";
 export { default as AdminBrowseInvestors } from "./AdminBrowseInvestors";
 export { default as AdminStartupEditModal } from "./AdminStartupEditModal";
 export { default as AdminInvestorEditModal } from "./AdminInvestorEditModal";
+export { default as NewsletterManagement } from "./NewsletterManagement";

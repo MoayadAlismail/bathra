@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase, SubscribedEmail } from "@/lib/supabase";
 import { canBrowseContent } from "@/lib/auth-utils";
+import NotificationDropdown from "@/components/NotificationDropdown";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -339,19 +340,24 @@ const Navbar = () => {
                 </button>
               ))}
 
-              {/* Emails List Button */}
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={toggleEmailsList}
-                className="flex items-center gap-2 text-sm"
-                disabled={isLoadingEmails}
-              >
-                <Mail className="h-4 w-4" />
-                {isLoadingEmails
-                  ? "Loading..."
-                  : `Emails (${subscribedEmails.length})`}
-              </Button>
+              {/* Notifications for logged in users */}
+              {user && accountType !== "admin" && <NotificationDropdown />}
+
+              {/* Emails List Button - Only for admins */}
+              {accountType === "admin" && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={toggleEmailsList}
+                  className="flex items-center gap-2 text-sm"
+                  disabled={isLoadingEmails}
+                >
+                  <Mail className="h-4 w-4" />
+                  {isLoadingEmails
+                    ? "Loading..."
+                    : `Emails (${subscribedEmails.length})`}
+                </Button>
+              )}
 
               {renderAuthButtons()}
             </div>
@@ -439,16 +445,25 @@ const Navbar = () => {
                   </button>
                 ))}
 
-                {/* Emails List Button for mobile */}
-                <button
-                  onClick={toggleEmailsList}
-                  className="flex items-center gap-2 text-foreground hover:text-primary transition-colors duration-200 py-2 text-left"
-                >
-                  <Mail className="h-4 w-4" />
-                  {isLoadingEmails
-                    ? "Loading..."
-                    : `Show Emails (${subscribedEmails.length})`}
-                </button>
+                {/* Notifications for logged in users on mobile */}
+                {user && accountType !== "admin" && (
+                  <div className="py-2">
+                    <NotificationDropdown />
+                  </div>
+                )}
+
+                {/* Emails List Button for mobile - Only for admins */}
+                {accountType === "admin" && (
+                  <button
+                    onClick={toggleEmailsList}
+                    className="flex items-center gap-2 text-foreground hover:text-primary transition-colors duration-200 py-2 text-left"
+                  >
+                    <Mail className="h-4 w-4" />
+                    {isLoadingEmails
+                      ? "Loading..."
+                      : `Show Emails (${subscribedEmails.length})`}
+                  </button>
+                )}
 
                 {renderMobileAuthButtons()}
               </div>

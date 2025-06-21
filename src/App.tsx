@@ -196,7 +196,7 @@ const AppRoutes = () => {
         <Route
           path="/investors"
           element={
-            <ProtectedRoute requiredAccountType="startup">
+            <ProtectedRoute requiredAccountType="admin">
               <StatusGuard>
                 <ErrorBoundary>
                   <Investors />

@@ -51,12 +51,12 @@ import TestNotificationCreator from "@/components/TestNotificationCreator";
 const StartupDashboard = () => {
   const { user, profile, signOut } = useAuth();
   const navigate = useNavigate();
-  const [investors, setInvestors] = useState([]);
+  //const [investors, setInvestors] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [startupDetails, setStartupDetails] = useState<Startup | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [recentInvestors, setRecentInvestors] = useState([]);
-  const [selectedInvestor, setSelectedInvestor] = useState<any>(null);
+  //const [recentInvestors, setRecentInvestors] = useState([]);
+  //const [selectedInvestor, setSelectedInvestor] = useState<any>(null);
   const [isInvestorModalOpen, setIsInvestorModalOpen] = useState(false);
 
   useEffect(() => {
@@ -82,31 +82,31 @@ const StartupDashboard = () => {
       }
     };
 
-    const fetchRecentInvestors = async () => {
-      try {
-        const { data, error } = await supabase
-          .from("investors")
-          .select(
-            "id, name, preferred_industries, preferred_company_stage, average_ticket_size"
-          )
-          .order("created_at", { ascending: false })
-          .limit(5);
+    // const fetchRecentInvestors = async () => {
+    //   try {
+    //     const { data, error } = await supabase
+    //       .from("investors")
+    //       .select(
+    //         "id, name, preferred_industries, preferred_company_stage, average_ticket_size"
+    //       )
+    //       .order("created_at", { ascending: false })
+    //       .limit(5);
 
-        if (error) throw error;
+    //     if (error) throw error;
 
-        if (data) {
-          setRecentInvestors(data);
-        }
-      } catch (error) {
-        console.error("Error fetching recent investors:", error);
-      }
-    };
+    //     if (data) {
+    //       setRecentInvestors(data);
+    //     }
+    //   } catch (error) {
+    //     console.error("Error fetching recent investors:", error);
+    //   }
+    // };
 
     if (!user) {
       navigate("/login");
     } else {
       fetchStartupDetails();
-      fetchRecentInvestors();
+      //fetchRecentInvestors();
     }
   }, [user, navigate]);
 
@@ -123,18 +123,18 @@ const StartupDashboard = () => {
     setStartupDetails(updatedStartup);
   };
 
-  const handleInvestorClick = (investor: Investor) => {
-    setSelectedInvestor(investor);
-    setIsInvestorModalOpen(true);
-  };
+  // const handleInvestorClick = (investor: Investor) => {
+  //   setSelectedInvestor(investor);
+  //   setIsInvestorModalOpen(true);
+  // };
 
-  const handleConnectInvestor = () => {
-    toast({
-      title: "Connection Request Sent",
-      description: `Your request to connect with ${selectedInvestor?.name} has been sent.`,
-    });
-    setIsInvestorModalOpen(false);
-  };
+  // const handleConnectInvestor = () => {
+  //   toast({
+  //     title: "Connection Request Sent",
+  //     description: `Your request to connect with ${selectedInvestor?.name} has been sent.`,
+  //   });
+  //   setIsInvestorModalOpen(false);
+  // };
 
   if (!user || !profile) return null;
 
@@ -310,7 +310,7 @@ const StartupDashboard = () => {
             )} */}
 
             {/* Recent Investors Section */}
-            <div className="neo-blur rounded-2xl shadow-lg p-8">
+            {/* <div className="neo-blur rounded-2xl shadow-lg p-8">
               <div className="flex justify-between items-center mb-6">
                 <div>
                   <h2 className="text-2xl font-bold text-gradient mb-2">
@@ -323,10 +323,10 @@ const StartupDashboard = () => {
                 <Button onClick={() => navigate("/investors")}>
                   View All Investors
                 </Button>
-              </div>
+              </div> */}
 
               {/* Recent Investors List */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {recentInvestors.length > 0 ? (
                   recentInvestors.map((investor: Investor) => (
                     <Card
@@ -382,7 +382,7 @@ const StartupDashboard = () => {
                   </div>
                 )}
               </div>
-            </div>
+            </div> */}
           </motion.div>
         </div>
       </section>
@@ -398,14 +398,14 @@ const StartupDashboard = () => {
       )}
 
       {/* Investor Detail Modal */}
-      {selectedInvestor && (
+      {/* {selectedInvestor && (
         <InvestorDetailModal
           investor={selectedInvestor}
           isOpen={isInvestorModalOpen}
           onClose={() => setIsInvestorModalOpen(false)}
           onConnect={handleConnectInvestor}
         />
-      )}
+      )} */}
     </div>
   );
 };

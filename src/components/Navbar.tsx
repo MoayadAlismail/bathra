@@ -76,7 +76,7 @@ const Navbar = () => {
     const browsingPaths = [
       "/startups",
       "/investor-dashboard",
-      "/investors",
+      //"/investors",
       "/startup-dashboard",
     ];
 
@@ -88,9 +88,22 @@ const Navbar = () => {
 
     if (path.startsWith("/#")) {
       const elementId = path.substring(2);
-      const element = document.getElementById(elementId);
-      if (element) {
-        element.scrollIntoView({ behavior: "smooth" });
+      // If we're not on the home page, navigate to home first
+      if (window.location.pathname !== "/") {
+        navigate("/");
+        // Wait for navigation to complete before scrolling
+        setTimeout(() => {
+          const element = document.getElementById(elementId);
+          if (element) {
+            element.scrollIntoView({ behavior: "smooth" });
+          }
+        }, 100);
+      } else {
+        // We're already on home page, just scroll
+        const element = document.getElementById(elementId);
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth" });
+        }
       }
     } else {
       navigate(path);
@@ -137,8 +150,8 @@ const Navbar = () => {
   const getNavItems = () => {
     const publicItems = [
       { label: "Home", path: "/" },
-      { label: "Articles", path: "/articles" },
       { label: "How It Works", path: "/#how-it-works" },
+      { label: "Articles", path: "/articles" },
     ];
 
     if (!user) return publicItems;
@@ -153,7 +166,7 @@ const Navbar = () => {
       return [
         { label: "Dashboard", path: "/startup-dashboard" },
         { label: "Articles", path: "/articles" },
-        { label: "Investors", path: "/investors" },
+        // { label: "Investors", path: "/investors" },
       ];
     } else {
       // For investors (individual or VC)

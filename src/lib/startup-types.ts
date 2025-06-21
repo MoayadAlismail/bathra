@@ -94,4 +94,15 @@ export interface StartupFilters {
   stage?: string;
   searchTerm?: string;
   valuation?: string;
+  limit?: number;
+  offset?: number;
+}
+
+// Paginated response type for startups
+export interface PaginatedStartups<T = StartupBasicInfo> {
+  startups: T[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
 }

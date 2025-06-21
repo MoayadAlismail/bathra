@@ -30,8 +30,13 @@ import {
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/context/AuthContext";
-import { NotificationService } from "@/lib/notification-service";
+import {
+  NotificationService,
+  PaginatedCampaigns,
+  CampaignStatus,
+} from "@/lib/notification-service";
 import { NewsletterCampaign } from "@/lib/supabase";
+import { Pagination } from "@/components/ui/pagination";
 import {
   Send,
   Plus,
@@ -53,6 +58,8 @@ interface NewsletterFormData {
   scheduled_for?: string;
 }
 
+const ITEMS_PER_PAGE = 8;
+
 const NewsletterManagement: React.FC = () => {
   const [campaigns, setCampaigns] = useState<NewsletterCampaign[]>([]);
   const [loading, setLoading] = useState(false);
@@ -67,6 +74,10 @@ const NewsletterManagement: React.FC = () => {
   });
   const [recipientCount, setRecipientCount] = useState(0);
   const [confirmingSend, setConfirmingSend] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [total, setTotal] = useState(0);
+  const [statusFilter, setStatusFilter] = useState<string>("all");
   const { toast } = useToast();
   const { user } = useAuth();
 
@@ -74,15 +85,29 @@ const NewsletterManagement: React.FC = () => {
   useEffect(() => {
     loadCampaigns();
     updateRecipientCount("all"); // Initialize with default recipient type
-  }, []);
+  }, [currentPage, statusFilter]);
 
   const loadCampaigns = async () => {
     try {
       setLoading(true);
-      const campaignList = await NotificationService.getCampaigns({
-        limit: 50,
+      const result = await NotificationService.getCampaigns({
+        limit: ITEMS_PER_PAGE,
+        offset: (currentPage - 1) * ITEMS_PER_PAGE,
+        status:
+          statusFilter === "all" ? undefined : (statusFilter as CampaignStatus),
       });
-      setCampaigns(campaignList);
+
+      // Handle both paginated and non-paginated responses
+      if (Array.isArray(result)) {
+        setCampaigns(result);
+        setTotalPages(1);
+        setTotal(result.length);
+      } else {
+        const paginatedData = result as PaginatedCampaigns;
+        setCampaigns(paginatedData.campaigns);
+        setTotalPages(paginatedData.totalPages);
+        setTotal(paginatedData.total);
+      }
     } catch (error) {
       console.error("Error loading campaigns:", error);
       toast({
@@ -203,6 +228,15 @@ const NewsletterManagement: React.FC = () => {
     }
   };
 
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const handleStatusFilterChange = (status: string) => {
+    setStatusFilter(status);
+    setCurrentPage(1);
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case "draft":
@@ -255,20 +289,52 @@ const NewsletterManagement: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-2xl font-bold">Newsletter Management</h2>
-          <p className="text-muted-foreground">
-            Create and send newsletters to your users
-          </p>
+      <div className="flex flex-col gap-4">
+        <div className="flex justify-between items-center">
+          <div>
+            <h2 className="text-2xl font-bold">Newsletter Management</h2>
+            <p className="text-muted-foreground">
+              Create and send newsletters to your users
+            </p>
+          </div>
+          <Button
+            onClick={() => setShowCreateForm(true)}
+            className="flex items-center gap-2"
+          >
+            <Plus className="h-4 w-4" />
+            Create Newsletter
+          </Button>
         </div>
-        <Button
-          onClick={() => setShowCreateForm(true)}
-          className="flex items-center gap-2"
-        >
-          <Plus className="h-4 w-4" />
-          Create Newsletter
-        </Button>
+
+        {/* Filters and Results Count */}
+        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Label htmlFor="status-filter">Status:</Label>
+            <Select
+              value={statusFilter}
+              onValueChange={handleStatusFilterChange}
+            >
+              <SelectTrigger className="w-40">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Status</SelectItem>
+                <SelectItem value="draft">Draft</SelectItem>
+                <SelectItem value="scheduled">Scheduled</SelectItem>
+                <SelectItem value="sending">Sending</SelectItem>
+                <SelectItem value="sent">Sent</SelectItem>
+                <SelectItem value="cancelled">Cancelled</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          {!loading && (
+            <p className="text-sm text-muted-foreground">
+              {total === 0
+                ? "No campaigns found"
+                : `${total} campaign${total !== 1 ? "s" : ""} found`}
+            </p>
+          )}
+        </div>
       </div>
 
       {/* Create Newsletter Form */}
@@ -542,6 +608,18 @@ const NewsletterManagement: React.FC = () => {
           ))
         )}
       </div>
+
+      {/* Pagination */}
+      {!loading && totalPages > 1 && (
+        <div className="mt-6">
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+            loading={loading}
+          />
+        </div>
+      )}
     </div>
   );
 };

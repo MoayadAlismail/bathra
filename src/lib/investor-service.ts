@@ -4,6 +4,7 @@ import {
   InvestorBasicInfo,
   AdminInvestorInfo,
   InvestorFilters,
+  PaginatedInvestors,
 } from "./investor-types";
 
 export class InvestorService {
@@ -173,14 +174,57 @@ export class InvestorService {
 
   // Fetch ALL investors for admin use (not just verified/approved)
   static async getAllInvestors(filters?: InvestorFilters): Promise<{
-    data: AdminInvestorInfo[];
+    data: PaginatedInvestors<AdminInvestorInfo> | AdminInvestorInfo[];
     error: string | null;
   }> {
     try {
+      // If no pagination parameters are provided, return all results (for backward compatibility)
+      if (!filters?.limit && !filters?.offset) {
+        let query = supabase
+          .from("investors")
+          .select("*")
+          .order("created_at", { ascending: false });
+
+        // Apply filters
+        if (filters?.industry) {
+          query = query.ilike("preferred_industries", `%${filters.industry}%`);
+        }
+
+        if (filters?.stage) {
+          query = query.eq("preferred_company_stage", filters.stage);
+        }
+
+        if (filters?.searchTerm) {
+          query = query.or(
+            `name.ilike.%${filters.searchTerm}%,company.ilike.%${filters.searchTerm}%,preferred_industries.ilike.%${filters.searchTerm}%`
+          );
+        }
+
+        const { data, error } = await query;
+
+        if (error) {
+          return { data: [], error: error.message };
+        }
+
+        const transformedData = (data || []).map((investor) =>
+          InvestorService.transformInvestorForAdmin(investor)
+        );
+        return { data: transformedData, error: null };
+      }
+
+      // Paginated request
+      const page = Math.max(
+        1,
+        Math.floor((filters?.offset || 0) / (filters?.limit || 10)) + 1
+      );
+      const limit = Math.min(50, Math.max(1, filters?.limit || 12));
+      const offset = (page - 1) * limit;
+
       let query = supabase
         .from("investors")
-        .select("*")
-        .order("created_at", { ascending: false });
+        .select("*", { count: "exact" })
+        .order("created_at", { ascending: false })
+        .range(offset, offset + limit - 1);
 
       // Apply filters
       if (filters?.industry) {
@@ -197,7 +241,7 @@ export class InvestorService {
         );
       }
 
-      const { data, error } = await query;
+      const { data, error, count } = await query;
 
       if (error) {
         return { data: [], error: error.message };
@@ -206,7 +250,18 @@ export class InvestorService {
       const transformedData = (data || []).map((investor) =>
         InvestorService.transformInvestorForAdmin(investor)
       );
-      return { data: transformedData, error: null };
+
+      const totalPages = Math.ceil((count || 0) / limit);
+
+      const paginatedResult: PaginatedInvestors<AdminInvestorInfo> = {
+        investors: transformedData,
+        total: count || 0,
+        page,
+        limit,
+        totalPages,
+      };
+
+      return { data: paginatedResult, error: null };
     } catch (error) {
       return {
         data: [],

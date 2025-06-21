@@ -203,17 +203,6 @@ const Admin = () => {
                         5 hours ago
                       </span>
                     </div>
-                    <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                      <div>
-                        <p className="font-medium">New email subscriber</p>
-                        <p className="text-sm text-muted-foreground">
-                          investor@example.com
-                        </p>
-                      </div>
-                      <span className="text-xs text-muted-foreground">
-                        1 day ago
-                      </span>
-                    </div>
                   </div>
                 </CardContent>
               </Card>

@@ -59,6 +59,14 @@ export interface BulkNotificationData {
   action_label?: string;
 }
 
+export interface PaginatedCampaigns {
+  campaigns: NewsletterCampaign[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
 export class NotificationService {
   // Create a single notification
   static async createNotification(
@@ -295,36 +303,65 @@ export class NotificationService {
     limit?: number;
     offset?: number;
     status?: CampaignStatus;
-  }): Promise<NewsletterCampaign[]> {
+  }): Promise<PaginatedCampaigns | NewsletterCampaign[]> {
     try {
+      // If no pagination parameters are provided, return all results (for backward compatibility)
+      if (!options?.limit && !options?.offset) {
+        let query = supabase
+          .from("newsletter_campaigns")
+          .select("*")
+          .order("created_at", { ascending: false });
+
+        if (options?.status) {
+          query = query.eq("status", options.status);
+        }
+
+        const { data, error } = await query;
+
+        if (error) {
+          console.error("Error fetching campaigns:", error);
+          return [];
+        }
+
+        return data || [];
+      }
+
+      // Paginated request
+      const page = Math.max(
+        1,
+        Math.floor((options?.offset || 0) / (options?.limit || 10)) + 1
+      );
+      const limit = Math.min(50, Math.max(1, options?.limit || 10));
+      const offset = (page - 1) * limit;
+
       let query = supabase
         .from("newsletter_campaigns")
-        .select("*")
-        .order("created_at", { ascending: false });
+        .select("*", { count: "exact" })
+        .order("created_at", { ascending: false })
+        .range(offset, offset + limit - 1);
 
       if (options?.status) {
         query = query.eq("status", options.status);
       }
 
-      if (options?.limit) {
-        query = query.limit(options.limit);
-      }
-
-      if (options?.offset) {
-        query = query.range(
-          options.offset,
-          options.offset + (options.limit || 10) - 1
-        );
-      }
-
-      const { data, error } = await query;
+      const { data, error, count } = await query;
 
       if (error) {
         console.error("Error fetching campaigns:", error);
         return [];
       }
 
-      return data || [];
+      const totalPages = Math.ceil((count || 0) / limit);
+
+      const paginatedResult: PaginatedCampaigns = {
+        campaigns: data || [],
+        total: count || 0,
+        page,
+        limit,
+        totalPages,
+      };
+
+      return paginatedResult;
     } catch (error) {
       console.error("Error fetching campaigns:", error);
       return [];

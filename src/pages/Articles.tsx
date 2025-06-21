@@ -20,6 +20,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import Navbar from "@/components/Navbar";
+import { Pagination } from "@/components/ui/pagination";
 import { articleService } from "@/lib/article-service";
 import {
   Article,
@@ -299,28 +300,13 @@ const Articles = () => {
 
           {/* Pagination */}
           {!loading && totalPages > 1 && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="flex justify-center items-center gap-2"
-            >
-              <Button
-                variant="outline"
-                onClick={() => setCurrentPage(currentPage - 1)}
-                disabled={currentPage === 1}
-              >
-                Previous
-              </Button>
-              <span className="px-4 py-2 text-sm text-muted-foreground">
-                Page {currentPage} of {totalPages}
-              </span>
-              <Button
-                variant="outline"
-                onClick={() => setCurrentPage(currentPage + 1)}
-                disabled={currentPage === totalPages}
-              >
-                Next
-              </Button>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+                loading={loading}
+              />
             </motion.div>
           )}
         </div>

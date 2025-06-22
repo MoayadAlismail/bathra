@@ -155,6 +155,21 @@ export type Tables = {
     created_at: string;
     updated_at: string;
   };
+  admin_invites: {
+    id: string;
+    email: string;
+    name: string;
+    admin_level: string;
+    phone_number?: string;
+    location?: string;
+    invited_by: string;
+    invited_at: string;
+    status: "pending" | "accepted" | "expired";
+    invite_token: string;
+    expires_at: string;
+    created_at: string;
+    updated_at: string;
+  };
   notifications: {
     id: string;
     user_id: string;

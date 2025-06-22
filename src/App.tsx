@@ -20,6 +20,7 @@ import NotFound from "./pages/NotFound";
 import Admin from "./pages/Admin";
 import Articles from "./pages/Articles";
 import PendingVerification from "./pages/PendingVerification";
+import AdminInvite from "./pages/AdminInvite";
 import StatusGuard from "./components/auth/StatusGuard";
 import "./App.css";
 
@@ -260,6 +261,14 @@ const AppRoutes = () => {
           element={
             <ErrorBoundary>
               <Articles />
+            </ErrorBoundary>
+          }
+        />
+        <Route
+          path="/admin/invite"
+          element={
+            <ErrorBoundary>
+              <AdminInvite />
             </ErrorBoundary>
           }
         />

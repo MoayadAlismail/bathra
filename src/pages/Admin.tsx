@@ -6,6 +6,7 @@ import BlogManagement from "@/components/admin/BlogManagement";
 import AdminBrowseStartups from "@/components/admin/AdminBrowseStartups";
 import AdminBrowseInvestors from "@/components/admin/AdminBrowseInvestors";
 import NewsletterManagement from "@/components/admin/NewsletterManagement";
+import AdminManagement from "@/components/admin/AdminManagement";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,6 +17,7 @@ import {
   TrendingUp,
   Settings,
   FileText,
+  Shield,
 } from "lucide-react";
 import {
   Card,
@@ -36,7 +38,8 @@ const Admin = () => {
     | "blog"
     | "startups"
     | "investors"
-    | "newsletter" => {
+    | "newsletter"
+    | "admins" => {
     const path = window.location.pathname;
     const params = new URLSearchParams(location.search);
     const tabParam = params.get("tab");
@@ -46,17 +49,25 @@ const Admin = () => {
     if (tabParam === "users") return "users";
     if (tabParam === "blog") return "blog";
     if (tabParam === "newsletter") return "newsletter";
+    if (tabParam === "admins") return "admins";
 
     if (path.includes("/admin/users")) return "users";
     if (path.includes("/admin/blog")) return "blog";
     if (path.includes("/admin/startups")) return "startups";
     if (path.includes("/admin/investors")) return "investors";
     if (path.includes("/admin/newsletter")) return "newsletter";
+    if (path.includes("/admin/admins")) return "admins";
     return "dashboard";
   };
 
   const [activeTab, setActiveTab] = useState<
-    "dashboard" | "users" | "blog" | "startups" | "investors" | "newsletter"
+    | "dashboard"
+    | "users"
+    | "blog"
+    | "startups"
+    | "investors"
+    | "newsletter"
+    | "admins"
   >(getInitialTab());
 
   // Update active tab when URL changes
@@ -135,6 +146,14 @@ const Admin = () => {
                 <Mail className="h-4 w-4" />
                 Newsletter
               </Button>
+              <Button
+                variant={activeTab === "admins" ? "default" : "outline"}
+                onClick={() => setActiveTab("admins")}
+                className="flex items-center gap-2"
+              >
+                <Shield className="h-4 w-4" />
+                Admins
+              </Button>
             </div>
           </motion.div>
 
@@ -155,6 +174,8 @@ const Admin = () => {
               <UserManagement />
             ) : activeTab === "newsletter" ? (
               <NewsletterManagement />
+            ) : activeTab === "admins" ? (
+              <AdminManagement />
             ) : (
               <BlogManagement />
             )}

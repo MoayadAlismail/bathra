@@ -16,10 +16,13 @@ import Signup from "./pages/Signup";
 import StartupSignup from "./pages/StartupSignup";
 import InvestorSignup from "./pages/InvestorSignup";
 import VerifyEmail from "./pages/VerifyEmail";
+import InviteSignup from "./pages/InviteSignup";
+import InviteVerify from "./pages/InviteVerify";
 import NotFound from "./pages/NotFound";
 import Admin from "./pages/Admin";
 import Articles from "./pages/Articles";
 import PendingVerification from "./pages/PendingVerification";
+import AdminInvite from "./pages/AdminInvite";
 import StatusGuard from "./components/auth/StatusGuard";
 import "./App.css";
 
@@ -155,6 +158,8 @@ const AppRoutes = () => {
         <Route path="/signup/startup" element={<StartupSignup />} />
         <Route path="/signup/investor" element={<InvestorSignup />} />
         <Route path="/verify-email" element={<VerifyEmail />} />
+        <Route path="/invite-signup" element={<InviteSignup />} />
+        <Route path="/invite-verify" element={<InviteVerify />} />
         <Route path="/login" element={<Login />} />
         <Route path="/pending-verification" element={<PendingVerification />} />
         <Route
@@ -260,6 +265,14 @@ const AppRoutes = () => {
           element={
             <ErrorBoundary>
               <Articles />
+            </ErrorBoundary>
+          }
+        />
+        <Route
+          path="/admin/invite"
+          element={
+            <ErrorBoundary>
+              <AdminInvite />
             </ErrorBoundary>
           }
         />

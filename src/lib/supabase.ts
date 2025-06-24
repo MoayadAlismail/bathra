@@ -217,6 +217,19 @@ export type Tables = {
     created_at: string;
     updated_at: string;
   };
+  user_invites: {
+    id: string;
+    email: string;
+    name: string;
+    invited_by: string;
+    invited_at: string;
+    status: "pending" | "accepted" | "expired";
+    invite_token: string;
+    expires_at: string;
+    user_id?: string; // ID of the user who accepted the invite
+    created_at: string;
+    updated_at: string;
+  };
 };
 
 // Export common types for convenience
@@ -225,6 +238,7 @@ export type Investor = Tables["investors"];
 export type Admin = Tables["admins"];
 export type Notification = Tables["notifications"];
 export type NewsletterCampaign = Tables["newsletter_campaigns"];
+export type UserInvite = Tables["user_invites"];
 
 // Define specific response types to help with TypeScript safety
 export interface SupabaseResponse<T> {

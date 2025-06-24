@@ -7,6 +7,7 @@ import AdminBrowseStartups from "@/components/admin/AdminBrowseStartups";
 import AdminBrowseInvestors from "@/components/admin/AdminBrowseInvestors";
 import NewsletterManagement from "@/components/admin/NewsletterManagement";
 import AdminManagement from "@/components/admin/AdminManagement";
+import UserInvitesManagement from "@/components/admin/UserInvitesManagement";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,6 +19,7 @@ import {
   Settings,
   FileText,
   Shield,
+  UserPlus,
 } from "lucide-react";
 import {
   Card,
@@ -27,9 +29,29 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useLocation } from "react-router-dom";
+import { adminService } from "@/lib/admin-service";
+import { useAuth } from "@/context/AuthContext";
 
 const Admin = () => {
   const location = useLocation();
+  const { user } = useAuth();
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
+
+  useEffect(() => {
+    if (user?.id) {
+      checkSuperAdminStatus();
+    }
+  }, [user]);
+
+  const checkSuperAdminStatus = async () => {
+    if (!user?.id) return;
+    try {
+      const isSuper = await adminService.isSuperAdmin(user.id);
+      setIsSuperAdmin(isSuper);
+    } catch (error) {
+      console.error("Error checking super admin status:", error);
+    }
+  };
 
   // Determine initial tab based on current path or query parameter
   const getInitialTab = ():
@@ -39,7 +61,8 @@ const Admin = () => {
     | "startups"
     | "investors"
     | "newsletter"
-    | "admins" => {
+    | "admins"
+    | "invites" => {
     const path = window.location.pathname;
     const params = new URLSearchParams(location.search);
     const tabParam = params.get("tab");
@@ -50,6 +73,7 @@ const Admin = () => {
     if (tabParam === "blog") return "blog";
     if (tabParam === "newsletter") return "newsletter";
     if (tabParam === "admins") return "admins";
+    if (tabParam === "invites") return "invites";
 
     if (path.includes("/admin/users")) return "users";
     if (path.includes("/admin/blog")) return "blog";
@@ -57,6 +81,7 @@ const Admin = () => {
     if (path.includes("/admin/investors")) return "investors";
     if (path.includes("/admin/newsletter")) return "newsletter";
     if (path.includes("/admin/admins")) return "admins";
+    if (path.includes("/admin/invites")) return "invites";
     return "dashboard";
   };
 
@@ -68,6 +93,7 @@ const Admin = () => {
     | "investors"
     | "newsletter"
     | "admins"
+    | "invites"
   >(getInitialTab());
 
   // Update active tab when URL changes
@@ -146,14 +172,26 @@ const Admin = () => {
                 <Mail className="h-4 w-4" />
                 Newsletter
               </Button>
-              <Button
-                variant={activeTab === "admins" ? "default" : "outline"}
-                onClick={() => setActiveTab("admins")}
-                className="flex items-center gap-2"
-              >
-                <Shield className="h-4 w-4" />
-                Admins
-              </Button>
+              {isSuperAdmin && (
+                <>
+                  <Button
+                    variant={activeTab === "admins" ? "default" : "outline"}
+                    onClick={() => setActiveTab("admins")}
+                    className="flex items-center gap-2"
+                  >
+                    <Shield className="h-4 w-4" />
+                    Admins
+                  </Button>
+                  <Button
+                    variant={activeTab === "invites" ? "default" : "outline"}
+                    onClick={() => setActiveTab("invites")}
+                    className="flex items-center gap-2"
+                  >
+                    <UserPlus className="h-4 w-4" />
+                    User Invites
+                  </Button>
+                </>
+              )}
             </div>
           </motion.div>
 
@@ -176,6 +214,8 @@ const Admin = () => {
               <NewsletterManagement />
             ) : activeTab === "admins" ? (
               <AdminManagement />
+            ) : activeTab === "invites" ? (
+              <UserInvitesManagement />
             ) : (
               <BlogManagement />
             )}
@@ -232,44 +272,33 @@ const Admin = () => {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Settings className="h-5 w-5" />
+                    <TrendingUp className="h-5 w-5" />
                     System Overview
                   </CardTitle>
-                  <CardDescription>
-                    Platform health and performance
-                  </CardDescription>
+                  <CardDescription>Current platform statistics</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium">
-                        Platform Status
-                      </span>
-                      <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
-                        Operational
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <Building className="h-4 w-4 text-muted-foreground" />
+                        <span>Total Startups</span>
+                      </div>
+                      <span className="font-semibold">42</span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium">
-                        Database Health
-                      </span>
-                      <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
-                        Excellent
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <Users className="h-4 w-4 text-muted-foreground" />
+                        <span>Total Investors</span>
+                      </div>
+                      <span className="font-semibold">18</span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium">
-                        API Response Time
-                      </span>
-                      <span className="text-sm text-muted-foreground">
-                        ~120ms
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium">
-                        Active Sessions
-                      </span>
-                      <span className="text-sm text-muted-foreground">143</span>
+                      <div className="flex items-center gap-2">
+                        <Mail className="h-4 w-4 text-muted-foreground" />
+                        <span>Newsletter Subscribers</span>
+                      </div>
+                      <span className="font-semibold">156</span>
                     </div>
                   </div>
                 </CardContent>

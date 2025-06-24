@@ -297,6 +297,146 @@ export class AuthService {
     }
   }
 
+  // Sign up via invitation (simplified - only requires email/password/name)
+  public async signUpWithInvite(
+    email: string,
+    password: string,
+    name: string,
+    inviteToken: string
+  ): Promise<AuthResult<{ user: User; needsVerification: boolean }>> {
+    try {
+      // Validate input
+      if (!validateEmail(email)) {
+        return {
+          success: false,
+          error: {
+            code: "invalid_email",
+            message: "Please enter a valid email address",
+          },
+        };
+      }
+
+      const passwordValidation = validatePassword(password);
+      if (!passwordValidation.isValid) {
+        return {
+          success: false,
+          error: {
+            code: "weak_password",
+            message: passwordValidation.errors.join(", "),
+          },
+        };
+      }
+
+      // Sign up with Supabase Auth (account_type will be 'user' initially)
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            account_type: "user",
+            name,
+            invite_token: inviteToken,
+          },
+        },
+      });
+
+      if (authError) {
+        return {
+          success: false,
+          error: {
+            code: authError.message,
+            message: getAuthErrorMessage(authError),
+          },
+        };
+      }
+
+      if (!authData.user) {
+        return {
+          success: false,
+          error: { code: "signup_failed", message: "Failed to create account" },
+        };
+      }
+
+      return {
+        success: true,
+        data: {
+          user: authData.user,
+          needsVerification: !authData.user.email_confirmed_at,
+        },
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: { code: "signup_error", message: getAuthErrorMessage(error) },
+      };
+    }
+  }
+
+  // Verify OTP for invite-based signup and accept invitation
+  public async verifyInviteOTP(
+    email: string,
+    token: string,
+    inviteToken: string
+  ): Promise<AuthResult<{ user: User; inviteAccepted: boolean }>> {
+    try {
+      // Verify OTP
+      const { data: verifyData, error: verifyError } =
+        await supabase.auth.verifyOtp({
+          email,
+          token,
+          type: "email",
+        });
+
+      if (verifyError) {
+        return {
+          success: false,
+          error: {
+            code: verifyError.message,
+            message: getAuthErrorMessage(verifyError),
+          },
+        };
+      }
+
+      if (!verifyData.user) {
+        return {
+          success: false,
+          error: {
+            code: "verification_failed",
+            message: "Failed to verify OTP",
+          },
+        };
+      }
+
+      // Accept the invite and store the user ID
+      const { userInviteService } = await import("./user-invite-service");
+      const acceptResult = await userInviteService.acceptInvite(
+        inviteToken,
+        verifyData.user.id
+      );
+
+      if (!acceptResult.success) {
+        console.error("Failed to accept invite:", acceptResult.error);
+        // Continue anyway as the user has been created and verified
+      }
+
+      return {
+        success: true,
+        data: {
+          user: verifyData.user,
+          inviteAccepted: acceptResult.success,
+        },
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: {
+          code: "invite_verification_error",
+          message: getAuthErrorMessage(error),
+        },
+      };
+    }
+  }
+
   // Verify OTP and create profile
   public async verifyOTP(
     email: string,

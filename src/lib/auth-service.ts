@@ -543,6 +543,7 @@ export class AuthService {
           heard_about_us: registrationData.howDidYouHear,
           number_of_investments: registrationData.numberOfInvestments,
           average_ticket_size: registrationData.averageTicketSize || "",
+          calendly_link: registrationData.calendlyLink,
           secured_lead_investor: registrationData.hasSecuredLeadInvestor,
           participated_as_advisor: registrationData.hasBeenStartupAdvisor,
           strong_candidate_reason: registrationData.whyStrongCandidate,

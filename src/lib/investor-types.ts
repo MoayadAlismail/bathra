@@ -24,6 +24,7 @@ export interface AdminInvestorInfo extends InvestorBasicInfo {
   secured_lead_investor?: boolean;
   participated_as_advisor?: boolean;
   strong_candidate_reason?: string;
+  calendly_link?: string;
   status?: string;
   visibility_status?: string;
   admin_notes?: string;

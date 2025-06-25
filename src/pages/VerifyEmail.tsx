@@ -86,9 +86,9 @@ export default function VerifyEmail() {
 
         // Redirect based on account type
         if (user.accountType === "investor") {
-          setTimeout(() => navigate("/investor/dashboard"), 2000);
+          setTimeout(() => navigate("/investor-dashboard"), 2000);
         } else if (user.accountType === "startup") {
-          setTimeout(() => navigate("/startup/dashboard"), 2000);
+          setTimeout(() => navigate("/startup-dashboard"), 2000);
         } else if (user.accountType === "admin") {
           setTimeout(() => navigate("/admin"), 2000);
         } else {

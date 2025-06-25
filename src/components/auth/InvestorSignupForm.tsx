@@ -42,6 +42,7 @@ interface InvestorFormData {
   // Social profiles
   linkedinProfile: string;
   otherSocialMedia: { platform: string; url: string }[];
+  calendlyLink?: string;
 
   // Background
   howDidYouHear: string;
@@ -129,6 +130,7 @@ export default function InvestorSignupForm() {
       { platform: "Twitter", url: "https://twitter.com/alexr_investor" },
       { platform: "AngelList", url: "https://angel.co/alexrichardson" },
     ],
+    calendlyLink: "https://calendly.com/alexrichardson-investor",
 
     // Background - Demo values
     howDidYouHear: "Referral from Friend",
@@ -197,6 +199,7 @@ export default function InvestorSignupForm() {
       averageTicketSize: "",
       linkedinProfile: "",
       otherSocialMedia: [],
+      calendlyLink: "",
       howDidYouHear: "",
       numberOfInvestments: 0,
       hasSecuredLeadInvestor: false,
@@ -275,6 +278,7 @@ export default function InvestorSignupForm() {
           averageTicketSize: formData.averageTicketSize,
           linkedinProfile: formData.linkedinProfile,
           otherSocialMedia: formData.otherSocialMedia,
+          calendlyLink: formData.calendlyLink,
           howDidYouHear: formData.howDidYouHear,
           numberOfInvestments: formData.numberOfInvestments,
           hasSecuredLeadInvestor: formData.hasSecuredLeadInvestor,
@@ -560,6 +564,21 @@ export default function InvestorSignupForm() {
                 }))
               }
               placeholder="https://linkedin.com/in/yourprofile"
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="calendlyLink">Calendly Link</Label>
+            <Input
+              id="calendlyLink"
+              value={formData.calendlyLink}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  calendlyLink: e.target.value,
+                }))
+              }
+              placeholder="https://calendly.com/yourlink"
             />
           </div>
 

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import { Search, Calendar, User, Eye, Filter, Tag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,6 +33,7 @@ import {
 const ITEMS_PER_PAGE = 12;
 
 const Articles = () => {
+  const navigate = useNavigate();
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -201,7 +203,10 @@ const Articles = () => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: index * 0.1 }}
                 >
-                  <Card className="h-full hover:shadow-lg transition-shadow duration-300 group cursor-pointer">
+                  <Card
+                    className="h-full hover:shadow-lg transition-shadow duration-300 group cursor-pointer"
+                    onClick={() => navigate(`/articles/${article.slug}`)}
+                  >
                     {article.featured_image_url && (
                       <div className="relative h-48 overflow-hidden rounded-t-lg">
                         <img

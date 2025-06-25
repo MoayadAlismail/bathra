@@ -21,6 +21,7 @@ import InviteVerify from "./pages/InviteVerify";
 import NotFound from "./pages/NotFound";
 import Admin from "./pages/Admin";
 import Articles from "./pages/Articles";
+import ArticleDetail from "./pages/ArticleDetail";
 import PendingVerification from "./pages/PendingVerification";
 import AdminInvite from "./pages/AdminInvite";
 import StatusGuard from "./components/auth/StatusGuard";
@@ -264,6 +265,14 @@ const AppRoutes = () => {
           element={
             <ErrorBoundary>
               <Articles />
+            </ErrorBoundary>
+          }
+        />
+        <Route
+          path="/articles/:slug"
+          element={
+            <ErrorBoundary>
+              <ArticleDetail />
             </ErrorBoundary>
           }
         />

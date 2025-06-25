@@ -149,7 +149,6 @@ const ProtectedRoute = ({
 };
 
 const AppRoutes = () => {
-  // Direct access to main application routes - developer access removed
   return (
     <BrowserRouter>
       <Routes>

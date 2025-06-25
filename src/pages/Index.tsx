@@ -5,8 +5,13 @@ import HowItWorks from "@/components/HowItWorks";
 import Navbar from "@/components/Navbar";
 import { motion } from "framer-motion";
 import { ChartBarIcon, UsersIcon, InfoIcon } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
 
 const Index = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
   useEffect(() => {
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
       anchor.addEventListener('click', function (e) {
@@ -22,7 +27,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <HeroSection />
+      <HeroSection user={user} />
       <HowItWorks />
       
       {/* Information Section */}

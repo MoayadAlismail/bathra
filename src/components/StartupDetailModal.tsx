@@ -1,8 +1,19 @@
-
 import React from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { Bookmark, ExternalLink, MessageCircle, File } from "lucide-react";
 
 type StartupDetailProps = {
@@ -47,7 +58,9 @@ const StartupDetailModal: React.FC<StartupDetailProps> = ({
         <DialogHeader>
           <div className="flex justify-between items-start">
             <div>
-              <DialogTitle className="text-2xl font-bold">{startup.name}</DialogTitle>
+              <DialogTitle className="text-2xl font-bold">
+                {startup.name}
+              </DialogTitle>
               <div className="flex flex-wrap gap-2 mt-2">
                 <span className="bg-blue-100 text-blue-800 text-xs px-2.5 py-0.5 rounded-full">
                   {startup.industry}
@@ -67,22 +80,40 @@ const StartupDetailModal: React.FC<StartupDetailProps> = ({
                   onSave();
                 }}
               >
-                <Bookmark className={`h-5 w-5 ${isSaved ? "fill-primary text-primary" : ""}`} />
+                <Bookmark
+                  className={`h-5 w-5 ${
+                    isSaved ? "fill-primary text-primary" : ""
+                  }`}
+                />
               </Button>
               {startup.website && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-8 w-8 p-0"
-                  onClick={() => window.open(`https://${startup.website}`, '_blank')}
-                >
-                  <ExternalLink className="h-5 w-5" />
-                </Button>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 w-8 p-0"
+                        onClick={() => {
+                          const url = startup.website?.startsWith("http")
+                            ? startup.website
+                            : `https://${startup.website}`;
+                          window.open(url, "_blank");
+                        }}
+                      >
+                        <ExternalLink className="h-5 w-5" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Go to startup's website</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               )}
             </div>
           </div>
         </DialogHeader>
-        
+
         <div className="flex-grow overflow-auto pt-2">
           <Tabs defaultValue="overview" className="w-full">
             <TabsList className="mb-4">
@@ -91,26 +122,30 @@ const StartupDetailModal: React.FC<StartupDetailProps> = ({
               <TabsTrigger value="team">Team</TabsTrigger>
               <TabsTrigger value="financials">Financials</TabsTrigger>
             </TabsList>
-            
+
             <TabsContent value="overview" className="space-y-4">
               <div>
                 <h3 className="text-lg font-medium mb-2">About</h3>
                 <p className="text-gray-700">{startup.description}</p>
               </div>
-              
+
               {startup.video_url && (
                 <div>
                   <h3 className="text-lg font-medium mb-2">Pitch Video</h3>
                   <div className="aspect-video rounded-lg bg-gray-100 flex items-center justify-center">
-                    <p className="text-gray-500">Video player would appear here</p>
+                    <p className="text-gray-500">
+                      Video player would appear here
+                    </p>
                   </div>
                 </div>
               )}
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="bg-gray-50 p-4 rounded-lg">
                   <h3 className="text-sm font-medium mb-2">Funding Sought</h3>
-                  <p className="text-xl font-bold">{startup.funding_required}</p>
+                  <p className="text-xl font-bold">
+                    {startup.funding_required}
+                  </p>
                 </div>
                 <div className="bg-gray-50 p-4 rounded-lg">
                   <h3 className="text-sm font-medium mb-2">Valuation</h3>
@@ -118,41 +153,55 @@ const StartupDetailModal: React.FC<StartupDetailProps> = ({
                 </div>
               </div>
             </TabsContent>
-            
+
             <TabsContent value="business" className="space-y-4">
               <div>
                 <h3 className="text-lg font-medium mb-2">Business Model</h3>
-                <p className="text-gray-700">{startup.business_model || "Information not provided"}</p>
+                <p className="text-gray-700">
+                  {startup.business_model || "Information not provided"}
+                </p>
               </div>
-              
+
               <div>
                 <h3 className="text-lg font-medium mb-2">Market Analysis</h3>
-                <p className="text-gray-700">{startup.market_analysis || "Information not provided"}</p>
+                <p className="text-gray-700">
+                  {startup.market_analysis || "Information not provided"}
+                </p>
               </div>
-              
+
               <div>
-                <h3 className="text-lg font-medium mb-2">Competitive Landscape</h3>
-                <p className="text-gray-700">{startup.competition || "Information not provided"}</p>
+                <h3 className="text-lg font-medium mb-2">
+                  Competitive Landscape
+                </h3>
+                <p className="text-gray-700">
+                  {startup.competition || "Information not provided"}
+                </p>
               </div>
-              
+
               <div>
                 <h3 className="text-lg font-medium mb-2">Key Metrics</h3>
-                <p className="text-gray-700">{startup.key_metrics || "Information not provided"}</p>
+                <p className="text-gray-700">
+                  {startup.key_metrics || "Information not provided"}
+                </p>
               </div>
             </TabsContent>
-            
+
             <TabsContent value="team" className="space-y-4">
               <div>
                 <h3 className="text-lg font-medium mb-2">Founders</h3>
-                <p className="text-gray-700">{startup.founders || "Information not provided"}</p>
+                <p className="text-gray-700">
+                  {startup.founders || "Information not provided"}
+                </p>
               </div>
-              
+
               <div>
-                <h3 className="text-lg font-medium mb-2">Contact Information</h3>
+                <h3 className="text-lg font-medium mb-2">
+                  Contact Information
+                </h3>
                 <p className="text-gray-700">
                   {startup.contact_email && (
-                    <a 
-                      href={`mailto:${startup.contact_email}`} 
+                    <a
+                      href={`mailto:${startup.contact_email}`}
                       className="text-primary hover:underline"
                     >
                       {startup.contact_email}
@@ -162,9 +211,9 @@ const StartupDetailModal: React.FC<StartupDetailProps> = ({
                 </p>
                 <p className="text-gray-700 mt-1">
                   {startup.website && (
-                    <a 
-                      href={`https://${startup.website}`} 
-                      target="_blank" 
+                    <a
+                      href={`https://${startup.website}`}
+                      target="_blank"
                       rel="noopener noreferrer"
                       className="text-primary hover:underline"
                     >
@@ -174,18 +223,24 @@ const StartupDetailModal: React.FC<StartupDetailProps> = ({
                 </p>
               </div>
             </TabsContent>
-            
+
             <TabsContent value="financials" className="space-y-4">
               <div>
-                <h3 className="text-lg font-medium mb-2">Financial Projections</h3>
-                <p className="text-gray-700">{startup.financials || "Information not provided"}</p>
+                <h3 className="text-lg font-medium mb-2">
+                  Financial Projections
+                </h3>
+                <p className="text-gray-700">
+                  {startup.financials || "Information not provided"}
+                </p>
               </div>
-              
+
               <div>
                 <h3 className="text-lg font-medium mb-2">Investment Terms</h3>
-                <p className="text-gray-700">{startup.investment_terms || "Information not provided"}</p>
+                <p className="text-gray-700">
+                  {startup.investment_terms || "Information not provided"}
+                </p>
               </div>
-              
+
               {startup.document_path && (
                 <div>
                   <h3 className="text-lg font-medium mb-2">Documents</h3>
@@ -198,7 +253,7 @@ const StartupDetailModal: React.FC<StartupDetailProps> = ({
             </TabsContent>
           </Tabs>
         </div>
-        
+
         <DialogFooter className="pt-4 border-t mt-4">
           <div className="flex gap-4 w-full justify-end">
             <Button variant="outline" onClick={onClose}>

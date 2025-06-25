@@ -50,6 +50,10 @@ interface InvestorFormData {
   hasSecuredLeadInvestor: boolean;
   hasBeenStartupAdvisor: boolean;
   whyStrongCandidate: string;
+
+  // Agreement checkboxes
+  agreeToTerms: boolean;
+  acceptNewsletter: boolean;
 }
 
 const INDUSTRIES = [
@@ -139,6 +143,10 @@ export default function InvestorSignupForm() {
     hasBeenStartupAdvisor: true,
     whyStrongCandidate:
       "I bring 15+ years of experience in venture capital with a strong track record of successful exits. My portfolio includes 3 unicorn companies and I've led investments totaling over $50M. I provide strategic guidance to portfolio companies and have extensive networks in Silicon Valley and beyond. My expertise spans enterprise software, fintech, and AI/ML sectors.",
+
+    // Agreement checkboxes
+    agreeToTerms: false,
+    acceptNewsletter: false,
   });
 
   const [errors, setErrors] = useState<string[]>([]);
@@ -205,6 +213,8 @@ export default function InvestorSignupForm() {
       hasSecuredLeadInvestor: false,
       hasBeenStartupAdvisor: false,
       whyStrongCandidate: "",
+      agreeToTerms: false,
+      acceptNewsletter: false,
     });
     toast.success("Demo data cleared!");
   };
@@ -234,6 +244,10 @@ export default function InvestorSignupForm() {
       newErrors.push("Please tell us how you heard about us");
     if (!formData.whyStrongCandidate)
       newErrors.push("Please explain why you're a strong candidate");
+    if (!formData.agreeToTerms)
+      newErrors.push("You must agree to the terms and conditions");
+    if (!formData.acceptNewsletter)
+      newErrors.push("You must accept receiving newsletter");
 
     return newErrors;
   };
@@ -284,6 +298,8 @@ export default function InvestorSignupForm() {
           hasSecuredLeadInvestor: formData.hasSecuredLeadInvestor,
           hasBeenStartupAdvisor: formData.hasBeenStartupAdvisor,
           whyStrongCandidate: formData.whyStrongCandidate,
+          agreeToTerms: formData.agreeToTerms,
+          acceptNewsletter: formData.acceptNewsletter,
         };
 
         sessionStorage.setItem(
@@ -726,6 +742,52 @@ export default function InvestorSignupForm() {
         </CardContent>
       </Card>
 
+      {/* Agreement Checkboxes */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Agreement</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="agreeToTerms"
+              checked={formData.agreeToTerms}
+              onCheckedChange={(checked) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  agreeToTerms: !!checked,
+                }))
+              }
+              required
+            />
+            <Label
+              htmlFor="agreeToTerms"
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            >
+              I agree to the terms and conditions *
+            </Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="acceptNewsletter"
+              checked={formData.acceptNewsletter}
+              onCheckedChange={(checked) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  acceptNewsletter: !!checked,
+                }))
+              }
+            />
+            <Label
+              htmlFor="acceptNewsletter"
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            >
+              I accept receiving newsletter *
+            </Label>
+          </div>
+        </CardContent>
+      </Card>
+
       <div className="flex gap-4">
         <Button
           type="button"
@@ -738,7 +800,9 @@ export default function InvestorSignupForm() {
         </Button>
         <Button
           type="submit"
-          disabled={isSubmitting}
+          disabled={
+            isSubmitting || !formData.agreeToTerms || !formData.acceptNewsletter
+          }
           className="flex-1"
           size="lg"
         >

@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import Navbar from "@/components/Navbar";
 import InvestorSignupForm from "@/components/auth/InvestorSignupForm";
+import Footer from "@/components/Footer";
 
 const InvestorSignup = () => {
   return (
@@ -23,6 +24,7 @@ const InvestorSignup = () => {
           <InvestorSignupForm />
         </motion.div>
       </div>
+      <Footer />
     </div>
   );
 };

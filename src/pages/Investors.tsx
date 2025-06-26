@@ -5,6 +5,7 @@ import StartupBrowseInvestors from "@/components/StartupBrowseInvestors";
 import { useAuth } from "@/context/AuthContext";
 import { Navigate } from "react-router-dom";
 import { AccountType, isStartupAccount } from "@/lib/account-types";
+import Footer from "@/components/Footer";
 
 const Investors = () => {
   const { user, profile } = useAuth();
@@ -24,6 +25,7 @@ const Investors = () => {
       <div className="pt-28">
         <StartupBrowseInvestors />
       </div>
+      <Footer />
     </div>
   );
 };

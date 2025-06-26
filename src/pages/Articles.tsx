@@ -29,6 +29,7 @@ import {
   ARTICLE_CATEGORY_LABELS,
   PaginatedArticles,
 } from "@/lib/article-types";
+import Footer from "@/components/Footer";
 
 const ITEMS_PER_PAGE = 12;
 
@@ -316,6 +317,7 @@ const Articles = () => {
           )}
         </div>
       </div>
+      <Footer />
     </div>
   );
 };

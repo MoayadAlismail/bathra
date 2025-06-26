@@ -21,6 +21,7 @@ import {
   ARTICLE_CATEGORY_LABELS,
   ArticleCategory,
 } from "@/lib/article-types";
+import Footer from "@/components/Footer";
 
 const ArticleDetail = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -361,6 +362,7 @@ const ArticleDetail = () => {
           )}
         </div>
       </article>
+      <Footer />
     </div>
   );
 };

@@ -31,6 +31,7 @@ import {
 import { useLocation } from "react-router-dom";
 import { adminService } from "@/lib/admin-service";
 import { useAuth } from "@/context/AuthContext";
+import Footer from "@/components/Footer";
 
 const Admin = () => {
   const location = useLocation();
@@ -307,6 +308,7 @@ const Admin = () => {
           )}
         </div>
       </div>
+      <Footer />
     </div>
   );
 };

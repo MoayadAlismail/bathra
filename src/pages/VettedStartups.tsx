@@ -1,5 +1,6 @@
 import Navbar from "@/components/Navbar";
 import InvestorBrowseStartups from "@/components/InvestorBrowseStartups";
+import Footer from "@/components/Footer";
 
 const VettedStartups = () => {
   return (
@@ -8,6 +9,7 @@ const VettedStartups = () => {
       <section className="pt-28 pb-20">
         <InvestorBrowseStartups isDashboard={false} />
       </section>
+      <Footer />
     </div>
   );
 };

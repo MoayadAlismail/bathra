@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import Navbar from "@/components/Navbar";
 import { useSimpleAuth } from "@/lib/simple-auth-service";
 import { RegistrationData } from "@/lib/auth-types";
+import Footer from "@/components/Footer";
 
 export default function VerifyEmail() {
   const [otp, setOtp] = useState("");
@@ -273,6 +274,7 @@ export default function VerifyEmail() {
           </motion.div>
         </div>
       </section>
+      <Footer />
     </div>
   );
 }

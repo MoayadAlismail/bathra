@@ -9,6 +9,7 @@ import { Building, Briefcase } from "lucide-react";
 import { AccountType } from "@/lib/account-types";
 import InvestorSignupForm from "@/components/auth/InvestorSignupForm";
 import StartupSignupForm from "@/components/auth/StartupSignupForm";
+import Footer from "@/components/Footer";
 
 export default function Signup() {
   const [step, setStep] = useState<"selection" | "form">("selection");
@@ -144,6 +145,7 @@ export default function Signup() {
           )}
         </div>
       </section>
+      <Footer />
     </div>
   );
 }

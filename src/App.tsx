@@ -24,6 +24,7 @@ import Articles from "./pages/Articles";
 import ArticleDetail from "./pages/ArticleDetail";
 import PendingVerification from "./pages/PendingVerification";
 import AdminInvite from "./pages/AdminInvite";
+import TermsAndConditions from "./pages/TermsAndConditions";
 import StatusGuard from "./components/auth/StatusGuard";
 import "./App.css";
 
@@ -281,6 +282,14 @@ const AppRoutes = () => {
           element={
             <ErrorBoundary>
               <AdminInvite />
+            </ErrorBoundary>
+          }
+        />
+        <Route
+          path="/terms-and-conditions"
+          element={
+            <ErrorBoundary>
+              <TermsAndConditions />
             </ErrorBoundary>
           }
         />

@@ -308,3 +308,5 @@ export class UserInviteService {
 }
 
 export const userInviteService = UserInviteService.getInstance();
+export type { UserInvite };
+

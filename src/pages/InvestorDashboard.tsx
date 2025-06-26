@@ -45,6 +45,7 @@ import {
   LogOut,
 } from "lucide-react";
 import { Startup, processStartupData } from "@/lib/supabase";
+import Footer from "@/components/Footer";
 
 const InvestorDashboard = () => {
   const { user, profile, signOut } = useAuth();
@@ -339,6 +340,7 @@ const InvestorDashboard = () => {
           onUpdate={handleProfileUpdate}
         />
       )}
+      <Footer />
     </div>
   );
 };

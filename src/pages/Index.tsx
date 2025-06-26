@@ -3,6 +3,7 @@ import HeroSection from "@/components/HeroSection";
 import HowItWorks from "@/components/HowItWorks";
 import TrustedBy from "@/components/TrustedBy";
 import Navbar from "@/components/Navbar";
+import { Footer } from "@/components";
 import { motion } from "framer-motion";
 import { ChartBarIcon, UsersIcon, InfoIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -91,6 +92,7 @@ const Index = () => {
           </motion.div>
         </div>
       </section>
+      <Footer />
     </div>
   );
 };

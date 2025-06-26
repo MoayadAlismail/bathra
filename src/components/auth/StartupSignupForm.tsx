@@ -73,6 +73,10 @@ interface StartupFormData {
   participatedAccelerator: boolean;
   acceleratorDetails?: string;
   additionalFiles: string[];
+
+  // Agreement checkboxes
+  agreeToTerms: boolean;
+  acceptNewsletter: boolean;
 }
 
 const INDUSTRIES = [
@@ -186,6 +190,10 @@ export default function StartupSignupForm() {
     acceleratorDetails:
       "Participated in Y Combinator Winter 2022 batch. Secured connections to key investors and industry partners, refined business model, and improved unit economics by 25%.",
     additionalFiles: [],
+
+    // Agreement checkboxes
+    agreeToTerms: false,
+    acceptNewsletter: false,
   });
 
   const [errors, setErrors] = useState<string[]>([]);
@@ -289,6 +297,8 @@ export default function StartupSignupForm() {
       participatedAccelerator: false,
       acceleratorDetails: "",
       additionalFiles: [],
+      agreeToTerms: false,
+      acceptNewsletter: false,
     });
     toast.success("Demo data cleared!");
   };
@@ -320,6 +330,10 @@ export default function StartupSignupForm() {
     if (!formData.risksAndMitigation)
       newErrors.push("Risks and mitigation is required");
     if (!formData.exitStrategy) newErrors.push("Exit strategy is required");
+    if (!formData.agreeToTerms)
+      newErrors.push("You must agree to the terms and conditions");
+    if (!formData.acceptNewsletter)
+      newErrors.push("You must accept receiving newsletter");
 
     return newErrors;
   };
@@ -381,6 +395,8 @@ export default function StartupSignupForm() {
           participatedAccelerator: formData.participatedAccelerator,
           acceleratorDetails: formData.acceleratorDetails,
           additionalFiles: formData.additionalFiles,
+          agreeToTerms: formData.agreeToTerms,
+          acceptNewsletter: formData.acceptNewsletter,
         };
 
         sessionStorage.setItem(
@@ -1085,6 +1101,52 @@ export default function StartupSignupForm() {
         </CardContent>
       </Card>
 
+      {/* Agreement Checkboxes */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Agreement</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="agreeToTerms"
+              checked={formData.agreeToTerms}
+              onCheckedChange={(checked) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  agreeToTerms: !!checked,
+                }))
+              }
+              required
+            />
+            <Label
+              htmlFor="agreeToTerms"
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            >
+              I agree to the terms and conditions *
+            </Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="acceptNewsletter"
+              checked={formData.acceptNewsletter}
+              onCheckedChange={(checked) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  acceptNewsletter: !!checked,
+                }))
+              }
+            />
+            <Label
+              htmlFor="acceptNewsletter"
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            >
+              I accept receiving newsletter *
+            </Label>
+          </div>
+        </CardContent>
+      </Card>
+
       <div className="flex gap-4">
         <Button
           type="button"
@@ -1097,7 +1159,9 @@ export default function StartupSignupForm() {
         </Button>
         <Button
           type="submit"
-          disabled={isSubmitting}
+          disabled={
+            isSubmitting || !formData.agreeToTerms || !formData.acceptNewsletter
+          }
           className="flex-1"
           size="lg"
         >

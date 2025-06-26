@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import Navbar from "@/components/Navbar";
 import { useSimpleAuth } from "@/lib/simple-auth-service";
 import { RegistrationData } from "@/lib/auth-types";
+import Footer from "@/components/Footer";
 
 export default function VerifyEmail() {
   const [otp, setOtp] = useState("");
@@ -86,9 +87,9 @@ export default function VerifyEmail() {
 
         // Redirect based on account type
         if (user.accountType === "investor") {
-          setTimeout(() => navigate("/investor/dashboard"), 2000);
+          setTimeout(() => navigate("/investor-dashboard"), 2000);
         } else if (user.accountType === "startup") {
-          setTimeout(() => navigate("/startup/dashboard"), 2000);
+          setTimeout(() => navigate("/startup-dashboard"), 2000);
         } else if (user.accountType === "admin") {
           setTimeout(() => navigate("/admin"), 2000);
         } else {
@@ -273,6 +274,7 @@ export default function VerifyEmail() {
           </motion.div>
         </div>
       </section>
+      <Footer />
     </div>
   );
 }

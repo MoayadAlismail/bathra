@@ -27,6 +27,7 @@ export type Tables = {
     // Social Media & Contact
     linkedin_profile?: string;
     other_social_media_profile?: string;
+    calendly_link?: string;
 
     // Background Info
     heard_about_us?: string;

@@ -1,6 +1,17 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Filter, Building, ArrowRight, X, Edit } from "lucide-react";
+import {
+  Search,
+  Filter,
+  Building,
+  ArrowRight,
+  X,
+  Edit,
+  Eye,
+  EyeOff,
+  Maximize,
+  Minimize,
+} from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
@@ -31,6 +42,27 @@ import AdminStartupEditModal from "./AdminStartupEditModal";
 
 const ITEMS_PER_PAGE = 12;
 
+// Helper function to convert Google Drive URLs to embeddable format
+const getEmbeddablePdfUrl = (url: string): string => {
+  // Check if it's a Google Drive URL
+  const driveRegex =
+    /(?:https?:\/\/)?(?:www\.)?(?:drive\.google\.com\/file\/d\/|docs\.google\.com\/document\/d\/)([a-zA-Z0-9-_]+)/;
+  const match = url.match(driveRegex);
+
+  if (match) {
+    const fileId = match[1];
+    // Convert to preview format for embedding
+    return `https://drive.google.com/file/d/${fileId}/preview`;
+  }
+
+  // For other PDF URLs, add PDF.js viewer parameters
+  if (url.toLowerCase().includes(".pdf") || url.includes("pdf")) {
+    return `${url}#toolbar=1&navpanes=1&scrollbar=1`;
+  }
+
+  return url;
+};
+
 const AdminBrowseStartups = () => {
   const [startups, setStartups] = useState<AdminStartupInfo[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -47,6 +79,9 @@ const AdminBrowseStartups = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
+  const [showPdfPreview, setShowPdfPreview] = useState(false);
+  const [isPdfFullScreen, setIsPdfFullScreen] = useState(false);
+  const pdfPreviewRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
 
   useEffect(() => {
@@ -129,6 +164,21 @@ const AdminBrowseStartups = () => {
   const handleStartupClick = (startup: AdminStartupInfo) => {
     setSelectedStartup(startup);
     setIsDetailModalOpen(true);
+    setShowPdfPreview(false);
+    setIsPdfFullScreen(false);
+  };
+
+  const handleShowPreview = () => {
+    setShowPdfPreview(!showPdfPreview);
+    // Scroll to preview after state update
+    if (!showPdfPreview) {
+      setTimeout(() => {
+        pdfPreviewRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      }, 100);
+    }
   };
 
   const handleEditClick = (startup: AdminStartupInfo, e: React.MouseEvent) => {
@@ -568,20 +618,75 @@ const AdminBrowseStartups = () => {
                       <p className="text-sm font-medium text-muted-foreground">
                         Pitch Deck
                       </p>
-                      <p className="font-medium">
+                      <div className="font-medium">
                         {selectedStartup.pitch_deck ? (
-                          <a
-                            href={selectedStartup.pitch_deck}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-primary hover:underline"
-                          >
-                            View Pitch Deck
-                          </a>
+                          <div className="space-y-3">
+                            <div className="flex items-center gap-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={handleShowPreview}
+                                className="flex items-center gap-2"
+                              >
+                                {showPdfPreview ? (
+                                  <>
+                                    <EyeOff className="h-4 w-4" />
+                                    Hide Preview
+                                  </>
+                                ) : (
+                                  <>
+                                    <Eye className="h-4 w-4" />
+                                    Show Preview
+                                  </>
+                                )}
+                              </Button>
+                              <a
+                                href={selectedStartup.pitch_deck}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-primary hover:underline text-sm"
+                              >
+                                Open in new tab
+                              </a>
+                            </div>
+
+                            {showPdfPreview && (
+                              <div ref={pdfPreviewRef} className="space-y-2">
+                                <div className="flex items-center justify-between">
+                                  <p className="text-sm text-muted-foreground">
+                                    PDF Preview
+                                  </p>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => {
+                                      setIsPdfFullScreen(true);
+                                      setIsDetailModalOpen(false);
+                                    }}
+                                    className="flex items-center gap-1"
+                                  >
+                                    <Maximize className="h-4 w-4" />
+                                    Full Screen
+                                  </Button>
+                                </div>
+                                <div className="border rounded-lg overflow-hidden h-[400px]">
+                                  <iframe
+                                    src={getEmbeddablePdfUrl(
+                                      selectedStartup.pitch_deck
+                                    )}
+                                    className="w-full h-full"
+                                    title="Pitch Deck Preview"
+                                    sandbox="allow-same-origin allow-scripts"
+                                    allow="autoplay"
+                                  />
+                                </div>
+                              </div>
+                            )}
+                          </div>
                         ) : (
                           "Not provided"
                         )}
-                      </p>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -589,6 +694,36 @@ const AdminBrowseStartups = () => {
             </div>
           </DialogContent>
         </Dialog>
+      )}
+
+      {/* Full Screen PDF Overlay */}
+      {isPdfFullScreen && selectedStartup?.pitch_deck && (
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-75 flex items-center justify-center">
+          <div className="w-full h-full max-w-7xl max-h-full p-4 flex flex-col">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-white text-lg font-medium">
+                {selectedStartup.startup_name} - Pitch Deck
+              </h3>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsPdfFullScreen(false)}
+                className="text-white hover:bg-white/10"
+              >
+                <X className="h-5 w-5" />
+              </Button>
+            </div>
+            <div className="flex-1 bg-white rounded-lg overflow-hidden">
+              <iframe
+                src={getEmbeddablePdfUrl(selectedStartup.pitch_deck)}
+                className="w-full h-full"
+                title="Pitch Deck Full Screen"
+                sandbox="allow-same-origin allow-scripts"
+                allow="autoplay"
+              />
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Edit Modal */}

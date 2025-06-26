@@ -42,11 +42,13 @@ import {
   Edit,
   LogOut,
   Building2,
+  ExternalLink,
 } from "lucide-react";
 import StartupProfileEditModal from "@/components/StartupProfileEditModal";
 import InvestorDetailModal from "@/components/InvestorDetailModal";
 import { toast } from "@/components/ui/use-toast";
 import TestNotificationCreator from "@/components/TestNotificationCreator";
+import Footer from "@/components/Footer";
 
 const StartupDashboard = () => {
   const { user, profile, signOut } = useAuth();
@@ -261,53 +263,77 @@ const StartupDashboard = () => {
                 </div>
 
                 <div className="glass p-6 rounded-xl border border-white/10">
-                  <h3 className="text-lg font-semibold mb-3">Quick Actions</h3>
-                  <div className="space-y-2">
-                    <Button
-                      variant="outline"
-                      className="w-full justify-start border-white/10 hover:bg-white/5 hover:text-black"
-                      onClick={() => navigate("/investors")}
-                    >
-                      <Users className="mr-2 h-4 w-4" />
-                      Browse All Investors
-                    </Button>
-                    <Button
-                      variant="outline"
-                      className="w-full justify-start border-white/10 hover:bg-white/5 hover:text-black"
-                      onClick={() => navigate("/startup-profile")}
-                    >
-                      <Building2 className="mr-2 h-4 w-4" />
-                      View Public Profile
-                    </Button>
-                    <Button
-                      variant="outline"
-                      className="w-full justify-start border-white/10 hover:bg-white/5 text-red-400 hover:text-red-500"
-                      onClick={handleLogout}
-                    >
-                      <LogOut className="mr-2 h-4 w-4" />
-                      Sign Out
-                    </Button>
+                  <h3 className="text-lg font-semibold mb-4">
+                    Business Details
+                  </h3>
+                  <div className="space-y-4">
+                    <div>
+                      <span className="text-sm font-medium text-muted-foreground">
+                        Problem We Solve:
+                      </span>
+                      <p className="text-sm mt-1 text-foreground leading-relaxed">
+                        {startupDetails?.problem_solving || "Not specified"}
+                      </p>
+                    </div>
+                    <div>
+                      <span className="text-sm font-medium text-muted-foreground">
+                        Our Solution:
+                      </span>
+                      <p className="text-sm mt-1 text-foreground leading-relaxed">
+                        {startupDetails?.solution || "Not specified"}
+                      </p>
+                    </div>
+                    <div>
+                      <span className="text-sm font-medium text-muted-foreground">
+                        Unique Value Proposition:
+                      </span>
+                      <p className="text-sm mt-1 text-foreground leading-relaxed">
+                        {startupDetails?.uniqueness || "Not specified"}
+                      </p>
+                    </div>
+                    <div className="pt-2 border-t border-white/10">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <span className="text-xs font-medium text-muted-foreground">
+                            Funding Raised:
+                          </span>
+                          <p className="text-sm text-foreground">
+                            $
+                            {startupDetails?.funding_already_raised?.toLocaleString() ||
+                              0}
+                          </p>
+                        </div>
+                        <div>
+                          <span className="text-xs font-medium text-muted-foreground">
+                            Monthly Burn:
+                          </span>
+                          <p className="text-sm text-foreground">
+                            $
+                            {startupDetails?.monthly_burn_rate?.toLocaleString() ||
+                              0}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    {startupDetails?.website && (
+                      <div className="pt-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full justify-start border-white/10 hover:bg-white/5 hover:text-black"
+                          onClick={() =>
+                            window.open(startupDetails.website, "_blank")
+                          }
+                        >
+                          <ExternalLink className="mr-2 h-3 w-3" />
+                          Visit Website
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
             </div>
-
-            {/* Development Tools Section - Only in dev mode */}
-            {/* {process.env.NODE_ENV === "development" && (
-              <div className="neo-blur rounded-2xl shadow-lg p-8 mb-8">
-                <div className="mb-6">
-                  <h2 className="text-2xl font-bold text-gradient mb-2">
-                    Development Tools
-                  </h2>
-                  <p className="text-muted-foreground">
-                    Test notification system functionality
-                  </p>
-                </div>
-                <div className="flex justify-center">
-                  <TestNotificationCreator />
-                </div>
-              </div>
-            )} */}
 
             {/* Recent Investors Section */}
             {/* <div className="neo-blur rounded-2xl shadow-lg p-8">
@@ -325,8 +351,8 @@ const StartupDashboard = () => {
                 </Button>
               </div> */}
 
-              {/* Recent Investors List */}
-              {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* Recent Investors List */}
+            {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {recentInvestors.length > 0 ? (
                   recentInvestors.map((investor: Investor) => (
                     <Card
@@ -406,6 +432,7 @@ const StartupDashboard = () => {
           onConnect={handleConnectInvestor}
         />
       )} */}
+      <Footer />
     </div>
   );
 };

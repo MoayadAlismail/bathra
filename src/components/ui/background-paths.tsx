@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
+import { User } from "@/lib/simple-auth-service";
 
 function FloatingPaths({ position }: { position: number }) {
     const paths = Array.from({ length: 36 }, (_, i) => ({
@@ -69,13 +70,15 @@ interface BackgroundPathsProps {
     subtitle?: string;
     buttonText?: string;
     buttonLink?: string;
+    user?: User | null;
 }
 
 export function BackgroundPaths({
     title = "Transform Your Vision Into Reality",
     subtitle = "Get funded. Invest wisely. Build the future together with strategic partners who believe in your potential.",
     buttonText = "Discover Excellence",
-    buttonLink = "/pitch"
+    buttonLink = "/signup",
+    user = null,
 }: BackgroundPathsProps) {
     const navigate = useNavigate();
     const words = title.split(" ");
@@ -136,7 +139,7 @@ export function BackgroundPaths({
                             {subtitle}
                         </motion.p>
                     )}
-
+                    {!user && (
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -165,8 +168,10 @@ export function BackgroundPaths({
                                     →
                                 </span>
                             </Button>
+
                         </div>
                     </motion.div>
+                    )}
                 </motion.div>
             </div>
         </div>

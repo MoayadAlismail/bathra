@@ -21,8 +21,10 @@ import InviteVerify from "./pages/InviteVerify";
 import NotFound from "./pages/NotFound";
 import Admin from "./pages/Admin";
 import Articles from "./pages/Articles";
+import ArticleDetail from "./pages/ArticleDetail";
 import PendingVerification from "./pages/PendingVerification";
 import AdminInvite from "./pages/AdminInvite";
+import TermsAndConditions from "./pages/TermsAndConditions";
 import StatusGuard from "./components/auth/StatusGuard";
 import "./App.css";
 
@@ -149,7 +151,6 @@ const ProtectedRoute = ({
 };
 
 const AppRoutes = () => {
-  // Direct access to main application routes - developer access removed
   return (
     <BrowserRouter>
       <Routes>
@@ -269,10 +270,26 @@ const AppRoutes = () => {
           }
         />
         <Route
+          path="/articles/:slug"
+          element={
+            <ErrorBoundary>
+              <ArticleDetail />
+            </ErrorBoundary>
+          }
+        />
+        <Route
           path="/admin/invite"
           element={
             <ErrorBoundary>
               <AdminInvite />
+            </ErrorBoundary>
+          }
+        />
+        <Route
+          path="/terms-and-conditions"
+          element={
+            <ErrorBoundary>
+              <TermsAndConditions />
             </ErrorBoundary>
           }
         />

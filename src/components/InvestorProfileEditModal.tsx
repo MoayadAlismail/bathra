@@ -51,6 +51,7 @@ interface InvestorFormData {
   // Social profiles
   linkedinProfile: string;
   otherSocialMedia: { platform: string; url: string }[];
+  calendlyLink?: string;
 
   // Background
   howDidYouHear: string;
@@ -139,6 +140,7 @@ const InvestorProfileEditModal = ({
     averageTicketSize: "",
     linkedinProfile: "",
     otherSocialMedia: [],
+    calendlyLink: "",
     howDidYouHear: "",
     numberOfInvestments: 0,
     hasSecuredLeadInvestor: false,
@@ -178,6 +180,7 @@ const InvestorProfileEditModal = ({
         otherSocialMedia: Array.isArray(parsedSocialMedia)
           ? parsedSocialMedia
           : [],
+        calendlyLink: investor.calendly_link || "",
         howDidYouHear: investor.heard_about_us || "",
         numberOfInvestments: investor.number_of_investments || 0,
         hasSecuredLeadInvestor: investor.secured_lead_investor || false,
@@ -277,6 +280,7 @@ const InvestorProfileEditModal = ({
         average_ticket_size: formData.averageTicketSize,
         linkedin_profile: formData.linkedinProfile,
         other_social_media_profile: JSON.stringify(formData.otherSocialMedia),
+        calendly_link: formData.calendlyLink,
         heard_about_us: formData.howDidYouHear,
         number_of_investments: formData.numberOfInvestments,
         secured_lead_investor: formData.hasSecuredLeadInvestor,
@@ -535,6 +539,22 @@ const InvestorProfileEditModal = ({
                   }
                   placeholder="https://linkedin.com/in/yourprofile"
                   required
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="calendlyLink">Calendly Link</Label>
+                <Input
+                  id="calendlyLink"
+                  type="url"
+                  value={formData.calendlyLink}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      calendlyLink: e.target.value,
+                    }))
+                  }
+                  placeholder="https://calendly.com/yourlink"
                 />
               </div>
 

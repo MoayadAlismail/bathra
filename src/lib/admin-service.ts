@@ -697,8 +697,9 @@ class AdminService {
       const allUsers = [...(startups || []), ...(investors || [])];
 
       const stats = {
-        totalStartups: startups?.length || 0,
-        totalInvestors: investors?.length || 0,
+        totalStartups: startups.filter((startup) => startup.verified).length,
+        totalInvestors: investors.filter((investor) => investor.verified)
+          .length,
         pendingApprovals: allUsers.filter(
           (user) => user.status === "pending" || !user.status
         ).length,

@@ -37,6 +37,9 @@ export type Tables = {
     participated_as_advisor?: boolean;
     strong_candidate_reason?: string;
 
+    // Newsletter Subscription
+    newsletter_subscribed: boolean;
+
     // Admin Management Fields
     verified: boolean;
     status: "pending" | "approved" | "rejected" | "flagged";
@@ -132,6 +135,9 @@ export type Tables = {
       | "Shareholder/employee buyout"
       | "IPO/RPO";
     participated_in_accelerator?: boolean;
+
+    // Newsletter Subscription
+    newsletter_subscribed: boolean;
 
     // Admin Management Fields
     verified: boolean;

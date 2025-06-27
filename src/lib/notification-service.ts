@@ -431,10 +431,16 @@ export class NotificationService {
       let userIds: string[] = [];
 
       if (campaign.recipient_type === "all") {
-        // Get all user IDs from investors and startups tables
+        // Get user IDs from investors and startups tables who subscribed to newsletters
         const [investorsResult, startupsResult] = await Promise.all([
-          supabase.from("investors").select("id"),
-          supabase.from("startups").select("id"),
+          supabase
+            .from("investors")
+            .select("id")
+            .eq("newsletter_subscribed", true),
+          supabase
+            .from("startups")
+            .select("id")
+            .eq("newsletter_subscribed", true),
         ]);
 
         if (investorsResult.data)
@@ -442,10 +448,16 @@ export class NotificationService {
         if (startupsResult.data)
           userIds.push(...startupsResult.data.map((startup) => startup.id));
       } else if (campaign.recipient_type === "investors") {
-        const { data } = await supabase.from("investors").select("id");
+        const { data } = await supabase
+          .from("investors")
+          .select("id")
+          .eq("newsletter_subscribed", true);
         if (data) userIds = data.map((inv) => inv.id);
       } else if (campaign.recipient_type === "startups") {
-        const { data } = await supabase.from("startups").select("id");
+        const { data } = await supabase
+          .from("startups")
+          .select("id")
+          .eq("newsletter_subscribed", true);
         if (data) userIds = data.map((startup) => startup.id);
       } else if (
         campaign.recipient_type === "specific" &&
@@ -511,19 +523,27 @@ export class NotificationService {
 
       if (recipientType === "all") {
         const [investorsResult, startupsResult] = await Promise.all([
-          supabase.from("investors").select("id", { count: "exact" }),
-          supabase.from("startups").select("id", { count: "exact" }),
+          supabase
+            .from("investors")
+            .select("id", { count: "exact" })
+            .eq("newsletter_subscribed", true),
+          supabase
+            .from("startups")
+            .select("id", { count: "exact" })
+            .eq("newsletter_subscribed", true),
         ]);
         count = (investorsResult.count || 0) + (startupsResult.count || 0);
       } else if (recipientType === "investors") {
         const { count: investorCount } = await supabase
           .from("investors")
-          .select("id", { count: "exact" });
+          .select("id", { count: "exact" })
+          .eq("newsletter_subscribed", true);
         count = investorCount || 0;
       } else if (recipientType === "startups") {
         const { count: startupCount } = await supabase
           .from("startups")
-          .select("id", { count: "exact" });
+          .select("id", { count: "exact" })
+          .eq("newsletter_subscribed", true);
         count = startupCount || 0;
       }
 

@@ -13,3 +13,4 @@ export { default as AddAdminModal } from "./AddAdminModal";
 export { default as AdminDetailModal } from "./AdminDetailModal";
 export { default as UserInvitesManagement } from "./UserInvitesManagement";
 export { default as UserInviteModal } from "./UserInviteModal";
+export { default as ConnectionsManagement } from "./ConnectionsManagement";

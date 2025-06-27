@@ -52,6 +52,21 @@ export type Tables = {
     created_at: string;
     updated_at?: string;
   };
+  investor_startup_connections: {
+    id: string;
+    investor_id: string;
+    startup_id: string;
+    connection_type: "interested" | "info_request";
+    investor_name: string;
+    investor_email: string;
+    investor_calendly_link?: string;
+    startup_name: string;
+    startup_email: string;
+    message?: string; // For info requests
+    status: "active" | "archived";
+    created_at: string;
+    updated_at?: string;
+  };
   articles: {
     id: string;
     title: string;
@@ -246,6 +261,7 @@ export type Admin = Tables["admins"];
 export type Notification = Tables["notifications"];
 export type NewsletterCampaign = Tables["newsletter_campaigns"];
 export type UserInvite = Tables["user_invites"];
+export type InvestorStartupConnection = Tables["investor_startup_connections"];
 
 // Define specific response types to help with TypeScript safety
 export interface SupabaseResponse<T> {

@@ -2,6 +2,8 @@
 export interface StartupBasicInfo {
   id: string;
   name: string;
+  email: string;
+  calendly_link?: string;
   startup_name: string;
   industry: string;
   stage: string;
@@ -24,7 +26,7 @@ export interface StartupBasicInfo {
 
 // Extended startup information visible to admins
 export interface AdminStartupInfo extends StartupBasicInfo {
-  email?: string;
+  email: string;
   phone?: string;
   founder_info?: string;
   problem_solving?: string;

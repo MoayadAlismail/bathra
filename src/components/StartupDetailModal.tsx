@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -14,7 +14,15 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Bookmark, ExternalLink, MessageCircle, File } from "lucide-react";
+import {
+  Bookmark,
+  ExternalLink,
+  MessageCircle,
+  File,
+  Heart,
+  CheckCircle,
+} from "lucide-react";
+import InfoRequestModal from "@/components/InfoRequestModal";
 
 type StartupDetailProps = {
   startup: {
@@ -36,12 +44,16 @@ type StartupDetailProps = {
     market_analysis?: string;
     competition?: string;
     financials?: string;
+    startup_name?: string;
+    email?: string;
   };
   isOpen: boolean;
   onClose: () => void;
   onSave: () => void;
   isSaved: boolean;
   onRequestInfo: () => void;
+  onInterested?: () => void;
+  isInterested?: boolean;
 };
 
 const StartupDetailModal: React.FC<StartupDetailProps> = ({
@@ -51,7 +63,14 @@ const StartupDetailModal: React.FC<StartupDetailProps> = ({
   onSave,
   isSaved,
   onRequestInfo,
+  onInterested,
+  isInterested = false,
 }) => {
+  const [isInfoRequestModalOpen, setIsInfoRequestModalOpen] = useState(false);
+
+  const handleRequestInfo = () => {
+    setIsInfoRequestModalOpen(true);
+  };
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl h-[80vh] flex flex-col">
@@ -255,17 +274,58 @@ const StartupDetailModal: React.FC<StartupDetailProps> = ({
         </div>
 
         <DialogFooter className="pt-4 border-t mt-4">
-          <div className="flex gap-4 w-full justify-end">
+          <div className="flex gap-3 w-full justify-end">
             <Button variant="outline" onClick={onClose}>
               Close
             </Button>
-            <Button onClick={onRequestInfo} className="gap-2">
+            <Button
+              onClick={handleRequestInfo}
+              variant="outline"
+              className="gap-2"
+            >
               <MessageCircle className="h-4 w-4" />
               Request More Info
             </Button>
+            {onInterested && (
+              <Button
+                onClick={onInterested}
+                className="gap-2"
+                variant={isInterested ? "secondary" : "default"}
+                disabled={isInterested}
+              >
+                {isInterested ? (
+                  <>
+                    <CheckCircle className="h-4 w-4" />
+                    Interest Shown
+                  </>
+                ) : (
+                  <>
+                    <Heart className="h-4 w-4" />
+                    I'm Interested
+                  </>
+                )}
+              </Button>
+            )}
           </div>
         </DialogFooter>
       </DialogContent>
+
+      {/* Info Request Modal */}
+      <InfoRequestModal
+        isOpen={isInfoRequestModalOpen}
+        onClose={() => setIsInfoRequestModalOpen(false)}
+        startup={{
+          id: startup.id,
+          name: startup.name,
+          startup_name: startup.startup_name || startup.name,
+          email: startup.email || startup.contact_email || "",
+          industry: startup.industry,
+          stage: startup.stage || "",
+          verified: true,
+          description: startup.description || "",
+          founders: startup.founders || "",
+        }}
+      />
     </Dialog>
   );
 };

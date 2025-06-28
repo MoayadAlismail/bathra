@@ -258,6 +258,40 @@ export class StartupService {
     }
   }
 
+  // Get multiple startups by IDs
+  static async getStartupsByIds(ids: string[]): Promise<{
+    data: StartupBasicInfo[];
+    error: string | null;
+  }> {
+    try {
+      if (ids.length === 0) {
+        return { data: [], error: null };
+      }
+
+      const { data, error } = await supabase
+        .from("startups")
+        .select("*")
+        .in("id", ids)
+        .eq("status", "approved")
+        .eq("verified", true);
+
+      if (error) {
+        return { data: [], error: error.message };
+      }
+
+      const transformedData = (data || []).map((startup) =>
+        StartupService.transformStartup(startup)
+      );
+      return { data: transformedData, error: null };
+    } catch (error) {
+      return {
+        data: [],
+        error:
+          error instanceof Error ? error.message : "Unknown error occurred",
+      };
+    }
+  }
+
   // Get unique industries for filter options
   static async getIndustries(): Promise<{
     data: string[];

@@ -44,6 +44,8 @@ const AdminNavbar = () => {
 
   const handleNavigation = (path: string) => {
     navigate(path);
+    // Scroll to top when navigating to new page
+    window.scrollTo(0, 0);
     setIsMobileMenuOpen(false);
   };
 
@@ -54,6 +56,7 @@ const AdminNavbar = () => {
   const handleSignOut = async () => {
     await signOut();
     navigate("/");
+    window.scrollTo(0, 0);
   };
 
   // Admin navigation items

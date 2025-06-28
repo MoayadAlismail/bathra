@@ -29,6 +29,7 @@ const Footer = () => {
               <li>
                 <Link
                   to="/"
+                  onClick={() => window.scrollTo(0, 0)}
                   className="text-gray-400 hover:text-white transition-colors duration-200"
                 >
                   Home
@@ -37,6 +38,7 @@ const Footer = () => {
               <li>
                 <Link
                   to="/articles"
+                  onClick={() => window.scrollTo(0, 0)}
                   className="text-gray-400 hover:text-white transition-colors duration-200"
                 >
                   Articles
@@ -45,6 +47,7 @@ const Footer = () => {
               <li>
                 <Link
                   to="/signup"
+                  onClick={() => window.scrollTo(0, 0)}
                   className="text-gray-400 hover:text-white transition-colors duration-200"
                 >
                   Join Platform
@@ -55,11 +58,12 @@ const Footer = () => {
 
           {/* Legal & Social */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Links</h3>
+            <h3 className="text-lg font-semibold mb-4">Learn More</h3>
             <ul className="space-y-2 mb-6">
               <li>
                 <Link
                   to="/terms-and-conditions"
+                  onClick={() => window.scrollTo(0, 0)}
                   className="text-gray-400 hover:text-white transition-colors duration-200"
                 >
                   Terms and Conditions

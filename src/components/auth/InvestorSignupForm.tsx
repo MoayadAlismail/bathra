@@ -271,6 +271,23 @@ export default function InvestorSignupForm() {
         accountType: "investor",
       });
 
+      // Check if user already exists by examining the identities array
+      // An empty identities array indicates the user already exists
+      if (
+        result.user &&
+        result.user.id &&
+        result.emailVerificationSent &&
+        "identities" in result.user &&
+        Array.isArray(result.user.identities) &&
+        result.user.identities.length === 0
+      ) {
+        setErrors([
+          "An account with this email already exists. Please sign in instead.",
+        ]);
+        setIsSubmitting(false);
+        return;
+      }
+
       if (result.emailVerificationSent) {
         // Store the full registration data in sessionStorage for OTP verification
         const fullRegistrationData = {
@@ -312,11 +329,21 @@ export default function InvestorSignupForm() {
       }
     } catch (error) {
       console.error("Registration error:", error);
-      setErrors([
-        error instanceof Error
-          ? error.message
-          : "Registration failed. Please try again.",
-      ]);
+      // Check for specific error types from Supabase
+      if (error instanceof Error) {
+        if (
+          error.message.includes("email already in use") ||
+          error.message.includes("User already registered")
+        ) {
+          setErrors([
+            "An account with this email already exists. Please sign in instead.",
+          ]);
+        } else {
+          setErrors([error.message]);
+        }
+      } else {
+        setErrors(["Registration failed. Please try again."]);
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -796,7 +823,7 @@ export default function InvestorSignupForm() {
       </Card>
 
       <div className="flex gap-4">
-        <Button
+        {/* <Button
           type="button"
           variant="outline"
           onClick={clearDemoData}
@@ -804,7 +831,7 @@ export default function InvestorSignupForm() {
           size="lg"
         >
           Clear Demo Data
-        </Button>
+        </Button> */}
         <Button
           type="submit"
           disabled={isSubmitting || !formData.agreeToTerms}

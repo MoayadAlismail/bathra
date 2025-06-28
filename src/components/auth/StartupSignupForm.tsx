@@ -357,6 +357,23 @@ export default function StartupSignupForm() {
         accountType: "startup",
       });
 
+      // Check if user already exists by examining the identities array
+      // An empty identities array indicates the user already exists
+      if (
+        result.user &&
+        result.user.id &&
+        result.emailVerificationSent &&
+        "identities" in result.user &&
+        Array.isArray(result.user.identities) &&
+        result.user.identities.length === 0
+      ) {
+        setErrors([
+          "An account with this email already exists. Please sign in instead.",
+        ]);
+        setIsSubmitting(false);
+        return;
+      }
+
       if (result.emailVerificationSent) {
         // Store the full registration data in sessionStorage for OTP verification
         const fullRegistrationData = {
@@ -409,7 +426,21 @@ export default function StartupSignupForm() {
       }
     } catch (error) {
       console.error("Registration error:", error);
-      setErrors(["Registration failed. Please try again."]);
+      // Check for specific error types from Supabase
+      if (error instanceof Error) {
+        if (
+          error.message.includes("email already in use") ||
+          error.message.includes("User already registered")
+        ) {
+          setErrors([
+            "An account with this email already exists. Please sign in instead.",
+          ]);
+        } else {
+          setErrors([error.message]);
+        }
+      } else {
+        setErrors(["Registration failed. Please try again."]);
+      }
     } finally {
       setIsSubmitting(false);
     }

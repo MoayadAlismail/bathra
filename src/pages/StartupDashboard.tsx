@@ -46,6 +46,7 @@ import {
 } from "lucide-react";
 import StartupProfileEditModal from "@/components/StartupProfileEditModal";
 import InvestorDetailModal from "@/components/InvestorDetailModal";
+import StartupInterestedInvestors from "@/components/StartupInterestedInvestors";
 import { toast } from "@/components/ui/use-toast";
 import TestNotificationCreator from "@/components/TestNotificationCreator";
 import Footer from "@/components/Footer";
@@ -53,13 +54,9 @@ import Footer from "@/components/Footer";
 const StartupDashboard = () => {
   const { user, profile, signOut } = useAuth();
   const navigate = useNavigate();
-  //const [investors, setInvestors] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [startupDetails, setStartupDetails] = useState<Startup | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  //const [recentInvestors, setRecentInvestors] = useState([]);
-  //const [selectedInvestor, setSelectedInvestor] = useState<any>(null);
-  const [isInvestorModalOpen, setIsInvestorModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchStartupDetails = async () => {
@@ -84,31 +81,10 @@ const StartupDashboard = () => {
       }
     };
 
-    // const fetchRecentInvestors = async () => {
-    //   try {
-    //     const { data, error } = await supabase
-    //       .from("investors")
-    //       .select(
-    //         "id, name, preferred_industries, preferred_company_stage, average_ticket_size"
-    //       )
-    //       .order("created_at", { ascending: false })
-    //       .limit(5);
-
-    //     if (error) throw error;
-
-    //     if (data) {
-    //       setRecentInvestors(data);
-    //     }
-    //   } catch (error) {
-    //     console.error("Error fetching recent investors:", error);
-    //   }
-    // };
-
     if (!user) {
       navigate("/login");
     } else {
       fetchStartupDetails();
-      //fetchRecentInvestors();
     }
   }, [user, navigate]);
 
@@ -124,19 +100,6 @@ const StartupDashboard = () => {
   const handleProfileUpdate = (updatedStartup: Startup) => {
     setStartupDetails(updatedStartup);
   };
-
-  // const handleInvestorClick = (investor: Investor) => {
-  //   setSelectedInvestor(investor);
-  //   setIsInvestorModalOpen(true);
-  // };
-
-  // const handleConnectInvestor = () => {
-  //   toast({
-  //     title: "Connection Request Sent",
-  //     description: `Your request to connect with ${selectedInvestor?.name} has been sent.`,
-  //   });
-  //   setIsInvestorModalOpen(false);
-  // };
 
   if (!user || !profile) return null;
 
@@ -335,80 +298,24 @@ const StartupDashboard = () => {
               </div>
             </div>
 
-            {/* Recent Investors Section */}
-            {/* <div className="neo-blur rounded-2xl shadow-lg p-8">
+            {/* Interested Investors Section */}
+            <div className="neo-blur rounded-2xl shadow-lg p-8">
               <div className="flex justify-between items-center mb-6">
                 <div>
                   <h2 className="text-2xl font-bold text-gradient mb-2">
-                    Recent Investors
+                    Interested Investors
                   </h2>
                   <p className="text-muted-foreground">
-                    Potential investors who might be interested in your startup
+                    Investors who have shown interest in your startup
                   </p>
                 </div>
-                <Button onClick={() => navigate("/investors")}>
+                <Button onClick={() => navigate("/interested-investors")}>
                   View All Investors
                 </Button>
-              </div> */}
-
-            {/* Recent Investors List */}
-            {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {recentInvestors.length > 0 ? (
-                  recentInvestors.map((investor: Investor) => (
-                    <Card
-                      key={investor.id}
-                      className="hover:shadow-md transition-shadow"
-                    >
-                      <CardHeader>
-                        <CardTitle>{investor.name}</CardTitle>
-                        <CardDescription>
-                          {investor.preferred_industries ||
-                            "Various Industries"}
-                        </CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="space-y-2">
-                          <div>
-                            <span className="text-sm font-medium">
-                              Preferred Stage:
-                            </span>{" "}
-                            <span className="text-sm">
-                              {investor.preferred_company_stage || "Any"}
-                            </span>
-                          </div>
-                          <div>
-                            <span className="text-sm font-medium">
-                              Ticket Size:
-                            </span>{" "}
-                            <span className="text-sm">
-                              {investor.average_ticket_size || "Varies"}
-                            </span>
-                          </div>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="w-full mt-2"
-                            onClick={() => handleInvestorClick(investor)}
-                          >
-                            View Profile
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))
-                ) : (
-                  <div className="col-span-3 text-center py-12">
-                    <Users className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-                    <h3 className="text-xl font-medium mb-2">
-                      No investors found
-                    </h3>
-                    <p className="text-muted-foreground">
-                      No investors available at the moment. Check back later!
-                    </p>
-                  </div>
-                )}
               </div>
-            </div> */}
+
+              <StartupInterestedInvestors isDashboard={true} maxInvestors={6} />
+            </div>
           </motion.div>
         </div>
       </section>
@@ -423,15 +330,6 @@ const StartupDashboard = () => {
         />
       )}
 
-      {/* Investor Detail Modal */}
-      {/* {selectedInvestor && (
-        <InvestorDetailModal
-          investor={selectedInvestor}
-          isOpen={isInvestorModalOpen}
-          onClose={() => setIsInvestorModalOpen(false)}
-          onConnect={handleConnectInvestor}
-        />
-      )} */}
       <Footer />
     </div>
   );

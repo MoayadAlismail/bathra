@@ -43,6 +43,7 @@ import {
   LogOut,
   Building2,
   ExternalLink,
+  DollarSign,
 } from "lucide-react";
 import StartupProfileEditModal from "@/components/StartupProfileEditModal";
 import InvestorDetailModal from "@/components/InvestorDetailModal";
@@ -50,6 +51,7 @@ import StartupInterestedInvestors from "@/components/StartupInterestedInvestors"
 import { toast } from "@/components/ui/use-toast";
 import TestNotificationCreator from "@/components/TestNotificationCreator";
 import Footer from "@/components/Footer";
+import { InvestorStartupConnectionService } from "@/lib/investor-startup-connection-service";
 
 const StartupDashboard = () => {
   const { user, profile, signOut } = useAuth();
@@ -57,6 +59,8 @@ const StartupDashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [startupDetails, setStartupDetails] = useState<Startup | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [interestedInvestorsCount, setInterestedInvestorsCount] = useState(0);
+  const [recentInterestCount, setRecentInterestCount] = useState(0);
 
   useEffect(() => {
     const fetchStartupDetails = async () => {
@@ -81,10 +85,40 @@ const StartupDashboard = () => {
       }
     };
 
+    const fetchDashboardStats = async () => {
+      if (!user?.id) return;
+
+      try {
+        // Fetch interested investors
+        const { data: interestedConnections, error: interestedError } =
+          await InvestorStartupConnectionService.getConnections({
+            startup_id: user.id,
+            connection_type: "interested",
+            status: "active",
+          });
+
+        if (!interestedError && interestedConnections) {
+          setInterestedInvestorsCount(interestedConnections.length);
+
+          // Count recent interest (last 30 days)
+          const thirtyDaysAgo = new Date();
+          thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+          const recentConnections = interestedConnections.filter(
+            (conn) => new Date(conn.created_at) > thirtyDaysAgo
+          );
+          setRecentInterestCount(recentConnections.length);
+        }
+      } catch (error) {
+        console.error("Error fetching dashboard stats:", error);
+      }
+    };
+
     if (!user) {
       navigate("/login");
     } else {
       fetchStartupDetails();
+      fetchDashboardStats();
     }
   }, [user, navigate]);
 
@@ -145,17 +179,22 @@ const StartupDashboard = () => {
 
               {/* Quick Stats */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
+                <Card
+                  className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200 cursor-pointer hover:shadow-md transition-shadow"
+                  onClick={() => navigate("/interested-investors")}
+                >
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">
-                      Profile Views
+                      Interested Investors
                     </CardTitle>
                     <Users className="h-4 w-4 text-blue-600" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">0</div>
+                    <div className="text-2xl font-bold">
+                      {interestedInvestorsCount}
+                    </div>
                     <p className="text-xs text-muted-foreground">
-                      Investors who viewed your profile
+                      Investors showing interest
                     </p>
                   </CardContent>
                 </Card>
@@ -163,14 +202,18 @@ const StartupDashboard = () => {
                 <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">
-                      Active Discussions
+                      Funding Raised
                     </CardTitle>
-                    <TrendingUp className="h-4 w-4 text-green-600" />
+                    <DollarSign className="h-4 w-4 text-green-600" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">0</div>
+                    <div className="text-2xl font-bold">
+                      $
+                      {startupDetails?.funding_already_raised?.toLocaleString() ||
+                        0}
+                    </div>
                     <p className="text-xs text-muted-foreground">
-                      Ongoing investment discussions
+                      Total funding raised to date
                     </p>
                   </CardContent>
                 </Card>
@@ -178,16 +221,16 @@ const StartupDashboard = () => {
                 <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">
-                      Funding Goal
+                      Recent Activity
                     </CardTitle>
-                    <FileText className="h-4 w-4 text-purple-600" />
+                    <TrendingUp className="h-4 w-4 text-purple-600" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-lg font-bold">
-                      {startupDetails?.pre_money_valuation || "$0"}
+                    <div className="text-2xl font-bold">
+                      {recentInterestCount}
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      Target funding amount
+                      New interest this month
                     </p>
                   </CardContent>
                 </Card>
@@ -196,84 +239,72 @@ const StartupDashboard = () => {
               {/* Profile Overview */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="glass p-6 rounded-xl border border-white/10">
-                  <h3 className="text-lg font-semibold mb-3">Your Profile</h3>
-                  <ul className="space-y-2">
-                    <li>
-                      <span className="text-muted-foreground">Industry:</span>{" "}
-                      <span className="text-foreground">
+                  <h3 className="text-lg font-semibold mb-4">Your Profile</h3>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-muted-foreground">Industry:</span>
+                      <span className="text-foreground font-medium">
                         {startupDetails?.industry || "Not specified"}
                       </span>
-                    </li>
-                    <li>
-                      <span className="text-muted-foreground">Stage:</span>{" "}
-                      <span className="text-foreground">
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-muted-foreground">Stage:</span>
+                      <span className="text-foreground font-medium">
                         {startupDetails?.stage || "Not specified"}
                       </span>
-                    </li>
-                    <li>
-                      <span className="text-muted-foreground">Valuation:</span>{" "}
-                      <span className="text-foreground">
-                        {startupDetails?.pre_money_valuation || "Not specified"}
-                      </span>
-                    </li>
-                    <li>
-                      <span className="text-muted-foreground">Team Size:</span>{" "}
-                      <span className="text-foreground">
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-muted-foreground">Team Size:</span>
+                      <span className="text-foreground font-medium">
                         {startupDetails?.team_size || "Not specified"}
                       </span>
-                    </li>
-                  </ul>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-muted-foreground">Status:</span>
+                      <span className="text-foreground font-medium capitalize">
+                        {startupDetails?.status || "Pending"}
+                      </span>
+                    </div>
+                  </div>
                 </div>
 
                 <div className="glass p-6 rounded-xl border border-white/10">
-                  <h3 className="text-lg font-semibold mb-4">
-                    Business Details
-                  </h3>
+                  <h3 className="text-lg font-semibold mb-4">Key Highlights</h3>
                   <div className="space-y-4">
                     <div>
-                      <span className="text-sm font-medium text-muted-foreground">
-                        Problem We Solve:
+                      <span className="text-sm font-medium text-muted-foreground block mb-1">
+                        Our Solution
                       </span>
-                      <p className="text-sm mt-1 text-foreground leading-relaxed">
-                        {startupDetails?.problem_solving || "Not specified"}
-                      </p>
-                    </div>
-                    <div>
-                      <span className="text-sm font-medium text-muted-foreground">
-                        Our Solution:
-                      </span>
-                      <p className="text-sm mt-1 text-foreground leading-relaxed">
+                      <p className="text-sm text-foreground line-clamp-2">
                         {startupDetails?.solution || "Not specified"}
                       </p>
                     </div>
                     <div>
-                      <span className="text-sm font-medium text-muted-foreground">
-                        Unique Value Proposition:
+                      <span className="text-sm font-medium text-muted-foreground block mb-1">
+                        What Makes Us Unique
                       </span>
-                      <p className="text-sm mt-1 text-foreground leading-relaxed">
+                      <p className="text-sm text-foreground line-clamp-2">
                         {startupDetails?.uniqueness || "Not specified"}
                       </p>
                     </div>
                     <div className="pt-2 border-t border-white/10">
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <span className="text-xs font-medium text-muted-foreground">
-                            Funding Raised:
+                          <span className="text-xs font-medium text-muted-foreground block">
+                            Seeking
                           </span>
-                          <p className="text-sm text-foreground">
-                            $
-                            {startupDetails?.funding_already_raised?.toLocaleString() ||
-                              0}
+                          <p className="text-sm text-foreground font-medium">
+                            {startupDetails?.capital_seeking
+                              ? `$${startupDetails.capital_seeking.toLocaleString()}`
+                              : "TBD"}
                           </p>
                         </div>
                         <div>
-                          <span className="text-xs font-medium text-muted-foreground">
-                            Monthly Burn:
+                          <span className="text-xs font-medium text-muted-foreground block">
+                            Valuation
                           </span>
-                          <p className="text-sm text-foreground">
-                            $
-                            {startupDetails?.monthly_burn_rate?.toLocaleString() ||
-                              0}
+                          <p className="text-sm text-foreground font-medium">
+                            {startupDetails?.pre_money_valuation || "TBD"}
                           </p>
                         </div>
                       </div>

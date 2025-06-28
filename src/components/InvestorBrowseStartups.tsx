@@ -442,8 +442,8 @@ const InvestorBrowseStartups = ({
                     <p className="text-muted-foreground mb-4 line-clamp-3">
                       {startup.description}
                     </p>
-                    <div className="mt-4 flex justify-between items-center">
-                      <div>
+                    <div className="mt-4 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+                      <div className="flex-shrink-0">
                         <span className="text-sm font-medium">Valuation:</span>
                         <span className="ml-1 text-sm">
                           {startup.valuation
@@ -454,7 +454,7 @@ const InvestorBrowseStartups = ({
                       <Button
                         onClick={() => handleStartupClick(startup)}
                         size="sm"
-                        className="rounded-full"
+                        className="rounded-full w-full sm:w-auto"
                       >
                         Details <ArrowRight className="ml-1 h-4 w-4" />
                       </Button>

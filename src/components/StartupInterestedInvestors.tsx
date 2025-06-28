@@ -84,18 +84,18 @@ const InterestedInvestorDetailModal: React.FC<InvestorDetailModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="w-[95vw] max-w-3xl max-h-[95vh] overflow-y-auto p-4 sm:p-6">
         <DialogHeader>
           <div className="flex justify-between items-start">
-            <div>
-              <DialogTitle className="text-2xl font-bold">
+            <div className="min-w-0 flex-1 pr-2">
+              <DialogTitle className="text-xl sm:text-2xl font-bold break-words">
                 {investor.name}
               </DialogTitle>
-              <p className="text-muted-foreground">
+              <p className="text-muted-foreground text-sm sm:text-base break-words">
                 {investor.role}{" "}
                 {investor.company ? `at ${investor.company}` : ""}
               </p>
-              <p className="text-sm text-muted-foreground mt-1">
+              <p className="text-xs sm:text-sm text-muted-foreground mt-1">
                 Showed interest on{" "}
                 {new Date(investor.connection_date).toLocaleDateString()}
               </p>
@@ -103,22 +103,22 @@ const InterestedInvestorDetailModal: React.FC<InvestorDetailModalProps> = ({
           </div>
         </DialogHeader>
 
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           {/* Contact Information */}
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg border border-blue-200">
-            <h3 className="text-lg font-medium mb-3 flex items-center gap-2">
-              <MessageCircle className="h-5 w-5 text-blue-600" />
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-3 sm:p-4 rounded-lg border border-blue-200">
+            <h3 className="text-base sm:text-lg font-medium mb-3 flex items-center gap-2">
+              <MessageCircle className="h-4 w-4 sm:h-5 sm:w-5 text-black flex-shrink-0" />
               Contact Information
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4">
               <div className="space-y-3">
-                <div className="flex items-center gap-2">
-                  <Mail className="h-4 w-4 text-muted-foreground" />
-                  <div>
+                <div className="flex items-start gap-2">
+                  <Mail className="h-4 w-4 text-muted-foreground flex-shrink-0 mt-0.5" />
+                  <div className="min-w-0 flex-1">
                     <p className="text-sm font-medium">Email</p>
                     <Button
                       variant="link"
-                      className="p-0 h-auto text-blue-600 hover:text-blue-800"
+                      className="p-0 h-auto text-blue-600 hover:text-blue-800 text-left break-all"
                       onClick={() => handleContactInvestor("email")}
                     >
                       {investor.email}
@@ -127,13 +127,13 @@ const InterestedInvestorDetailModal: React.FC<InvestorDetailModalProps> = ({
                 </div>
 
                 {investor.phone && (
-                  <div className="flex items-center gap-2">
-                    <Phone className="h-4 w-4 text-muted-foreground" />
-                    <div>
+                  <div className="flex items-start gap-2">
+                    <Phone className="h-4 w-4 text-muted-foreground flex-shrink-0 mt-0.5" />
+                    <div className="min-w-0 flex-1">
                       <p className="text-sm font-medium">Phone</p>
                       <Button
                         variant="link"
-                        className="p-0 h-auto text-blue-600 hover:text-blue-800"
+                        className="p-0 h-auto text-blue-600 hover:text-blue-800 text-left"
                         onClick={() => handleContactInvestor("phone")}
                       >
                         {investor.phone}
@@ -145,13 +145,13 @@ const InterestedInvestorDetailModal: React.FC<InvestorDetailModalProps> = ({
 
               <div className="space-y-3">
                 {investor.calendly_link && (
-                  <div className="flex items-center gap-2">
-                    <Calendar className="h-4 w-4 text-muted-foreground" />
-                    <div>
+                  <div className="flex items-start gap-2">
+                    <Calendar className="h-4 w-4 text-muted-foreground flex-shrink-0 mt-0.5" />
+                    <div className="min-w-0 flex-1">
                       <p className="text-sm font-medium">Schedule Meeting</p>
                       <Button
                         variant="link"
-                        className="p-0 h-auto text-blue-600 hover:text-blue-800"
+                        className="p-0 h-auto text-blue-600 hover:text-blue-800 text-left"
                         onClick={() => handleContactInvestor("calendly")}
                       >
                         Book a time slot
@@ -161,13 +161,13 @@ const InterestedInvestorDetailModal: React.FC<InvestorDetailModalProps> = ({
                 )}
 
                 {investor.linkedin_profile && (
-                  <div className="flex items-center gap-2">
-                    <ExternalLink className="h-4 w-4 text-muted-foreground" />
-                    <div>
+                  <div className="flex items-start gap-2">
+                    <ExternalLink className="h-4 w-4 text-muted-foreground flex-shrink-0 mt-0.5" />
+                    <div className="min-w-0 flex-1">
                       <p className="text-sm font-medium">LinkedIn</p>
                       <Button
                         variant="link"
-                        className="p-0 h-auto text-blue-600 hover:text-blue-800"
+                        className="p-0 h-auto text-blue-600 hover:text-blue-800 text-left"
                         onClick={() => handleContactInvestor("linkedin")}
                       >
                         View Profile
@@ -181,16 +181,16 @@ const InterestedInvestorDetailModal: React.FC<InvestorDetailModalProps> = ({
 
           {/* Investment Preferences */}
           <div>
-            <h3 className="text-lg font-medium mb-3 flex items-center gap-2">
-              <Building2 className="h-5 w-5 text-gray-600" />
+            <h3 className="text-base sm:text-lg font-medium mb-3 flex items-center gap-2">
+              <Building2 className="h-4 w-4 sm:h-5 sm:w-5 text-gray-600 flex-shrink-0" />
               Investment Preferences
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div>
                 <p className="text-sm font-medium text-muted-foreground">
                   Industries
                 </p>
-                <p className="mt-1">
+                <p className="mt-1 text-sm sm:text-base break-words">
                   {investor.preferred_industries || "Not specified"}
                 </p>
               </div>
@@ -198,7 +198,7 @@ const InterestedInvestorDetailModal: React.FC<InvestorDetailModalProps> = ({
                 <p className="text-sm font-medium text-muted-foreground">
                   Preferred Stage
                 </p>
-                <p className="mt-1">
+                <p className="mt-1 text-sm sm:text-base">
                   {investor.preferred_company_stage || "Not specified"}
                 </p>
               </div>
@@ -206,7 +206,7 @@ const InterestedInvestorDetailModal: React.FC<InvestorDetailModalProps> = ({
                 <p className="text-sm font-medium text-muted-foreground">
                   Ticket Size
                 </p>
-                <p className="mt-1">
+                <p className="mt-1 text-sm sm:text-base">
                   {investor.average_ticket_size || "Not specified"}
                 </p>
               </div>
@@ -214,18 +214,20 @@ const InterestedInvestorDetailModal: React.FC<InvestorDetailModalProps> = ({
                 <p className="text-sm font-medium text-muted-foreground">
                   Previous Investments
                 </p>
-                <p className="mt-1">{investor.number_of_investments || "0"}</p>
+                <p className="mt-1 text-sm sm:text-base">
+                  {investor.number_of_investments || "0"}
+                </p>
               </div>
             </div>
           </div>
 
           {/* Location */}
           <div>
-            <h3 className="text-lg font-medium mb-2 flex items-center gap-2">
-              <MapPin className="h-5 w-5 text-gray-600" />
+            <h3 className="text-base sm:text-lg font-medium mb-2 flex items-center gap-2">
+              <MapPin className="h-4 w-4 sm:h-5 sm:w-5 text-gray-600 flex-shrink-0" />
               Location
             </h3>
-            <p>
+            <p className="text-sm sm:text-base break-words">
               {investor.city && investor.country
                 ? `${investor.city}, ${investor.country}`
                 : "Not specified"}
@@ -233,14 +235,18 @@ const InterestedInvestorDetailModal: React.FC<InvestorDetailModalProps> = ({
           </div>
         </div>
 
-        <DialogFooter className="pt-4 border-t mt-6">
-          <div className="flex gap-3 w-full">
-            <Button variant="outline" onClick={onClose}>
+        <DialogFooter className="pt-4 border-t mt-4 sm:mt-6">
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full">
+            <Button
+              variant="outline"
+              onClick={onClose}
+              className="order-last sm:order-first w-full sm:w-auto"
+            >
               Close
             </Button>
             <Button
               onClick={() => handleContactInvestor("email")}
-              className="flex-1"
+              className="w-full sm:flex-1"
             >
               <Mail className="mr-2 h-4 w-4" />
               Send Email
@@ -249,7 +255,7 @@ const InterestedInvestorDetailModal: React.FC<InvestorDetailModalProps> = ({
               <Button
                 onClick={() => handleContactInvestor("calendly")}
                 variant="secondary"
-                className="flex-1"
+                className="w-full sm:flex-1"
               >
                 <Calendar className="mr-2 h-4 w-4" />
                 Schedule Call

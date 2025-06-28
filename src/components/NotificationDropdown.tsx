@@ -53,7 +53,9 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
   const [showAllModal, setShowAllModal] = useState(false);
 
   // Check if user is approved to see notifications
-  const isApproved = profile ? canBrowseContent(profile) : false;
+  const isApproved = profile
+    ? profile.accountType === "admin" || canBrowseContent(profile)
+    : false;
 
   // Use single hook without autoRefresh to avoid conflicts
   const {

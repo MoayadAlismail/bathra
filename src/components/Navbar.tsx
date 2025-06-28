@@ -289,7 +289,9 @@ const Navbar = () => {
               ))}
 
               {/* Notifications for logged in users */}
-              {user && canBrowseContent(profile) && <NotificationDropdown />}
+              {user &&
+                (profile?.accountType === "admin" ||
+                  canBrowseContent(profile)) && <NotificationDropdown />}
 
               {renderAuthButtons()}
             </div>
@@ -327,11 +329,13 @@ const Navbar = () => {
                 ))}
 
                 {/* Notifications for logged in users on mobile */}
-                {user && canBrowseContent(profile) && (
-                  <div className="py-2">
-                    <NotificationDropdown />
-                  </div>
-                )}
+                {user &&
+                  (profile?.accountType === "admin" ||
+                    canBrowseContent(profile)) && (
+                    <div className="py-2">
+                      <NotificationDropdown />
+                    </div>
+                  )}
 
                 {renderMobileAuthButtons()}
               </div>

@@ -136,7 +136,9 @@ const AdminNavbar = () => {
 
             {/* Admin Actions */}
             <div className="hidden lg:flex items-center space-x-2 xl:space-x-4 flex-shrink-0">
-              {profile && canBrowseContent(profile) && <NotificationDropdown />}
+              {profile &&
+                (profile.accountType === "admin" ||
+                  canBrowseContent(profile)) && <NotificationDropdown />}
               <Button
                 variant="outline"
                 size="sm"
@@ -204,11 +206,13 @@ const AdminNavbar = () => {
 
                 {/* Mobile Actions */}
                 <div className="pt-3 sm:pt-4 border-t border-border space-y-2">
-                  {profile && canBrowseContent(profile) && (
-                    <div className="py-2">
-                      <NotificationDropdown />
-                    </div>
-                  )}
+                  {profile &&
+                    (profile.accountType === "admin" ||
+                      canBrowseContent(profile)) && (
+                      <div className="py-2">
+                        <NotificationDropdown />
+                      </div>
+                    )}
                   <Button
                     variant="outline"
                     size="sm"

@@ -11,12 +11,16 @@ import {
 
 // Generate a URL-friendly slug from title
 const generateSlug = (title: string): string => {
-  return title
-    .toLowerCase()
-    .replace(/[^a-z0-9 -]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-")
-    .trim();
+  // Add timestamp suffix to ensure uniqueness
+  const timestamp = Date.now().toString(36);
+  return (
+    title
+      .toLowerCase()
+      .replace(/[^a-z0-9 -]/g, "")
+      .replace(/\s+/g, "-")
+      .replace(/-+/g, "-")
+      .trim() + `-${timestamp}`
+  );
 };
 
 class ArticleService {

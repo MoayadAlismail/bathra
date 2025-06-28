@@ -17,6 +17,7 @@ export interface UserProfile {
   portfolioSize?: number;
   linkedInUrl?: string;
   bio?: string;
+  calendly_link?: string;
 
   // Startup-specific fields
   startupId?: string;

@@ -281,7 +281,7 @@ const Navbar = () => {
               ))}
 
               {/* Notifications for logged in users */}
-              {user && accountType !== "admin" && <NotificationDropdown />}
+              {user && <NotificationDropdown />}
 
               {renderAuthButtons()}
             </div>
@@ -319,7 +319,7 @@ const Navbar = () => {
                 ))}
 
                 {/* Notifications for logged in users on mobile */}
-                {user && accountType !== "admin" && (
+                {user && (
                   <div className="py-2">
                     <NotificationDropdown />
                   </div>

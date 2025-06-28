@@ -12,6 +12,7 @@ export class StartupService {
   private static transformStartup(startup: Startup): StartupBasicInfo {
     return {
       id: startup.id.toString(),
+      email: startup.email,
       name: startup.name,
       startup_name: startup.startup_name || startup.name,
       industry: startup.industry,

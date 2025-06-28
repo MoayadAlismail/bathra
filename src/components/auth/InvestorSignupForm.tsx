@@ -246,8 +246,6 @@ export default function InvestorSignupForm() {
       newErrors.push("Please explain why you're a strong candidate");
     if (!formData.agreeToTerms)
       newErrors.push("You must agree to the terms and conditions");
-    if (!formData.acceptNewsletter)
-      newErrors.push("You must accept receiving newsletter");
 
     return newErrors;
   };
@@ -299,7 +297,7 @@ export default function InvestorSignupForm() {
           hasBeenStartupAdvisor: formData.hasBeenStartupAdvisor,
           whyStrongCandidate: formData.whyStrongCandidate,
           agreeToTerms: formData.agreeToTerms,
-          acceptNewsletter: formData.acceptNewsletter,
+          newsletterSubscribed: formData.acceptNewsletter,
         };
 
         sessionStorage.setItem(
@@ -764,7 +762,16 @@ export default function InvestorSignupForm() {
               htmlFor="agreeToTerms"
               className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
             >
-              I agree to the terms and conditions *
+              I agree to the{" "}
+              <a
+                href="/terms-and-conditions"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary hover:underline"
+              >
+                terms and conditions
+              </a>{" "}
+              *
             </Label>
           </div>
           <div className="flex items-center space-x-2">
@@ -782,7 +789,7 @@ export default function InvestorSignupForm() {
               htmlFor="acceptNewsletter"
               className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
             >
-              I accept receiving newsletter *
+              I accept receiving newsletter
             </Label>
           </div>
         </CardContent>
@@ -800,9 +807,7 @@ export default function InvestorSignupForm() {
         </Button>
         <Button
           type="submit"
-          disabled={
-            isSubmitting || !formData.agreeToTerms || !formData.acceptNewsletter
-          }
+          disabled={isSubmitting || !formData.agreeToTerms}
           className="flex-1"
           size="lg"
         >

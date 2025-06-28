@@ -191,6 +191,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
               userProfile.verified = investorData.verified;
               userProfile.adminNotes = investorData.admin_notes;
               userProfile.visibility_status = investorData.visibility_status;
+              userProfile.calendly_link = investorData.calendly_link;
             }
           } else if (loggedInUser.accountType === "startup") {
             const startupData = await simpleAuthService.getStartupProfile(

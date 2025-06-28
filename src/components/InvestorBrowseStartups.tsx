@@ -22,6 +22,7 @@ import {
   PaginatedStartups,
 } from "@/lib/startup-types";
 import { Pagination } from "@/components/ui/pagination";
+import { InvestorStartupConnectionService } from "@/lib/investor-startup-connection-service";
 
 interface InvestorBrowseStartupsProps {
   isDashboard?: boolean;
@@ -44,6 +45,7 @@ const InvestorBrowseStartups = ({
     useState<StartupBasicInfo | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [savedStartups, setSavedStartups] = useState<string[]>([]);
+  const [interestedStartups, setInterestedStartups] = useState<string[]>([]);
   const [industries, setIndustries] = useState<string[]>([]);
   const [stages, setStages] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState(false);
@@ -57,7 +59,10 @@ const InvestorBrowseStartups = ({
     if (!isDashboard) {
       fetchFilterOptions();
     }
-  }, [isDashboard, maxStartups]);
+    if (user?.id) {
+      loadInterestedStartups();
+    }
+  }, [isDashboard, maxStartups, user?.id]);
 
   useEffect(() => {
     if (!isDashboard) {
@@ -140,6 +145,24 @@ const InvestorBrowseStartups = ({
     }
   };
 
+  const loadInterestedStartups = async () => {
+    if (!user?.id) return;
+
+    try {
+      const { data } = await InvestorStartupConnectionService.getConnections({
+        investor_id: user.id,
+        connection_type: "interested",
+      });
+
+      if (data) {
+        const startupIds = data.map((connection) => connection.startup_id);
+        setInterestedStartups(startupIds);
+      }
+    } catch (error) {
+      console.error("Error loading interested startups:", error);
+    }
+  };
+
   const handleStartupClick = (startup: StartupBasicInfo) => {
     setSelectedStartup(startup);
     setIsModalOpen(true);
@@ -185,11 +208,67 @@ const InvestorBrowseStartups = ({
   };
 
   const handleRequestInfo = () => {
-    toast({
-      title: "Request sent",
-      description: `Your information request has been sent to ${selectedStartup?.name}`,
-    });
-    setIsModalOpen(false);
+    // This is now handled by the InfoRequestModal component
+    // The old toast functionality is replaced by the modal
+  };
+
+  const handleInterested = async () => {
+    if (!selectedStartup || !user || !profile) {
+      toast({
+        title: "Error",
+        description: "You must be logged in to show interest",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const { data, error } =
+        await InvestorStartupConnectionService.createConnection({
+          investor_id: user.id,
+          startup_id: selectedStartup.id,
+          connection_type: "interested",
+          investor_name: profile.name || "Unknown Investor",
+          investor_email: profile.email || user.email || "",
+          investor_calendly_link: profile.calendly_link,
+          startup_name: selectedStartup.startup_name || selectedStartup.name,
+          startup_email: selectedStartup.email,
+        });
+
+      if (error) {
+        if (error === "Connection already exists") {
+          toast({
+            title: "Already Interested",
+            description: "You have already shown interest in this startup",
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "Error",
+            description: error,
+            variant: "destructive",
+          });
+        }
+        return;
+      }
+
+      // Update local state
+      setInterestedStartups((prev) => [...prev, selectedStartup.id]);
+
+      toast({
+        title: "Interest Recorded!",
+        description: `Your interest in ${
+          selectedStartup.startup_name || selectedStartup.name
+        } has been recorded. The startup will be notified.`,
+      });
+    } catch (error) {
+      console.error("Error showing interest:", error);
+      toast({
+        title: "Error",
+        description: "Failed to record interest. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const clearFilters = () => {
@@ -424,6 +503,8 @@ const InvestorBrowseStartups = ({
           onSave={handleSaveStartup}
           isSaved={savedStartups.includes(selectedStartup.id)}
           onRequestInfo={handleRequestInfo}
+          onInterested={handleInterested}
+          isInterested={interestedStartups.includes(selectedStartup.id)}
         />
       )}
     </div>

@@ -103,6 +103,7 @@ const AdminManagement = () => {
     try {
       const isSuper = await adminService.isSuperAdmin(user.id);
       setIsSuperAdmin(isSuper);
+      setLoading(false);
     } catch (error) {
       console.error("Error checking super admin status:", error);
     }
@@ -222,8 +223,21 @@ const AdminManagement = () => {
     return level === "super" ? Crown : User;
   };
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-16">
+        <div className="space-y-4 text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <p className="text-muted-foreground font-medium">
+            Loading admin data...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   // Only show admin management to super admins
-  if (!isSuperAdmin) {
+  if (!loading && !isSuperAdmin) {
     return (
       <div className="space-y-6">
         <Card>
@@ -255,13 +269,6 @@ const AdminManagement = () => {
             Manage administrator accounts and invitations
           </p>
         </div>
-        <Button
-          onClick={() => setIsAddModalOpen(true)}
-          className="flex items-center gap-2"
-        >
-          <UserPlus className="h-4 w-4" />
-          Add Admin
-        </Button>
       </div>
 
       {/* Stats Cards */}

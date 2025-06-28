@@ -335,12 +335,22 @@ const AdminInvestorEditModal: React.FC<AdminInvestorEditModalProps> = ({
         <div className="flex-grow overflow-auto">
           <Tabs defaultValue="personal" className="w-full">
             <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="personal">Personal Info</TabsTrigger>
-              <TabsTrigger value="preferences">
-                Investment Preferences
+              <TabsTrigger value="personal" className="text-xs sm:text-sm">
+                <span className="hidden sm:inline">Personal Info</span>
+                <span className="sm:hidden">Personal</span>
               </TabsTrigger>
-              <TabsTrigger value="background">Background</TabsTrigger>
-              <TabsTrigger value="status">Status</TabsTrigger>
+              <TabsTrigger value="preferences" className="text-xs sm:text-sm">
+                <span className="hidden sm:inline">Investment Preferences</span>
+                <span className="sm:hidden">Investment</span>
+              </TabsTrigger>
+              <TabsTrigger value="background" className="text-xs sm:text-sm">
+                <span className="hidden sm:inline">Background</span>
+                <span className="sm:hidden">Background</span>
+              </TabsTrigger>
+              <TabsTrigger value="status" className="text-xs sm:text-sm">
+                <span className="hidden sm:inline">Status</span>
+                <span className="sm:hidden">Status</span>
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="personal" className="space-y-4 mt-4">

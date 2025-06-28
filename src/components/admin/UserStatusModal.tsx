@@ -142,254 +142,281 @@ const UserStatusModal = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl">
-        <DialogHeader>
-          <DialogTitle>Manage User Status - {user.name}</DialogTitle>
+      <DialogContent className="w-[95vw] max-w-2xl max-h-[90vh] flex flex-col">
+        <DialogHeader className="flex-shrink-0">
+          <DialogTitle className="text-lg sm:text-xl">
+            Manage User Status - {user.name}
+          </DialogTitle>
           <DialogDescription>
             Update the approval status and visibility settings for this{" "}
             {user.type}
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-6">
-          {/* Current Status */}
-          <div className="space-y-3">
-            <h3 className="text-lg font-semibold">Current Status</h3>
-            <div className="flex items-center gap-4">
-              <div>
-                <label className="text-sm font-medium text-muted-foreground">
-                  Approval Status
-                </label>
-                <div className="flex items-center gap-2 mt-1">
-                  <Badge className={getStatusColor(user.status)}>
-                    {getStatusIcon(user.status)}
-                    {user.status}
-                  </Badge>
-                  <span className="text-sm text-muted-foreground">
-                    {user.verified ? "Verified" : "Not verified"}
-                  </span>
-                </div>
-              </div>
-
-              {user.visibility_status && (
+        {/* Scrollable content area */}
+        <div className="flex-1 overflow-y-auto px-1 -mx-1">
+          <div className="space-y-6">
+            {/* Current Status */}
+            <div className="space-y-3">
+              <h3 className="text-base sm:text-lg font-semibold">
+                Current Status
+              </h3>
+              <div className="flex flex-col sm:flex-row sm:items-center gap-4">
                 <div>
                   <label className="text-sm font-medium text-muted-foreground">
-                    Visibility
+                    Approval Status
                   </label>
                   <div className="flex items-center gap-2 mt-1">
-                    <Badge
-                      variant="outline"
-                      className="flex items-center gap-1"
-                    >
-                      {getVisibilityIcon(user.visibility_status)}
-                      {user.visibility_status}
+                    <Badge className={getStatusColor(user.status)}>
+                      {getStatusIcon(user.status)}
+                      <span className="ml-1">{user.status}</span>
                     </Badge>
+                    <span className="text-sm text-muted-foreground">
+                      {user.verified ? "Verified" : "Not verified"}
+                    </span>
                   </div>
                 </div>
-              )}
+
+                {user.visibility_status && (
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">
+                      Visibility
+                    </label>
+                    <div className="flex items-center gap-2 mt-1">
+                      <Badge
+                        variant="outline"
+                        className="flex items-center gap-1"
+                      >
+                        {getVisibilityIcon(user.visibility_status)}
+                        {user.visibility_status}
+                      </Badge>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
 
-          {/* Update Status */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Update Status</h3>
+            {/* Update Status */}
+            <div className="space-y-4">
+              <h3 className="text-base sm:text-lg font-semibold">
+                Update Status
+              </h3>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Approval Status</label>
-                <Select
-                  value={status}
-                  onValueChange={(value: UserStatus) => setStatus(value)}
+              <div className="grid grid-cols-1 gap-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Approval Status</label>
+                  <Select
+                    value={status}
+                    onValueChange={(value: UserStatus) => setStatus(value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="pending">
+                        <div className="flex items-center gap-2">
+                          <AlertTriangle className="h-4 w-4" />
+                          Pending Review
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="approved">
+                        <div className="flex items-center gap-2">
+                          <Check className="h-4 w-4 text-green-600" />
+                          Approved
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="rejected">
+                        <div className="flex items-center gap-2">
+                          <X className="h-4 w-4 text-red-600" />
+                          Rejected
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="flagged">
+                        <div className="flex items-center gap-2">
+                          <Flag className="h-4 w-4 text-yellow-600" />
+                          Flagged
+                        </div>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">
+                    Platform Visibility Status
+                    <span className="text-xs text-muted-foreground block">
+                      How this {user.type} appears to other users on the
+                      platform
+                    </span>
+                  </label>
+                  <Select
+                    value={visibilityStatus}
+                    onValueChange={(value: VisibilityStatus | "none") =>
+                      setVisibilityStatus(value)
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">
+                        <div className="flex items-center gap-2">
+                          <Minus className="h-4 w-4" />
+                          Normal Visibility
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="normal">
+                        <div className="flex items-center gap-2">
+                          <Minus className="h-4 w-4" />
+                          Normal Visibility
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="hot">
+                        <div className="flex items-center gap-2">
+                          <TrendingUp className="h-4 w-4 text-orange-600" />
+                          Hot {user.type === "startup" ? "Startup" : "Investor"}
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="featured">
+                        <div className="flex items-center gap-2">
+                          <Star className="h-4 w-4 text-purple-600" />
+                          Featured{" "}
+                          {user.type === "startup" ? "Startup" : "Investor"}
+                        </div>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </div>
+
+            {/* Admin Notes */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Admin Notes</label>
+              <Textarea
+                placeholder="Add notes about this user's status, reasons for approval/rejection, or any other relevant information..."
+                value={adminNotes}
+                onChange={(e) => setAdminNotes(e.target.value)}
+                rows={3}
+                className="resize-none"
+              />
+            </div>
+
+            {/* Quick Actions */}
+            <div className="space-y-2">
+              <h4 className="font-medium">Quick Actions</h4>
+              <div className="flex flex-col sm:flex-row gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    setStatus("approved");
+                    setVisibilityStatus("normal");
+                  }}
+                  className="text-green-600 hover:text-green-700 justify-start sm:justify-center"
                 >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="pending">
-                      <div className="flex items-center gap-2">
-                        <AlertTriangle className="h-4 w-4" />
-                        Pending Review
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="approved">
-                      <div className="flex items-center gap-2">
-                        <Check className="h-4 w-4 text-green-600" />
-                        Approved
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="rejected">
-                      <div className="flex items-center gap-2">
-                        <X className="h-4 w-4 text-red-600" />
-                        Rejected
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="flagged">
-                      <div className="flex items-center gap-2">
-                        <Flag className="h-4 w-4 text-yellow-600" />
-                        Flagged
-                      </div>
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium">
-                  Platform Visibility Status
-                  <span className="text-xs text-muted-foreground block">
-                    How this {user.type} appears to other users on the platform
-                  </span>
-                </label>
-                <Select
-                  value={visibilityStatus}
-                  onValueChange={(value: VisibilityStatus | "none") =>
-                    setVisibilityStatus(value)
-                  }
+                  <Check className="h-4 w-4 mr-2" />
+                  Quick Approve
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    setStatus("rejected");
+                    setVisibilityStatus("none");
+                  }}
+                  className="text-red-600 hover:text-red-700 justify-start sm:justify-center"
                 >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">
-                      <div className="flex items-center gap-2">
-                        <Minus className="h-4 w-4" />
-                        Normal Visibility
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="normal">
-                      <div className="flex items-center gap-2">
-                        <Minus className="h-4 w-4" />
-                        Normal Visibility
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="hot">
-                      <div className="flex items-center gap-2">
-                        <TrendingUp className="h-4 w-4 text-orange-600" />
-                        Hot {user.type === "startup" ? "Startup" : "Investor"}
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="featured">
-                      <div className="flex items-center gap-2">
-                        <Star className="h-4 w-4 text-purple-600" />
-                        Featured{" "}
-                        {user.type === "startup" ? "Startup" : "Investor"}
-                      </div>
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
+                  <X className="h-4 w-4 mr-2" />
+                  Quick Reject
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    setStatus("approved");
+                    setVisibilityStatus("featured");
+                  }}
+                  className="text-purple-600 hover:text-purple-700 justify-start sm:justify-center"
+                >
+                  <Star className="h-4 w-4 mr-2" />
+                  Approve & Feature
+                </Button>
               </div>
             </div>
-          </div>
 
-          {/* Admin Notes */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Admin Notes</label>
-            <Textarea
-              placeholder="Add notes about this user's status, reasons for approval/rejection, or any other relevant information..."
-              value={adminNotes}
-              onChange={(e) => setAdminNotes(e.target.value)}
-              rows={4}
-            />
-          </div>
+            {/* Status Explanations - Collapsible on mobile */}
+            <div className="space-y-2">
+              <details className="group">
+                <summary className="font-medium cursor-pointer hover:text-primary">
+                  Status & Visibility Explanations
+                </summary>
+                <div className="text-sm text-muted-foreground space-y-1 mt-2 pl-4">
+                  <div>
+                    <strong>Approval Status:</strong>
+                  </div>
+                  <div className="ml-4 space-y-1">
+                    <div>
+                      • <strong>Pending:</strong> {user.type} awaiting admin
+                      review
+                    </div>
+                    <div>
+                      • <strong>Approved:</strong> {user.type} is verified and
+                      can access all features
+                    </div>
+                    <div>
+                      • <strong>Rejected:</strong> {user.type} does not meet
+                      platform criteria
+                    </div>
+                    <div>
+                      • <strong>Flagged:</strong> {user.type} requires special
+                      attention or review
+                    </div>
+                  </div>
 
-          {/* Status Explanations */}
-          <div className="space-y-2">
-            <h4 className="font-medium">Status & Visibility Explanations</h4>
-            <div className="text-sm text-muted-foreground space-y-1">
-              <div>
-                <strong>Approval Status:</strong>
-              </div>
-              <div className="ml-4">
-                • <strong>Pending:</strong> {user.type} awaiting admin review
-              </div>
-              <div className="ml-4">
-                • <strong>Approved:</strong> {user.type} is verified and can
-                access all features
-              </div>
-              <div className="ml-4">
-                • <strong>Rejected:</strong> {user.type} does not meet platform
-                criteria
-              </div>
-              <div className="ml-4">
-                • <strong>Flagged:</strong> {user.type} requires special
-                attention or review
-              </div>
-
-              <div className="pt-2">
-                <strong>
-                  Platform Visibility (for approved {user.type}s):
-                </strong>
-              </div>
-              <div className="ml-4">
-                • <strong>Normal:</strong> Standard visibility to{" "}
-                {user.type === "startup" ? "investors" : "startups"}
-              </div>
-              <div className="ml-4">
-                • <strong>Featured:</strong> Highlighted prominently to attract{" "}
-                {user.type === "startup" ? "investor" : "startup"} attention
-              </div>
-              <div className="ml-4">
-                • <strong>Hot:</strong> Marked as trending or in high demand
-              </div>
+                  <div className="pt-2">
+                    <strong>
+                      Platform Visibility (for approved {user.type}s):
+                    </strong>
+                  </div>
+                  <div className="ml-4 space-y-1">
+                    <div>
+                      • <strong>Normal:</strong> Standard visibility to{" "}
+                      {user.type === "startup" ? "investors" : "startups"}
+                    </div>
+                    <div>
+                      • <strong>Featured:</strong> Highlighted prominently to
+                      attract {user.type === "startup" ? "investor" : "startup"}{" "}
+                      attention
+                    </div>
+                    <div>
+                      • <strong>Hot:</strong> Marked as trending or in high
+                      demand
+                    </div>
+                  </div>
+                </div>
+              </details>
             </div>
           </div>
+        </div>
 
-          {/* Quick Actions */}
-          <div className="space-y-2">
-            <h4 className="font-medium">Quick Actions</h4>
-            <div className="flex gap-2">
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => {
-                  setStatus("approved");
-                  setVisibilityStatus("normal");
-                }}
-                className="text-green-600 hover:text-green-700"
-              >
-                <Check className="h-4 w-4 mr-2" />
-                Quick Approve
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => {
-                  setStatus("rejected");
-                  setVisibilityStatus("none");
-                }}
-                className="text-red-600 hover:text-red-700"
-              >
-                <X className="h-4 w-4 mr-2" />
-                Quick Reject
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => {
-                  setStatus("approved");
-                  setVisibilityStatus("featured");
-                }}
-                className="text-purple-600 hover:text-purple-700"
-              >
-                <Star className="h-4 w-4 mr-2" />
-                Approve & Feature
-              </Button>
-            </div>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex justify-end gap-3 pt-4 border-t">
-            <Button
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              disabled={loading}
-            >
-              Cancel
-            </Button>
-            <Button onClick={handleSave} disabled={loading}>
-              {loading ? "Updating..." : "Update Status"}
-            </Button>
-          </div>
+        {/* Fixed Action Buttons */}
+        <div className="flex-shrink-0 flex flex-col-reverse sm:flex-row justify-end gap-3 pt-4 border-t mt-4">
+          <Button
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            disabled={loading}
+            className="w-full sm:w-auto"
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleSave}
+            disabled={loading}
+            className="w-full sm:w-auto"
+          >
+            {loading ? "Updating..." : "Update Status"}
+          </Button>
         </div>
       </DialogContent>
     </Dialog>

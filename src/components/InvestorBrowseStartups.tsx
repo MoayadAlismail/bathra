@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Search, Filter, Building, ArrowRight, X } from "lucide-react";
+import { Search, Filter, Building, ArrowRight, X, Star } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
@@ -35,6 +36,7 @@ const InvestorBrowseStartups = ({
   isDashboard = false,
   maxStartups,
 }: InvestorBrowseStartupsProps) => {
+  const navigate = useNavigate();
   const [startups, setStartups] = useState<StartupBasicInfo[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -322,14 +324,24 @@ const InvestorBrowseStartups = ({
                     onChange={(e) => handleSearchTermChange(e.target.value)}
                   />
                 </div>
-                <Button
-                  variant="outline"
-                  className="w-full md:w-auto"
-                  onClick={() => setShowFilters(!showFilters)}
-                >
-                  <Filter className="mr-2 h-4 w-4" />
-                  {showFilters ? "Hide Filters" : "Show Filters"}
-                </Button>
+                <div className="flex gap-3 w-full md:w-auto">
+                  <Button
+                    variant="outline"
+                    className="flex-1 md:flex-none"
+                    onClick={() => navigate("/startups/interested")}
+                  >
+                    <Star className="mr-2 h-4 w-4" />
+                    Interested ({interestedStartups.length})
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="flex-1 md:flex-none"
+                    onClick={() => setShowFilters(!showFilters)}
+                  >
+                    <Filter className="mr-2 h-4 w-4" />
+                    {showFilters ? "Hide Filters" : "Show Filters"}
+                  </Button>
+                </div>
               </div>
 
               {showFilters && (
@@ -430,8 +442,8 @@ const InvestorBrowseStartups = ({
                     <p className="text-muted-foreground mb-4 line-clamp-3">
                       {startup.description}
                     </p>
-                    <div className="mt-4 flex justify-between items-center">
-                      <div>
+                    <div className="mt-4 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+                      <div className="flex-shrink-0">
                         <span className="text-sm font-medium">Valuation:</span>
                         <span className="ml-1 text-sm">
                           {startup.valuation
@@ -442,7 +454,7 @@ const InvestorBrowseStartups = ({
                       <Button
                         onClick={() => handleStartupClick(startup)}
                         size="sm"
-                        className="rounded-full"
+                        className="rounded-full w-full sm:w-auto"
                       >
                         Details <ArrowRight className="ml-1 h-4 w-4" />
                       </Button>

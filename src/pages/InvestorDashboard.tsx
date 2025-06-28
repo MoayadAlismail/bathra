@@ -45,6 +45,7 @@ import {
   LogOut,
 } from "lucide-react";
 import { Startup, processStartupData } from "@/lib/supabase";
+import { InvestorStartupConnectionService } from "@/lib/investor-startup-connection-service";
 import Footer from "@/components/Footer";
 
 const InvestorDashboard = () => {
@@ -56,6 +57,7 @@ const InvestorDashboard = () => {
   const [recentStartups, setRecentStartups] = useState<Startup[]>([]);
   const [investorDetails, setInvestorDetails] = useState<Investor | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [interestedStartupsCount, setInterestedStartupsCount] = useState(0);
 
   useEffect(() => {
     if (!user) {
@@ -64,6 +66,7 @@ const InvestorDashboard = () => {
       fetchStartups();
       fetchRecentStartups();
       fetchInvestorDetails();
+      fetchInterestedStartupsCount();
     }
   }, [user, navigate]);
 
@@ -131,6 +134,27 @@ const InvestorDashboard = () => {
     }
   };
 
+  const fetchInterestedStartupsCount = async () => {
+    try {
+      if (!user?.id) return;
+
+      const { data, error } =
+        await InvestorStartupConnectionService.getConnections({
+          investor_id: user.id,
+          connection_type: "interested",
+        });
+
+      if (error) {
+        console.error("Error fetching interested startups count:", error);
+        return;
+      }
+
+      setInterestedStartupsCount(data.length);
+    } catch (error) {
+      console.error("Error fetching interested startups count:", error);
+    }
+  };
+
   const handleLogout = async () => {
     try {
       await signOut();
@@ -178,24 +202,29 @@ const InvestorDashboard = () => {
                   Welcome back, {profile.name || "Investor"}
                 </h2>
                 <p className="text-muted-foreground">
-                  Your investment profile is active and visible to startups in
-                  your focus area.
+                  Your investment profile is active and you can start browsing
+                  startups now.
                 </p>
               </div>
 
               {/* Quick Stats */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
+                <Card
+                  className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200 cursor-pointer hover:shadow-md transition-shadow"
+                  onClick={() => navigate("/startups/interested")}
+                >
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">
-                      Saved Startups
+                      Interested Startups
                     </CardTitle>
                     <Building2 className="h-4 w-4 text-blue-600" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">0</div>
+                    <div className="text-2xl font-bold">
+                      {interestedStartupsCount}
+                    </div>
                     <p className="text-xs text-muted-foreground">
-                      Startups in your watchlist
+                      Startups you've shown interest in
                     </p>
                   </CardContent>
                 </Card>
@@ -203,14 +232,16 @@ const InvestorDashboard = () => {
                 <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">
-                      Active Deals
+                      Investment Range
                     </CardTitle>
                     <TrendingUp className="h-4 w-4 text-green-600" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">0</div>
+                    <div className="text-lg font-bold">
+                      {investorDetails?.average_ticket_size || "Not set"}
+                    </div>
                     <p className="text-xs text-muted-foreground">
-                      Ongoing investment discussions
+                      Average ticket size
                     </p>
                   </CardContent>
                 </Card>
@@ -285,15 +316,15 @@ const InvestorDashboard = () => {
                       onClick={() => navigate("/startups")}
                     >
                       <FileText className="mr-2 h-4 w-4" />
-                      Browse All Vetted Startups
+                      Browse All Startups
                     </Button>
                     <Button
                       variant="outline"
                       className="w-full justify-start border-white/10 hover:bg-white/5 hover:text-black"
-                      onClick={() => navigate("/saved-startups")}
+                      onClick={() => navigate("/startups/interested")}
                     >
                       <Building2 className="mr-2 h-4 w-4" />
-                      View Saved Startups
+                      View Interested Startups
                     </Button>
                     <Button
                       variant="outline"

@@ -30,9 +30,10 @@ export interface OTPVerificationCredentials {
 }
 
 class SimpleAuthService {
-  async signUp(
-    credentials: SignUpCredentials
-  ): Promise<{ user: User; emailVerificationSent: boolean }> {
+  async signUp(credentials: SignUpCredentials): Promise<{
+    user: User & { identities?: unknown[] };
+    emailVerificationSent: boolean;
+  }> {
     // Create account with password
     const { data, error } = await supabase.auth.signUp({
       email: credentials.email,
@@ -47,7 +48,15 @@ class SimpleAuthService {
 
     if (error) throw error;
 
-    // Return a temporary user object (will be confirmed after OTP verification)
+    // Check if this is an existing user (identities array will be empty)
+    const isExistingUser =
+      data.user?.identities && data.user.identities.length === 0;
+
+    if (isExistingUser) {
+      console.log("User already exists with this email");
+    }
+
+    // Return a user object with identities information included
     return {
       user: {
         id: data.user?.id || "",
@@ -56,6 +65,8 @@ class SimpleAuthService {
         accountType: credentials.accountType,
         created_at: new Date().toISOString(),
         isProfileComplete: false,
+        // Include identities to help components detect existing users
+        identities: data.user?.identities,
       },
       emailVerificationSent: !data.user?.email_confirmed_at,
     };

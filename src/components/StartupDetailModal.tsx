@@ -73,11 +73,11 @@ const StartupDetailModal: React.FC<StartupDetailProps> = ({
   };
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl h-[80vh] flex flex-col">
+      <DialogContent className="max-w-4xl max-h-[90vh] sm:h-[80vh] flex flex-col w-[95vw] sm:w-full">
         <DialogHeader>
-          <div className="flex justify-between items-start">
-            <div>
-              <DialogTitle className="text-2xl font-bold">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
+            <div className="flex-1 min-w-0">
+              <DialogTitle className="text-xl sm:text-2xl font-bold break-words">
                 {startup.name}
               </DialogTitle>
               <div className="flex flex-wrap gap-2 mt-2">
@@ -89,22 +89,8 @@ const StartupDetailModal: React.FC<StartupDetailProps> = ({
                 </span>
               </div>
             </div>
-            <div className="flex gap-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-8 w-8 p-0"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onSave();
-                }}
-              >
-                <Bookmark
-                  className={`h-5 w-5 ${
-                    isSaved ? "fill-primary text-primary" : ""
-                  }`}
-                />
-              </Button>
+            <div className="flex gap-2 flex-shrink-0">
+              
               {startup.website && (
                 <TooltipProvider>
                   <Tooltip>
@@ -135,11 +121,19 @@ const StartupDetailModal: React.FC<StartupDetailProps> = ({
 
         <div className="flex-grow overflow-auto pt-2">
           <Tabs defaultValue="overview" className="w-full">
-            <TabsList className="mb-4">
-              <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="business">Business</TabsTrigger>
-              <TabsTrigger value="team">Team</TabsTrigger>
-              <TabsTrigger value="financials">Financials</TabsTrigger>
+            <TabsList className="mb-4 grid w-full grid-cols-2 sm:grid-cols-4 h-auto">
+              <TabsTrigger value="overview" className="text-sm">
+                Overview
+              </TabsTrigger>
+              <TabsTrigger value="business" className="text-sm">
+                Business
+              </TabsTrigger>
+              <TabsTrigger value="team" className="text-sm">
+                Team
+              </TabsTrigger>
+              <TabsTrigger value="financials" className="text-sm">
+                Financials
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="overview" className="space-y-4">
@@ -159,16 +153,18 @@ const StartupDetailModal: React.FC<StartupDetailProps> = ({
                 </div>
               )}
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="bg-gray-50 p-4 rounded-lg">
                   <h3 className="text-sm font-medium mb-2">Funding Sought</h3>
-                  <p className="text-xl font-bold">
+                  <p className="text-lg sm:text-xl font-bold break-words">
                     {startup.funding_required}
                   </p>
                 </div>
                 <div className="bg-gray-50 p-4 rounded-lg">
                   <h3 className="text-sm font-medium mb-2">Valuation</h3>
-                  <p className="text-xl font-bold">{startup.valuation}</p>
+                  <p className="text-lg sm:text-xl font-bold break-words">
+                    {startup.valuation}
+                  </p>
                 </div>
               </div>
             </TabsContent>
@@ -274,34 +270,41 @@ const StartupDetailModal: React.FC<StartupDetailProps> = ({
         </div>
 
         <DialogFooter className="pt-4 border-t mt-4">
-          <div className="flex gap-3 w-full justify-end">
-            <Button variant="outline" onClick={onClose}>
+          <div className="flex flex-col sm:flex-row gap-3 w-full sm:justify-end">
+            <Button
+              variant="outline"
+              onClick={onClose}
+              className="w-full sm:w-auto"
+            >
               Close
             </Button>
             <Button
               onClick={handleRequestInfo}
               variant="outline"
-              className="gap-2"
+              className="gap-2 w-full sm:w-auto"
             >
               <MessageCircle className="h-4 w-4" />
-              Request More Info
+              <span className="hidden xs:inline">Request More Info</span>
+              <span className="xs:hidden">Request Info</span>
             </Button>
             {onInterested && (
               <Button
                 onClick={onInterested}
-                className="gap-2"
+                className="gap-2 w-full sm:w-auto"
                 variant={isInterested ? "secondary" : "default"}
                 disabled={isInterested}
               >
                 {isInterested ? (
                   <>
                     <CheckCircle className="h-4 w-4" />
-                    Interest Shown
+                    <span className="hidden xs:inline">Interest Shown</span>
+                    <span className="xs:hidden">Interested</span>
                   </>
                 ) : (
                   <>
                     <Heart className="h-4 w-4" />
-                    I'm Interested
+                    <span className="hidden xs:inline">I'm Interested</span>
+                    <span className="xs:hidden">Interested</span>
                   </>
                 )}
               </Button>

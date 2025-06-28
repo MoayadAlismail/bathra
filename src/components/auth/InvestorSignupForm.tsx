@@ -109,40 +109,36 @@ const HOW_DID_YOU_HEAR = [
 
 export default function InvestorSignupForm() {
   const [formData, setFormData] = useState<InvestorFormData>({
-    // Auth fields - Demo values
-    email: "investor.demo@bathra.com",
-    password: "Demo123!",
-    confirmPassword: "Demo123!",
+    // Auth fields
+    email: "",
+    password: "",
+    confirmPassword: "",
 
-    // Personal info - Demo values
-    name: "Alex Richardson",
-    phone: "+1 (555) 123-4567",
-    birthday: "1985-03-15",
-    company: "Richardson Capital Partners",
-    role: "Managing Partner",
-    country: "United States",
-    city: "San Francisco",
+    // Personal info
+    name: "",
+    phone: "",
+    birthday: "",
+    company: "",
+    role: "",
+    country: "",
+    city: "",
 
-    // Investment preferences - Demo values
-    preferredIndustries: ["Technology", "SaaS", "AI/ML", "Fintech"],
-    preferredStage: "Seed",
-    averageTicketSize: "$100K - $500K",
+    // Investment preferences
+    preferredIndustries: [],
+    preferredStage: "",
+    averageTicketSize: "",
 
-    // Social profiles - Demo values
-    linkedinProfile: "https://linkedin.com/in/alexrichardson",
-    otherSocialMedia: [
-      { platform: "Twitter", url: "https://twitter.com/alexr_investor" },
-      { platform: "AngelList", url: "https://angel.co/alexrichardson" },
-    ],
-    calendlyLink: "https://calendly.com/alexrichardson-investor",
+    // Social profiles
+    linkedinProfile: "",
+    otherSocialMedia: [],
+    calendlyLink: "",
 
-    // Background - Demo values
-    howDidYouHear: "Referral from Friend",
-    numberOfInvestments: 25,
-    hasSecuredLeadInvestor: true,
-    hasBeenStartupAdvisor: true,
-    whyStrongCandidate:
-      "I bring 15+ years of experience in venture capital with a strong track record of successful exits. My portfolio includes 3 unicorn companies and I've led investments totaling over $50M. I provide strategic guidance to portfolio companies and have extensive networks in Silicon Valley and beyond. My expertise spans enterprise software, fintech, and AI/ML sectors.",
+    // Background
+    howDidYouHear: "",
+    numberOfInvestments: 0,
+    hasSecuredLeadInvestor: false,
+    hasBeenStartupAdvisor: false,
+    whyStrongCandidate: "",
 
     // Agreement checkboxes
     agreeToTerms: false,
@@ -188,35 +184,6 @@ export default function InvestorSignupForm() {
         ? prev.preferredIndustries.filter((i) => i !== industry)
         : [...prev.preferredIndustries, industry],
     }));
-  };
-
-  const clearDemoData = () => {
-    setFormData({
-      email: "",
-      password: "",
-      confirmPassword: "",
-      name: "",
-      phone: "",
-      birthday: "",
-      company: "",
-      role: "",
-      country: "",
-      city: "",
-      preferredIndustries: [],
-      preferredStage: "",
-      averageTicketSize: "",
-      linkedinProfile: "",
-      otherSocialMedia: [],
-      calendlyLink: "",
-      howDidYouHear: "",
-      numberOfInvestments: 0,
-      hasSecuredLeadInvestor: false,
-      hasBeenStartupAdvisor: false,
-      whyStrongCandidate: "",
-      agreeToTerms: false,
-      acceptNewsletter: false,
-    });
-    toast.success("Demo data cleared!");
   };
 
   const validateForm = (): string[] => {
@@ -271,6 +238,23 @@ export default function InvestorSignupForm() {
         accountType: "investor",
       });
 
+      // Check if user already exists by examining the identities array
+      // An empty identities array indicates the user already exists
+      if (
+        result.user &&
+        result.user.id &&
+        result.emailVerificationSent &&
+        "identities" in result.user &&
+        Array.isArray(result.user.identities) &&
+        result.user.identities.length === 0
+      ) {
+        setErrors([
+          "An account with this email already exists. Please sign in instead.",
+        ]);
+        setIsSubmitting(false);
+        return;
+      }
+
       if (result.emailVerificationSent) {
         // Store the full registration data in sessionStorage for OTP verification
         const fullRegistrationData = {
@@ -312,11 +296,21 @@ export default function InvestorSignupForm() {
       }
     } catch (error) {
       console.error("Registration error:", error);
-      setErrors([
-        error instanceof Error
-          ? error.message
-          : "Registration failed. Please try again.",
-      ]);
+      // Check for specific error types from Supabase
+      if (error instanceof Error) {
+        if (
+          error.message.includes("email already in use") ||
+          error.message.includes("User already registered")
+        ) {
+          setErrors([
+            "An account with this email already exists. Please sign in instead.",
+          ]);
+        } else {
+          setErrors([error.message]);
+        }
+      } else {
+        setErrors(["Registration failed. Please try again."]);
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -324,17 +318,6 @@ export default function InvestorSignupForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
-      {/* Demo Data Indicator */}
-      {formData.email === "investor.demo@bathra.com" && (
-        <Alert>
-          <AlertDescription>
-            <strong>Demo Mode:</strong> Form is pre-filled with sample data for
-            testing purposes. You can use this data as-is or modify it, or click
-            "Clear Demo Data" to start fresh.
-          </AlertDescription>
-        </Alert>
-      )}
-
       {errors.length > 0 && (
         <Alert variant="destructive">
           <AlertDescription>
@@ -674,7 +657,11 @@ export default function InvestorSignupForm() {
               id="numberOfInvestments"
               type="number"
               min="0"
-              value={formData.numberOfInvestments}
+              value={
+                formData.numberOfInvestments === 0
+                  ? ""
+                  : formData.numberOfInvestments
+              }
               onChange={(e) =>
                 setFormData((prev) => ({
                   ...prev,
@@ -795,16 +782,7 @@ export default function InvestorSignupForm() {
         </CardContent>
       </Card>
 
-      <div className="flex gap-4">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={clearDemoData}
-          className="flex-1"
-          size="lg"
-        >
-          Clear Demo Data
-        </Button>
+      <div className="flex">
         <Button
           type="submit"
           disabled={isSubmitting || !formData.agreeToTerms}

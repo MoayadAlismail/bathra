@@ -28,19 +28,17 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Checkbox } from "@/components/ui/checkbox";
 
 const formSchema = z.object({
   email: z.string().email("Invalid email format"),
   password: z.string().min(1, "Password is required"),
-  rememberMe: z.boolean().default(false),
 });
 
 const Login = () => {
   const [loginError, setLoginError] = useState("");
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [showUserTypeModal, setShowUserTypeModal] = useState(false);
-  const { signIn, signInWithOAuth, user } = useAuth();
+  const { signIn } = useAuth();
   const navigate = useNavigate();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -48,7 +46,6 @@ const Login = () => {
     defaultValues: {
       email: "",
       password: "",
-      rememberMe: false,
     },
   });
 
@@ -60,7 +57,6 @@ const Login = () => {
       const result = await signIn({
         email: values.email,
         password: values.password,
-        rememberMe: values.rememberMe,
       });
 
       if (result.success && result.user) {
@@ -98,7 +94,7 @@ const Login = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <div className="container mx-auto px-4 py-20">
+      <div className="container mx-auto px-4 py-40">
         <div className="flex justify-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -160,28 +156,6 @@ const Login = () => {
                         </FormItem>
                       )}
                     />
-                    <FormField
-                      control={form.control}
-                      name="rememberMe"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                          <FormControl>
-                            <Checkbox
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                              disabled={isLoggingIn}
-                              id="remember-me"
-                            />
-                          </FormControl>
-                          <div className="space-y-1 leading-none">
-                            <FormLabel htmlFor="remember-me">
-                              Remember me
-                            </FormLabel>
-                          </div>
-                        </FormItem>
-                      )}
-                    />
-
                     <Button
                       type="submit"
                       className="w-full"

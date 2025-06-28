@@ -35,6 +35,7 @@ const Navbar = () => {
 
     if (browsingPaths.includes(path) && !canBrowseContent(profile)) {
       navigate("/pending-verification");
+      window.scrollTo(0, 0);
       setIsMobileMenuOpen(false);
       return;
     }
@@ -60,6 +61,8 @@ const Navbar = () => {
       }
     } else {
       navigate(path);
+      // Scroll to top for regular page navigation
+      window.scrollTo(0, 0);
     }
     setIsMobileMenuOpen(false);
   };
@@ -68,6 +71,7 @@ const Navbar = () => {
     try {
       await signOut();
       navigate("/");
+      window.scrollTo(0, 0);
     } catch (error) {
       console.error("Logout error:", error);
     }
@@ -113,7 +117,10 @@ const Navbar = () => {
       return (
         <Button
           size="sm"
-          onClick={() => navigate("/login")}
+          onClick={() => {
+            navigate("/login");
+            window.scrollTo(0, 0);
+          }}
           className="flex items-center gap-2"
         >
           <LogIn className="w-4 h-4" />
@@ -178,6 +185,7 @@ const Navbar = () => {
         <button
           onClick={() => {
             navigate("/login");
+            window.scrollTo(0, 0);
             setIsMobileMenuOpen(false);
           }}
           className="flex items-center gap-2 text-foreground hover:text-primary transition-colors duration-200 py-2 text-left"
@@ -281,7 +289,9 @@ const Navbar = () => {
               ))}
 
               {/* Notifications for logged in users */}
-              {user && <NotificationDropdown />}
+              {user &&
+                (profile?.accountType === "admin" ||
+                  canBrowseContent(profile)) && <NotificationDropdown />}
 
               {renderAuthButtons()}
             </div>
@@ -319,11 +329,13 @@ const Navbar = () => {
                 ))}
 
                 {/* Notifications for logged in users on mobile */}
-                {user && (
-                  <div className="py-2">
-                    <NotificationDropdown />
-                  </div>
-                )}
+                {user &&
+                  (profile?.accountType === "admin" ||
+                    canBrowseContent(profile)) && (
+                    <div className="py-2">
+                      <NotificationDropdown />
+                    </div>
+                  )}
 
                 {renderMobileAuthButtons()}
               </div>

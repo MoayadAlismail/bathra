@@ -120,75 +120,50 @@ const EXIT_STRATEGIES = [
 
 export default function StartupSignupForm() {
   const [formData, setFormData] = useState<StartupFormData>({
-    // Auth fields - Demo values
-    email: "startup.demo@bathra.com",
-    password: "Demo123!",
-    confirmPassword: "Demo123!",
+    // Auth fields
+    email: "",
+    password: "",
+    confirmPassword: "",
 
-    // Basic info - Demo values
-    founderName: "Sarah Johnson",
-    phone: "+1 (555) 987-6543",
-    startupName: "EcoTech Solutions",
-    website: "https://ecotechsolutions.demo",
-    industry: "Clean Energy",
-    stage: "MVP",
-    logoUrl: "https://example.com/ecotech-logo.png",
+    // Basic info
+    founderName: "",
+    phone: "",
+    startupName: "",
+    website: "",
+    industry: "",
+    stage: "",
+    logoUrl: "",
 
-    // Social media - Demo values
-    socialMediaAccounts: [
-      {
-        platform: "LinkedIn",
-        url: "https://linkedin.com/company/ecotech-solutions",
-      },
-      { platform: "Twitter", url: "https://twitter.com/ecotechsolutions" },
-    ],
+    // Social media
+    socialMediaAccounts: [],
 
-    // Business details - Demo values
-    problemSolving:
-      "Traditional energy solutions contribute to climate change and are becoming increasingly expensive. Many communities lack access to affordable and sustainable energy alternatives.",
-    solutionDescription:
-      "We've developed a patented micro-grid technology that combines solar power with advanced energy storage, allowing communities to generate and store their own renewable energy at 40% lower cost than traditional utilities.",
-    uniqueValueProposition:
-      "Our solution is the only one on the market that combines affordability, scalability, and ease of implementation without requiring specialized infrastructure. Our proprietary battery technology offers 30% more efficiency than competitors.",
+    // Business details
+    problemSolving: "",
+    solutionDescription: "",
+    uniqueValueProposition: "",
 
-    // Financial info - Demo values
-    currentRevenue: 250000,
-    hasReceivedFunding: true,
-    monthlyBurnRate: 35000,
-    investmentInstrument: "Equity",
-    capitalSeeking: 2000000,
-    preMoneyValuation: 10000000,
-    fundingAlreadyRaised: 500000,
+    // Financial info
+    currentRevenue: 0,
+    hasReceivedFunding: false,
+    monthlyBurnRate: 0,
+    investmentInstrument: "",
+    capitalSeeking: 0,
+    preMoneyValuation: 0,
+    fundingAlreadyRaised: 0,
 
-    // Resources - Demo values
-    pitchDeckUrl: "https://drive.google.com/file/d/example",
-    coFounders: [
-      {
-        name: "Michael Chen",
-        role: "CTO",
-        email: "michael@ecotechsolutions.demo",
-        linkedinProfile: "https://linkedin.com/in/michaelchen",
-      },
-      {
-        name: "Aisha Patel",
-        role: "COO",
-        email: "aisha@ecotechsolutions.demo",
-        linkedinProfile: "https://linkedin.com/in/aishapatel",
-      },
-    ],
-    calendlyLink: "https://calendly.com/sarahjohnson-ecotech",
-    videoLink: "https://youtube.com/watch?v=demovideolink",
-    teamSize: 8,
+    // Resources
+    pitchDeckUrl: "",
+    coFounders: [],
+    calendlyLink: "",
+    videoLink: "",
+    teamSize: 1,
 
-    // Strategic info - Demo values
-    achievements:
-      "- Developed and patented our core technology\n- Completed successful pilot with 3 communities in California\n- Secured $500K in pre-seed funding\n- Established partnerships with 2 major utility companies\n- Reduced energy costs by 40% in pilot communities\n- Grew team from 3 to 8 full-time employees",
-    risksAndMitigation:
-      "1. Regulatory challenges: We've partnered with legal experts specializing in energy regulations and are working with local governments to streamline approval processes.\n2. Manufacturing scalability: We've secured agreements with two manufacturing partners to ensure production can meet demand.\n3. Competitor response: Our patents protect our core technology, and we're rapidly expanding to establish market dominance before competitors can catch up.",
-    exitStrategy: "Competitor buyout",
-    participatedAccelerator: true,
-    acceleratorDetails:
-      "Participated in Y Combinator Winter 2022 batch. Secured connections to key investors and industry partners, refined business model, and improved unit economics by 25%.",
+    // Strategic info
+    achievements: "",
+    risksAndMitigation: "",
+    exitStrategy: "",
+    participatedAccelerator: false,
+    acceleratorDetails: "",
     additionalFiles: [],
 
     // Agreement checkboxes
@@ -263,46 +238,6 @@ export default function StartupSignupForm() {
     }));
   };
 
-  const clearDemoData = () => {
-    setFormData({
-      email: "",
-      password: "",
-      confirmPassword: "",
-      founderName: "",
-      phone: "",
-      startupName: "",
-      website: "",
-      industry: "",
-      stage: "",
-      logoUrl: "",
-      socialMediaAccounts: [],
-      problemSolving: "",
-      solutionDescription: "",
-      uniqueValueProposition: "",
-      currentRevenue: 0,
-      hasReceivedFunding: false,
-      monthlyBurnRate: 0,
-      investmentInstrument: "",
-      capitalSeeking: 0,
-      preMoneyValuation: 0,
-      fundingAlreadyRaised: 0,
-      pitchDeckUrl: "",
-      coFounders: [],
-      calendlyLink: "",
-      videoLink: "",
-      teamSize: 1,
-      achievements: "",
-      risksAndMitigation: "",
-      exitStrategy: "",
-      participatedAccelerator: false,
-      acceleratorDetails: "",
-      additionalFiles: [],
-      agreeToTerms: false,
-      acceptNewsletter: false,
-    });
-    toast.success("Demo data cleared!");
-  };
-
   const validateForm = (): string[] => {
     const newErrors: string[] = [];
 
@@ -357,6 +292,23 @@ export default function StartupSignupForm() {
         accountType: "startup",
       });
 
+      // Check if user already exists by examining the identities array
+      // An empty identities array indicates the user already exists
+      if (
+        result.user &&
+        result.user.id &&
+        result.emailVerificationSent &&
+        "identities" in result.user &&
+        Array.isArray(result.user.identities) &&
+        result.user.identities.length === 0
+      ) {
+        setErrors([
+          "An account with this email already exists. Please sign in instead.",
+        ]);
+        setIsSubmitting(false);
+        return;
+      }
+
       if (result.emailVerificationSent) {
         // Store the full registration data in sessionStorage for OTP verification
         const fullRegistrationData = {
@@ -409,7 +361,21 @@ export default function StartupSignupForm() {
       }
     } catch (error) {
       console.error("Registration error:", error);
-      setErrors(["Registration failed. Please try again."]);
+      // Check for specific error types from Supabase
+      if (error instanceof Error) {
+        if (
+          error.message.includes("email already in use") ||
+          error.message.includes("User already registered")
+        ) {
+          setErrors([
+            "An account with this email already exists. Please sign in instead.",
+          ]);
+        } else {
+          setErrors([error.message]);
+        }
+      } else {
+        setErrors(["Registration failed. Please try again."]);
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -417,17 +383,6 @@ export default function StartupSignupForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
-      {/* Demo Data Indicator */}
-      {formData.email === "startup.demo@bathra.com" && (
-        <Alert>
-          <AlertDescription>
-            <strong>Demo Mode:</strong> Form is pre-filled with sample data for
-            testing purposes. You can use this data as-is or modify it, or click
-            "Clear Demo Data" to start fresh.
-          </AlertDescription>
-        </Alert>
-      )}
-
       {errors.length > 0 && (
         <Alert variant="destructive">
           <AlertDescription>
@@ -745,7 +700,9 @@ export default function StartupSignupForm() {
               type="number"
               min="0"
               step="0.01"
-              value={formData.currentRevenue}
+              value={
+                formData.currentRevenue === 0 ? "" : formData.currentRevenue
+              }
               onChange={(e) =>
                 setFormData((prev) => ({
                   ...prev,
@@ -762,7 +719,9 @@ export default function StartupSignupForm() {
               type="number"
               min="0"
               step="0.01"
-              value={formData.monthlyBurnRate}
+              value={
+                formData.monthlyBurnRate === 0 ? "" : formData.monthlyBurnRate
+              }
               onChange={(e) =>
                 setFormData((prev) => ({
                   ...prev,
@@ -779,7 +738,9 @@ export default function StartupSignupForm() {
               type="number"
               min="0"
               step="0.01"
-              value={formData.capitalSeeking}
+              value={
+                formData.capitalSeeking === 0 ? "" : formData.capitalSeeking
+              }
               onChange={(e) =>
                 setFormData((prev) => ({
                   ...prev,
@@ -796,7 +757,11 @@ export default function StartupSignupForm() {
               type="number"
               min="0"
               step="0.01"
-              value={formData.preMoneyValuation}
+              value={
+                formData.preMoneyValuation === 0
+                  ? ""
+                  : formData.preMoneyValuation
+              }
               onChange={(e) =>
                 setFormData((prev) => ({
                   ...prev,
@@ -815,7 +780,11 @@ export default function StartupSignupForm() {
               type="number"
               min="0"
               step="0.01"
-              value={formData.fundingAlreadyRaised}
+              value={
+                formData.fundingAlreadyRaised === 0
+                  ? ""
+                  : formData.fundingAlreadyRaised
+              }
               onChange={(e) =>
                 setFormData((prev) => ({
                   ...prev,
@@ -1154,16 +1123,7 @@ export default function StartupSignupForm() {
         </CardContent>
       </Card>
 
-      <div className="flex gap-4">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={clearDemoData}
-          className="flex-1"
-          size="lg"
-        >
-          Clear Demo Data
-        </Button>
+      <div className="flex">
         <Button
           type="submit"
           disabled={isSubmitting || !formData.agreeToTerms}

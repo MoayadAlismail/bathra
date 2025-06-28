@@ -26,6 +26,7 @@ import PendingVerification from "./pages/PendingVerification";
 import AdminInvite from "./pages/AdminInvite";
 import TermsAndConditions from "./pages/TermsAndConditions";
 import InterestedInvestors from "./pages/InterestedInvestors";
+import InterestedStartups from "./pages/InterestedStartups";
 import StatusGuard from "./components/auth/StatusGuard";
 import "./App.css";
 
@@ -171,6 +172,18 @@ const AppRoutes = () => {
               <StatusGuard>
                 <ErrorBoundary>
                   <VettedStartups />
+                </ErrorBoundary>
+              </StatusGuard>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/startups/interested"
+          element={
+            <ProtectedRoute requiredAccountType="investor">
+              <StatusGuard>
+                <ErrorBoundary>
+                  <InterestedStartups />
                 </ErrorBoundary>
               </StatusGuard>
             </ProtectedRoute>

@@ -15,6 +15,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
 import NotificationDropdown from "@/components/NotificationDropdown";
+import { canBrowseContent } from "@/lib/auth-utils";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -32,6 +33,7 @@ const AdminNavbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showSignOutDialog, setShowSignOutDialog] = useState(false);
+  const { profile } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -134,7 +136,7 @@ const AdminNavbar = () => {
 
             {/* Admin Actions */}
             <div className="hidden lg:flex items-center space-x-2 xl:space-x-4 flex-shrink-0">
-              <NotificationDropdown />
+              {profile && canBrowseContent(profile) && <NotificationDropdown />}
               <Button
                 variant="outline"
                 size="sm"
@@ -202,9 +204,11 @@ const AdminNavbar = () => {
 
                 {/* Mobile Actions */}
                 <div className="pt-3 sm:pt-4 border-t border-border space-y-2">
-                  <div className="py-2">
-                    <NotificationDropdown />
-                  </div>
+                  {profile && canBrowseContent(profile) && (
+                    <div className="py-2">
+                      <NotificationDropdown />
+                    </div>
+                  )}
                   <Button
                     variant="outline"
                     size="sm"

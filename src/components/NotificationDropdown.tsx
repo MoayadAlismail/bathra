@@ -37,6 +37,7 @@ import { useNotifications } from "@/hooks/useNotifications";
 import { useAuth } from "@/context/AuthContext";
 import { Notification } from "@/lib/supabase";
 import { NotificationService } from "@/lib/notification-service";
+import { canBrowseContent } from "@/lib/auth-utils";
 
 interface NotificationDropdownProps {
   onToggle?: (isOpen: boolean) => void;
@@ -45,11 +46,14 @@ interface NotificationDropdownProps {
 const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
   onToggle,
 }) => {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [selectedNotification, setSelectedNotification] =
     useState<Notification | null>(null);
   const [showAllModal, setShowAllModal] = useState(false);
+
+  // Check if user is approved to see notifications
+  const isApproved = profile ? canBrowseContent(profile) : false;
 
   // Use single hook without autoRefresh to avoid conflicts
   const {
@@ -60,7 +64,7 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
     markAsRead,
     markAllAsRead,
     archiveNotification,
-  } = useNotifications(user?.id || null, {
+  } = useNotifications(isApproved && user?.id ? user.id : null, {
     limit: 5,
     autoRefresh: false, // Disable autoRefresh to prevent re-rendering issues
   });
@@ -72,10 +76,10 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
 
   // Refresh data when dropdown is opened
   useEffect(() => {
-    if (isOpen && user?.id) {
+    if (isOpen && isApproved && user?.id) {
       refresh();
     }
-  }, [isOpen, user?.id]); // Removed refresh dependency to avoid loops
+  }, [isOpen, user?.id, isApproved]); // Added isApproved dependency
 
   const handleToggle = () => {
     const newIsOpen = !isOpen;
@@ -92,7 +96,7 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
 
   const handleShowAll = async () => {
     setShowAllModal(true);
-    if (user?.id) {
+    if (isApproved && user?.id) {
       setAllLoading(true);
       try {
         const allNotificationData =
@@ -111,7 +115,7 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
   };
 
   const loadMoreAll = async () => {
-    if (!allHasMore || allLoading || !user?.id) return;
+    if (!allHasMore || allLoading || !isApproved || !user?.id) return;
 
     setAllLoading(true);
     try {
@@ -132,7 +136,7 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
   };
 
   const refreshAll = async () => {
-    if (user?.id) {
+    if (isApproved && user?.id) {
       setAllLoading(true);
       try {
         const allNotificationData =
@@ -181,7 +185,7 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
       : content;
   };
 
-  if (!user) return null;
+  if (!user || !isApproved) return null;
 
   return (
     <>

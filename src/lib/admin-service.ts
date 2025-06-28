@@ -365,18 +365,10 @@ class AdminService {
         .single();
 
       if (adminToDelete?.admin_level === "super") {
-        // Count total super admins
-        const { data: superAdmins } = await supabase
-          .from("admins")
-          .select("id")
-          .eq("admin_level", "super");
-
-        if (superAdmins && superAdmins.length <= 1) {
-          return {
-            success: false,
-            error: "Cannot delete the last super admin",
-          };
-        }
+        return {
+          success: false,
+          error: "Cannot delete super admin",
+        };
       }
 
       // Delete from admins table
@@ -652,6 +644,10 @@ class AdminService {
       approvedUsers: number;
       rejectedUsers: number;
       flaggedUsers: number;
+      totalConnections: number;
+      totalInfoRequests: number;
+      totalArticles: number;
+      totalNewsletterCampaigns: number;
     };
     error: string | null;
   }> {
@@ -670,6 +666,10 @@ class AdminService {
             approvedUsers: 0,
             rejectedUsers: 0,
             flaggedUsers: 0,
+            totalConnections: 0,
+            totalInfoRequests: 0,
+            totalArticles: 0,
+            totalNewsletterCampaigns: 0,
           },
           error: startupError.message,
         };
@@ -689,12 +689,43 @@ class AdminService {
             approvedUsers: 0,
             rejectedUsers: 0,
             flaggedUsers: 0,
+            totalConnections: 0,
+            totalInfoRequests: 0,
+            totalArticles: 0,
+            totalNewsletterCampaigns: 0,
           },
           error: investorError.message,
         };
       }
 
       const allUsers = [...(startups || []), ...(investors || [])];
+
+      // Get connections data
+      const { data: connections, error: connectionsError } = await supabase
+        .from("investor_startup_connections")
+        .select("connection_type")
+        .eq("status", "active");
+
+      const totalConnections =
+        connections?.filter((conn) => conn.connection_type === "interested")
+          .length || 0;
+      const totalInfoRequests =
+        connections?.filter((conn) => conn.connection_type === "info_request")
+          .length || 0;
+
+      // Get articles data
+      const { data: articles, error: articlesError } = await supabase
+        .from("articles")
+        .select("id");
+
+      const totalArticles = articles?.length || 0;
+
+      // Get newsletter campaigns data
+      const { data: campaigns, error: campaignsError } = await supabase
+        .from("newsletter_campaigns")
+        .select("id");
+
+      const totalNewsletterCampaigns = campaigns?.length || 0;
 
       const stats = {
         totalStartups: startups.filter((startup) => startup.verified).length,
@@ -710,6 +741,10 @@ class AdminService {
           .length,
         flaggedUsers: allUsers.filter((user) => user.status === "flagged")
           .length,
+        totalConnections,
+        totalInfoRequests,
+        totalArticles,
+        totalNewsletterCampaigns,
       };
 
       return { data: stats, error: null };
@@ -722,9 +757,124 @@ class AdminService {
           approvedUsers: 0,
           rejectedUsers: 0,
           flaggedUsers: 0,
+          totalConnections: 0,
+          totalInfoRequests: 0,
+          totalArticles: 0,
+          totalNewsletterCampaigns: 0,
         },
         error: (error as Error).message,
       };
+    }
+  }
+
+  // Get recent activity for dashboard
+  async getRecentActivity(limit: number = 10): Promise<{
+    data: Array<{
+      id: string;
+      type:
+        | "user_registration"
+        | "connection"
+        | "article_published"
+        | "newsletter_sent";
+      title: string;
+      description: string;
+      timestamp: string;
+    }>;
+    error: string | null;
+  }> {
+    try {
+      const recentActivities = [];
+
+      // Get recent user registrations
+      const { data: recentUsers } = await supabase
+        .from("startups")
+        .select("id, name, created_at")
+        .order("created_at", { ascending: false })
+        .limit(3);
+
+      const { data: recentInvestors } = await supabase
+        .from("investors")
+        .select("id, name, created_at")
+        .order("created_at", { ascending: false })
+        .limit(3);
+
+      // Add recent startups
+      recentUsers?.forEach((startup) => {
+        recentActivities.push({
+          id: startup.id,
+          type: "user_registration" as const,
+          title: "New startup registered",
+          description: startup.name,
+          timestamp: startup.created_at,
+        });
+      });
+
+      // Add recent investors
+      recentInvestors?.forEach((investor) => {
+        recentActivities.push({
+          id: investor.id,
+          type: "user_registration" as const,
+          title: "New investor registered",
+          description: investor.name,
+          timestamp: investor.created_at,
+        });
+      });
+
+      // Get recent connections
+      const { data: recentConnections } = await supabase
+        .from("investor_startup_connections")
+        .select("id, investor_name, startup_name, connection_type, created_at")
+        .order("created_at", { ascending: false })
+        .limit(5);
+
+      recentConnections?.forEach((connection) => {
+        recentActivities.push({
+          id: connection.id,
+          type: "connection" as const,
+          title:
+            connection.connection_type === "interested"
+              ? "New connection made"
+              : "Info request made",
+          description: `${connection.investor_name} ${
+            connection.connection_type === "interested"
+              ? "interested in"
+              : "requested info from"
+          } ${connection.startup_name}`,
+          timestamp: connection.created_at,
+        });
+      });
+
+      // Get recent published articles
+      const { data: recentArticles } = await supabase
+        .from("articles")
+        .select("id, title, published_at")
+        .eq("status", "published")
+        .order("published_at", { ascending: false })
+        .limit(3);
+
+      recentArticles?.forEach((article) => {
+        if (article.published_at) {
+          recentActivities.push({
+            id: article.id,
+            type: "article_published" as const,
+            title: "New article published",
+            description: article.title,
+            timestamp: article.published_at,
+          });
+        }
+      });
+
+      // Sort all activities by timestamp and limit
+      const sortedActivities = recentActivities
+        .sort(
+          (a, b) =>
+            new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+        )
+        .slice(0, limit);
+
+      return { data: sortedActivities, error: null };
+    } catch (error) {
+      return { data: [], error: (error as Error).message };
     }
   }
 

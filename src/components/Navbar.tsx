@@ -289,7 +289,7 @@ const Navbar = () => {
               ))}
 
               {/* Notifications for logged in users */}
-              {user && <NotificationDropdown />}
+              {user && canBrowseContent(profile) && <NotificationDropdown />}
 
               {renderAuthButtons()}
             </div>
@@ -327,7 +327,7 @@ const Navbar = () => {
                 ))}
 
                 {/* Notifications for logged in users on mobile */}
-                {user && (
+                {user && canBrowseContent(profile) && (
                   <div className="py-2">
                     <NotificationDropdown />
                   </div>

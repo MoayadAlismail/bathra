@@ -16,20 +16,11 @@ import {
   Users,
   Building,
   Mail,
-  TrendingUp,
-  Settings,
   FileText,
   Shield,
   UserPlus,
   Network,
 } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { useLocation } from "react-router-dom";
 import { adminService } from "@/lib/admin-service";
 import { useAuth } from "@/context/AuthContext";
@@ -237,91 +228,6 @@ const Admin = () => {
               <BlogManagement />
             )}
           </motion.div>
-
-          {/* Recent Activity - Only show on dashboard */}
-          {activeTab === "dashboard" && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8"
-            >
-              {/* Recent Activity */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <BarChart3 className="h-5 w-5" />
-                    Recent Activity
-                  </CardTitle>
-                  <CardDescription>
-                    Latest actions on the platform
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                      <div>
-                        <p className="font-medium">New startup registered</p>
-                        <p className="text-sm text-muted-foreground">
-                          EcoSolutions - CleanTech
-                        </p>
-                      </div>
-                      <span className="text-xs text-muted-foreground">
-                        2 hours ago
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                      <div>
-                        <p className="font-medium">Investor match made</p>
-                        <p className="text-sm text-muted-foreground">
-                          MediTech matched with VC Fund
-                        </p>
-                      </div>
-                      <span className="text-xs text-muted-foreground">
-                        5 hours ago
-                      </span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* System Overview */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <TrendingUp className="h-5 w-5" />
-                    System Overview
-                  </CardTitle>
-                  <CardDescription>Current platform statistics</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Building className="h-4 w-4 text-muted-foreground" />
-                        <span>Total Startups</span>
-                      </div>
-                      <span className="font-semibold">42</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Users className="h-4 w-4 text-muted-foreground" />
-                        <span>Total Investors</span>
-                      </div>
-                      <span className="font-semibold">18</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Mail className="h-4 w-4 text-muted-foreground" />
-                        <span>Newsletter Subscribers</span>
-                      </div>
-                      <span className="font-semibold">156</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          )}
         </div>
       </div>
       <Footer />

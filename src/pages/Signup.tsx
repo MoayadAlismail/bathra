@@ -53,12 +53,16 @@ export default function Signup() {
                 </CardHeader>
                 <CardContent className="space-y-6">
                   <RadioGroup
+                    value={accountType || ""}
                     onValueChange={(value) =>
                       setAccountType(value as AccountType)
                     }
                     className="space-y-4"
                   >
-                    <div className="flex items-center space-x-3 border p-4 rounded-lg cursor-pointer hover:bg-muted/30">
+                    <div
+                      className="flex items-center space-x-3 border p-4 rounded-lg cursor-pointer hover:bg-muted/30"
+                      onClick={() => setAccountType("investor")}
+                    >
                       <RadioGroupItem value="investor" id="investor" />
                       <div className="flex-1">
                         <Label
@@ -74,7 +78,10 @@ export default function Signup() {
                       </div>
                     </div>
 
-                    <div className="flex items-center space-x-3 border p-4 rounded-lg cursor-pointer hover:bg-muted/30">
+                    <div
+                      className="flex items-center space-x-3 border p-4 rounded-lg cursor-pointer hover:bg-muted/30"
+                      onClick={() => setAccountType("startup")}
+                    >
                       <RadioGroupItem value="startup" id="startup" />
                       <div className="flex-1">
                         <Label

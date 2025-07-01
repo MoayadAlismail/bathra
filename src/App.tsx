@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { useEffect, Suspense, Component, ReactNode } from "react";
+import { Analytics } from "@vercel/analytics/react";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import InvestorDashboard from "./pages/InvestorDashboard";
@@ -307,6 +308,7 @@ const App = () => (
         <AuthProvider>
           <Toaster />
           <Sonner />
+          <Analytics />
           <Suspense
             fallback={
               <div className="flex h-screen items-center justify-center">

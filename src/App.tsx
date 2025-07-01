@@ -8,10 +8,8 @@ import { ThemeProvider } from "./components/ThemeProvider";
 import { useEffect, Suspense, Component, ReactNode } from "react";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
-import VettedStartups from "./pages/VettedStartups";
 import InvestorDashboard from "./pages/InvestorDashboard";
 import StartupDashboard from "./pages/StartupDashboard";
-import Investors from "./pages/Investors";
 import Signup from "./pages/Signup";
 import StartupSignup from "./pages/StartupSignup";
 import InvestorSignup from "./pages/InvestorSignup";
@@ -25,8 +23,8 @@ import ArticleDetail from "./pages/ArticleDetail";
 import PendingVerification from "./pages/PendingVerification";
 import AdminInvite from "./pages/AdminInvite";
 import TermsAndConditions from "./pages/TermsAndConditions";
-import InterestedInvestors from "./pages/InterestedInvestors";
-import InterestedStartups from "./pages/InterestedStartups";
+import StartupProfile from "./pages/StartupProfile";
+import InvestorProfile from "./pages/InvestorProfile";
 import StatusGuard from "./components/auth/StatusGuard";
 import "./App.css";
 
@@ -166,24 +164,24 @@ const AppRoutes = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/pending-verification" element={<PendingVerification />} />
         <Route
-          path="/startups"
+          path="/startup-profile"
           element={
-            <ProtectedRoute requiredAccountType="investor">
+            <ProtectedRoute requiredAccountType="startup">
               <StatusGuard>
                 <ErrorBoundary>
-                  <VettedStartups />
+                  <StartupProfile />
                 </ErrorBoundary>
               </StatusGuard>
             </ProtectedRoute>
           }
         />
         <Route
-          path="/startups/interested"
+          path="/investor-profile"
           element={
             <ProtectedRoute requiredAccountType="investor">
               <StatusGuard>
                 <ErrorBoundary>
-                  <InterestedStartups />
+                  <InvestorProfile />
                 </ErrorBoundary>
               </StatusGuard>
             </ProtectedRoute>
@@ -213,30 +211,7 @@ const AppRoutes = () => {
             </ProtectedRoute>
           }
         />
-        <Route
-          path="/interested-investors"
-          element={
-            <ProtectedRoute requiredAccountType="startup">
-              <StatusGuard>
-                <ErrorBoundary>
-                  <InterestedInvestors />
-                </ErrorBoundary>
-              </StatusGuard>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/investors"
-          element={
-            <ProtectedRoute requiredAccountType="admin">
-              <StatusGuard>
-                <ErrorBoundary>
-                  <Investors />
-                </ErrorBoundary>
-              </StatusGuard>
-            </ProtectedRoute>
-          }
-        />
+
         <Route
           path="/admin"
           element={

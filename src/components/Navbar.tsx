@@ -96,15 +96,15 @@ const Navbar = () => {
     if (accountType === "startup") {
       return [
         { label: "Dashboard", path: "/startup-dashboard" },
+        { label: "Profile", path: "/startup-profile" },
         { label: "Articles", path: "/articles" },
-        // { label: "Investors", path: "/investors" },
       ];
     } else {
       // For investors (individual or VC)
       return [
         { label: "Dashboard", path: "/investor-dashboard" },
+        { label: "Profile", path: "/investor-profile" },
         { label: "Articles", path: "/articles" },
-        { label: "Startups", path: "/startups" },
       ];
     }
   };

@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useEffect, useState } from "react";
 
 type Theme = "light";
@@ -21,9 +20,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <ThemeContext.Provider value={{ theme }}>
-      {children}
-    </ThemeContext.Provider>
+    <ThemeContext.Provider value={{ theme }}>{children}</ThemeContext.Provider>
   );
 }
 

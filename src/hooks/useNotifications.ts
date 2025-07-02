@@ -30,12 +30,18 @@ export function useNotifications(
   userId: string | null,
   options: UseNotificationsOptions = {}
 ): UseNotificationsReturn {
+  // iOS detection for performance optimization
+  const isIOS =
+    typeof window !== "undefined" &&
+    (/iPad|iPhone|iPod/.test(navigator.userAgent) ||
+      (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1));
+
   const {
     limit = 10,
     unreadOnly = false,
     type,
     autoRefresh = false,
-    refreshInterval = 30000, // 30 seconds
+    refreshInterval = isIOS ? 60000 : 30000, // Longer interval for iOS (60s vs 30s)
   } = options;
 
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -218,19 +224,59 @@ export function useNotifications(
           setLoading(false);
         });
     }
-  }, [userId, limit, unreadOnly, type]); // Stable dependencies
+  }, [userId, limit, unreadOnly, type]);
 
-  // Auto-refresh
+  // Auto-refresh with iOS optimization
   useEffect(() => {
     if (!autoRefresh || !userId) return;
 
-    const interval = setInterval(() => {
-      // Only refresh unread count to avoid disrupting UI
-      NotificationService.getUnreadCount(userId).then(setUnreadCount);
-    }, refreshInterval);
+    // Disable auto-refresh on iOS if in background to save memory
+    let intervalId: NodeJS.Timeout;
 
-    return () => clearInterval(interval);
-  }, [autoRefresh, userId, refreshInterval]); // Removed fetchUnreadCount dependency
+    const startInterval = () => {
+      intervalId = setInterval(() => {
+        // Only refresh unread count to avoid disrupting UI
+        if (!document.hidden) {
+          // Only refresh when page is visible
+          NotificationService.getUnreadCount(userId)
+            .then(setUnreadCount)
+            .catch(() => {}); // Silently handle errors in auto-refresh
+        }
+      }, refreshInterval);
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        // Clear interval when page is hidden to save resources
+        if (intervalId) {
+          clearInterval(intervalId);
+        }
+      } else {
+        // Restart interval when page becomes visible
+        startInterval();
+      }
+    };
+
+    // Start initial interval
+    startInterval();
+
+    // Add visibility change listener for iOS optimization
+    if (isIOS) {
+      document.addEventListener("visibilitychange", handleVisibilityChange);
+    }
+
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+      if (isIOS) {
+        document.removeEventListener(
+          "visibilitychange",
+          handleVisibilityChange
+        );
+      }
+    };
+  }, [autoRefresh, userId, refreshInterval, isIOS]);
 
   return {
     notifications,

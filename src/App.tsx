@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { ThemeProvider } from "./components/ThemeProvider";
-import { useEffect, Suspense, Component, ReactNode } from "react";
+import { useEffect, useState, Suspense, Component, ReactNode } from "react";
 import { Analytics } from "@vercel/analytics/react";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
@@ -114,9 +114,7 @@ const ProtectedRoute = ({
           : [requiredAccountType];
 
         if (!accountType || !requiredTypes.includes(accountType)) {
-          console.log(
-            `User does not have required account type: ${requiredAccountType}`
-          );
+          console.log(`User does not have required account type`);
         }
       }
     }
@@ -301,32 +299,53 @@ const AppRoutes = () => {
   );
 };
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <ThemeProvider>
-        <AuthProvider>
-          <Toaster />
-          <Sonner />
-          <Analytics />
-          <Suspense
-            fallback={
-              <div className="flex h-screen items-center justify-center">
-                <div className="text-center">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-                  <p className="text-muted-foreground">
-                    Loading application...
-                  </p>
+const App = () => {
+  const [isIOS, setIsIOS] = useState(false);
+
+  useEffect(() => {
+    // Detect iOS Safari
+    const isIOSDevice =
+      /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+      (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+    setIsIOS(isIOSDevice);
+
+    // Add iOS-specific body class for CSS targeting
+    if (isIOSDevice) {
+      document.body.classList.add("ios-device");
+    }
+  }, []);
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <ThemeProvider>
+          <AuthProvider>
+            <Toaster />
+            <Sonner />
+            <Analytics />
+            <Suspense
+              fallback={
+                <div className="flex h-screen items-center justify-center">
+                  <div className="text-center">
+                    <div
+                      className={`rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4 ${
+                        isIOS ? "animate-pulse" : "animate-spin"
+                      }`}
+                    ></div>
+                    <p className="text-muted-foreground">
+                      Loading application...
+                    </p>
+                  </div>
                 </div>
-              </div>
-            }
-          >
-            <AppRoutes />
-          </Suspense>
-        </AuthProvider>
-      </ThemeProvider>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+              }
+            >
+              <AppRoutes />
+            </Suspense>
+          </AuthProvider>
+        </ThemeProvider>
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+};
 
 export default App;

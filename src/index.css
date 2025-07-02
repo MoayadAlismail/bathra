@@ -1,5 +1,4 @@
-
-@import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&display=swap");
 
 @tailwind base;
 @tailwind components;
@@ -47,10 +46,81 @@
 
   body {
     @apply bg-background text-foreground transition-colors duration-300 font-sora;
+    /* iOS Safari optimization */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* iOS Safari specific optimizations */
+  @supports (-webkit-touch-callout: none) {
+    /* Disable expensive effects on iOS Safari */
+    .glass,
+    .neo-blur {
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+      background: rgba(255, 255, 255, 0.95) !important;
+    }
+
+    /* Reduce backdrop blur intensity on iOS */
+    .backdrop-blur-lg,
+    .backdrop-blur-md,
+    .backdrop-blur-sm {
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+      background: rgba(255, 255, 255, 0.95) !important;
+    }
+
+    /* Optimize fixed elements for iOS */
+    .fixed {
+      -webkit-transform: translateZ(0);
+      transform: translateZ(0);
+      will-change: auto !important;
+    }
+
+    /* Disable complex animations on iOS */
+    [class*="animate-"] {
+      animation-duration: 0.5s !important;
+      animation-iteration-count: 1 !important;
+    }
+
+    /* Force hardware acceleration for better performance */
+    .motion-div,
+    [data-framer-component] {
+      -webkit-transform: translateZ(0);
+      transform: translateZ(0);
+      -webkit-backface-visibility: hidden;
+      backface-visibility: hidden;
+      -webkit-perspective: 1000px;
+      perspective: 1000px;
+    }
+  }
+
+  /* iOS device specific optimizations */
+  .ios-device {
+    /* Disable expensive CSS properties */
+    * {
+      will-change: auto !important;
+      filter: none !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+    }
+
+    /* Simplify animations */
+    .animate-spin {
+      animation: none !important;
+    }
+
+    .animate-pulse {
+      animation-duration: 1s !important;
+    }
   }
 
   .glass {
-    @apply bg-white/80 backdrop-blur-lg border border-white/10 shadow-black/10 rounded-2xl shadow-lg;
+    @apply bg-white/95 border border-white/10 shadow-black/10 rounded-2xl shadow-lg;
+  }
+
+  .neo-blur {
+    @apply bg-white/95 border border-black/10;
   }
 }
 
@@ -58,23 +128,19 @@
   .text-gradient {
     @apply bg-clip-text text-transparent bg-gradient-to-r from-black via-black/90 to-black/80;
   }
-  
+
   .tech-gradient {
     @apply bg-gradient-to-r from-black/10 via-black/20 to-black/10;
   }
-  
+
   .hero-gradient {
     @apply bg-gradient-to-r from-black/80 to-black/70;
   }
-  
+
   .card-highlight {
     @apply bg-gradient-to-br from-black to-black/70;
   }
-  
-  .neo-blur {
-    @apply backdrop-blur-xl bg-white/90 border border-black/10;
-  }
-  
+
   .price-tag {
     @apply bg-black px-3 py-2 rounded-md text-white font-bold inline-block;
   }
@@ -82,17 +148,28 @@
   .card-black {
     @apply bg-black text-white rounded-xl border border-black/80;
   }
+
+  /* Reduced motion for iOS performance */
+  @supports (-webkit-touch-callout: none) {
+    .animate-spin,
+    .animate-pulse,
+    .animate-bounce {
+      animation-duration: 2s !important;
+    }
+  }
 }
 
 /* Fix for underline visibility */
-a.underline, .underline {
+a.underline,
+.underline {
   text-decoration-color: rgba(255, 255, 255, 0.4) !important;
   text-decoration-thickness: 3px !important;
   text-underline-offset: 4px !important;
 }
 
 /* Ensure all underlined text is visible */
-a.underline, .underline {
+a.underline,
+.underline {
   text-decoration-thickness: 2px;
   text-underline-offset: 2px;
 }

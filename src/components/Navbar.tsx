@@ -12,10 +12,17 @@ const Navbar = () => {
   const { user, profile, signOut } = useAuth();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isIOS, setIsIOS] = useState(false);
 
   const accountType = profile?.accountType;
 
   useEffect(() => {
+    // Detect iOS Safari
+    const isIOSDevice =
+      /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+      (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+    setIsIOS(isIOSDevice);
+
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
     };
@@ -264,7 +271,9 @@ const Navbar = () => {
         animate={{ y: 0 }}
         className={`fixed w-full z-50 transition-all duration-300 ${
           isScrolled
-            ? "bg-background/80 backdrop-blur-lg shadow-lg py-2"
+            ? isIOS
+              ? "bg-background/95 shadow-lg py-2"
+              : "bg-background/80 backdrop-blur-lg shadow-lg py-2"
             : "bg-transparent py-4"
         }`}
       >
@@ -314,7 +323,9 @@ const Navbar = () => {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="fixed top-[60px] left-0 right-0 bg-background/80 backdrop-blur-lg shadow-lg z-40 md:hidden"
+            className={`fixed top-[60px] left-0 right-0 shadow-lg z-40 md:hidden ${
+              isIOS ? "bg-background/95" : "bg-background/80 backdrop-blur-lg"
+            }`}
           >
             <div className="container mx-auto px-4 py-4">
               <div className="flex flex-col space-y-4">
@@ -332,7 +343,7 @@ const Navbar = () => {
                 {user &&
                   (profile?.accountType === "admin" ||
                     canBrowseContent(profile)) && (
-                    <div className="py-2">
+                    <div className="py-2 flex justify-start">
                       <NotificationDropdown />
                     </div>
                   )}

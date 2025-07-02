@@ -34,8 +34,17 @@ const AdminNavbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showSignOutDialog, setShowSignOutDialog] = useState(false);
   const { profile } = useAuth();
+  const [isIOS, setIsIOS] = useState(false);
+
+  const accountType = profile?.accountType;
 
   useEffect(() => {
+    // Detect iOS Safari
+    const isIOSDevice =
+      /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+      (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+    setIsIOS(isIOSDevice);
+
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
     };
@@ -77,7 +86,9 @@ const AdminNavbar = () => {
         transition={{ duration: 0.5 }}
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
           isScrolled
-            ? "bg-background/80 backdrop-blur-md border-b border-border"
+            ? isIOS
+              ? "bg-background/95 border-b border-border"
+              : "bg-background/80 backdrop-blur-md border-b border-border"
             : "bg-transparent"
         }`}
       >
@@ -159,19 +170,21 @@ const AdminNavbar = () => {
               </Button>
             </div>
 
-            {/* Mobile/Tablet Menu Button */}
-            <Button
-              variant="ghost"
-              size="sm"
-              className="lg:hidden flex-shrink-0"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            >
-              {isMobileMenuOpen ? (
-                <X className="w-4 h-4 sm:w-5 sm:h-5" />
-              ) : (
-                <Menu className="w-4 h-4 sm:w-5 sm:h-5" />
-              )}
-            </Button>
+            {/* Mobile Menu Button */}
+            <div className="lg:hidden flex items-center space-x-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="text-foreground hover:text-white p-1 sm:p-2"
+              >
+                {isMobileMenuOpen ? (
+                  <X className="h-5 w-5 sm:h-6 sm:w-6" />
+                ) : (
+                  <Menu className="h-5 w-5 sm:h-6 sm:w-6" />
+                )}
+              </Button>
+            </div>
           </div>
         </div>
       </motion.nav>
@@ -184,7 +197,9 @@ const AdminNavbar = () => {
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.3 }}
-            className="fixed top-14 sm:top-16 left-0 right-0 z-40 bg-background/95 backdrop-blur-md border-b border-border lg:hidden"
+            className={`fixed top-14 sm:top-16 left-0 right-0 z-40 border-b border-border lg:hidden ${
+              isIOS ? "bg-background/95" : "bg-background/95 backdrop-blur-md"
+            }`}
           >
             <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-6">
               <div className="flex flex-col space-y-3 sm:space-y-4 max-h-[calc(100vh-8rem)] overflow-y-auto">

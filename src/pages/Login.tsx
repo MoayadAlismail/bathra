@@ -62,7 +62,7 @@ const Login = () => {
       if (result.success && result.user) {
         // After successful login, redirect based on account type using the returned user data
         const accountType = result.user.accountType;
-        console.log("accountType", accountType, result.user);
+        
         if (accountType === "investor") {
           navigate("/investor-dashboard");
         } else if (accountType === "startup") {

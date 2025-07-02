@@ -69,7 +69,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       // Check for real authenticated user
       const currentUser = await simpleAuthService.getCurrentUser();
-      console.log("currentUser", currentUser);
+
       if (currentUser) {
         setUser(currentUser);
 
@@ -149,7 +149,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setIsLoading(true);
 
       const loggedInUser = await simpleAuthService.login(credentials);
-      console.log("loggedInUser", loggedInUser);
+      
       if (loggedInUser) {
         setUser(loggedInUser);
 

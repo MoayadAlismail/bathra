@@ -91,9 +91,9 @@ class AdminService {
         .from("admins")
         .select("admin_level")
         .eq("id", adminId)
-        .single();
+        .maybeSingle();
 
-      if (error) return false;
+      if (error || !data) return false;
       return data.admin_level === "super";
     } catch (error) {
       return false;
@@ -140,11 +140,15 @@ class AdminService {
   ): Promise<{ success: boolean; error: string | null; inviteToken?: string }> {
     try {
       // Check if email already exists as admin
-      const { data: existingAdmin } = await supabase
+      const { data: existingAdmin, error: adminCheckError } = await supabase
         .from("admins")
         .select("id")
         .eq("email", adminData.email)
-        .single();
+        .maybeSingle();
+
+      if (adminCheckError) {
+        return { success: false, error: adminCheckError.message };
+      }
 
       if (existingAdmin) {
         return {
@@ -154,12 +158,16 @@ class AdminService {
       }
 
       // Check if there's already a pending invite for this email
-      const { data: existingInvite } = await supabase
+      const { data: existingInvite, error: inviteCheckError } = await supabase
         .from("admin_invites")
         .select("id")
         .eq("email", adminData.email)
         .eq("status", "pending")
-        .single();
+        .maybeSingle();
+
+      if (inviteCheckError) {
+        return { success: false, error: inviteCheckError.message };
+      }
 
       if (existingInvite) {
         return {
@@ -193,12 +201,6 @@ class AdminService {
         return { success: false, error: error.message };
       }
 
-      // Note: Email sending requires server-side implementation
-      // For now, the invitation link will need to be shared manually
-      console.log(
-        "Invitation created. Email sending requires server-side setup."
-      );
-
       return { success: true, error: null, inviteToken };
     } catch (error) {
       return { success: false, error: (error as Error).message };
@@ -222,9 +224,13 @@ class AdminService {
         .select("*")
         .eq("id", inviteId)
         .eq("status", "pending")
-        .single();
+        .maybeSingle();
 
-      if (fetchError || !invite) {
+      if (fetchError) {
+        return { success: false, error: fetchError.message };
+      }
+
+      if (!invite) {
         return {
           success: false,
           error: "Invitation not found or already used",
@@ -289,9 +295,13 @@ class AdminService {
         .select("*")
         .eq("invite_token", inviteToken)
         .eq("status", "pending")
-        .single();
+        .maybeSingle();
 
-      if (inviteError || !invite) {
+      if (inviteError) {
+        return { success: false, error: inviteError.message };
+      }
+
+      if (!invite) {
         return { success: false, error: "Invalid or expired invite" };
       }
 
@@ -358,13 +368,21 @@ class AdminService {
   ): Promise<{ success: boolean; error: string | null }> {
     try {
       // Check if the admin being deleted is a super admin
-      const { data: adminToDelete } = await supabase
+      const { data: adminToDelete, error: fetchError } = await supabase
         .from("admins")
         .select("admin_level")
         .eq("id", adminId)
-        .single();
+        .maybeSingle();
 
-      if (adminToDelete?.admin_level === "super") {
+      if (fetchError) {
+        return { success: false, error: fetchError.message };
+      }
+
+      if (!adminToDelete) {
+        return { success: false, error: "Admin not found" };
+      }
+
+      if (adminToDelete.admin_level === "super") {
         return {
           success: false,
           error: "Cannot delete super admin",
@@ -894,9 +912,13 @@ class AdminService {
         .select("*")
         .eq("invite_token", token)
         .eq("status", "pending")
-        .single();
+        .maybeSingle();
 
-      if (error || !invite) {
+      if (error) {
+        return { valid: false, error: error.message };
+      }
+
+      if (!invite) {
         return { valid: false, error: "Invalid invite token" };
       }
 

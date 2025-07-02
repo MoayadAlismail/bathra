@@ -74,13 +74,13 @@ const InvestorDashboard = () => {
           >
             {/* Dashboard Header */}
             <div className="neo-blur rounded-2xl shadow-lg p-8 mb-8">
-              <div className="flex justify-between items-center mb-6">
-                <h1 className="text-3xl font-bold text-gradient">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+                <h1 className="text-2xl sm:text-3xl font-bold text-gradient">
                   Investor Dashboard
                 </h1>
                 <Button
                   onClick={() => navigate("/investor-profile")}
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-2 w-full sm:w-auto justify-center sm:justify-start"
                 >
                   <User className="h-4 w-4" />
                   View Profile

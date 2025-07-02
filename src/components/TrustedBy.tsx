@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
 
 interface TrustedCompany {
   name: string;
@@ -7,11 +8,21 @@ interface TrustedCompany {
 }
 
 const TrustedBy = () => {
+  const [isIOS, setIsIOS] = useState(false);
+
+  useEffect(() => {
+    // Detect iOS Safari
+    const isIOSDevice =
+      /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+      (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+    setIsIOS(isIOSDevice);
+  }, []);
+
   // Placeholder for trusted companies - will be populated later
   const trustedCompanies: TrustedCompany[] = [];
 
   return (
-    <section className="py-20 bg-muted/20">
+    <section className="py-16 bg-muted/30">
       <div className="container mx-auto px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -23,11 +34,11 @@ const TrustedBy = () => {
           <span className="inline-block px-4 py-2 bg-secondary rounded-full text-foreground text-sm font-medium mb-4">
             Our Network
           </span>
-          <h2 className="text-4xl font-bold mb-4 text-foreground">
+          <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
             Trusted by{" "}
             <span className="text-primary">innovative companies</span>
           </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto mb-16">
+          <p className="text-muted-foreground mb-12 max-w-2xl mx-auto">
             Join a network of successful startups and experienced investors who
             are driving innovation across the region.
           </p>
@@ -37,11 +48,15 @@ const TrustedBy = () => {
               {trustedCompanies.map((company, index) => (
                 <motion.div
                   key={company.name}
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
+                  initial={isIOS ? { opacity: 0 } : { opacity: 0, scale: 0.8 }}
+                  whileInView={
+                    isIOS ? { opacity: 1 } : { opacity: 1, scale: 1 }
+                  }
                   viewport={{ once: true }}
-                  transition={{ duration: 0.4, delay: index * 0.1 }}
-                  className="flex items-center justify-center p-6 rounded-lg bg-white/50 backdrop-blur-sm border border-primary/10 grayscale hover:grayscale-0 transition-all duration-300 hover:shadow-md"
+                  transition={{ duration: 0.4, delay: isIOS ? 0 : index * 0.1 }}
+                  className={`flex items-center justify-center p-6 rounded-lg border border-primary/10 grayscale hover:grayscale-0 transition-all duration-300 hover:shadow-md ${
+                    isIOS ? "bg-white/95" : "bg-white/50 backdrop-blur-sm"
+                  }`}
                 >
                   <img
                     src={company.logo}

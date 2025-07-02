@@ -171,8 +171,9 @@ class SimpleAuthService {
       .from("admins")
       .select("*")
       .eq("id", userId)
-      .single();
+      .maybeSingle();
     if (error) throw error;
+    if (!data) throw new Error("Admin profile not found");
     return data;
   }
 
@@ -287,13 +288,13 @@ class SimpleAuthService {
 
     try {
       // First check if user is an admin
-      const { data: adminData } = await supabase
+      const { data: adminData, error: adminError } = await supabase
         .from("admins")
         .select("name")
         .eq("id", supabaseUser.id)
-        .single();
+        .maybeSingle();
 
-      if (adminData) {
+      if (!adminError && adminData) {
         // User is an admin
         finalAccountType = "admin";
         if (adminData.name && adminData.name.trim() !== "") {
@@ -302,26 +303,34 @@ class SimpleAuthService {
         supabaseUser.user_metadata.account_type = "admin";
       } else if (accountType === "investor") {
         // Check investor table if not admin
-        const { data: investorData } = await supabase
+        const { data: investorData, error: investorError } = await supabase
           .from("investors")
           .select("name")
           .eq("id", supabaseUser.id)
-          .single();
+          .maybeSingle();
 
         // Use profile name if it exists and is not empty
-        if (investorData?.name && investorData.name.trim() !== "") {
+        if (
+          !investorError &&
+          investorData?.name &&
+          investorData.name.trim() !== ""
+        ) {
           profileName = investorData.name;
         }
       } else if (accountType === "startup") {
         // Check startup table if not admin or investor
-        const { data: startupData } = await supabase
+        const { data: startupData, error: startupError } = await supabase
           .from("startups")
           .select("name")
           .eq("id", supabaseUser.id)
-          .single();
+          .maybeSingle();
 
         // Use profile name if it exists and is not empty
-        if (startupData?.name && startupData.name.trim() !== "") {
+        if (
+          !startupError &&
+          startupData?.name &&
+          startupData.name.trim() !== ""
+        ) {
           profileName = startupData.name;
         }
       }

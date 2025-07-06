@@ -40,6 +40,7 @@ export interface InvestorFilters {
   searchTerm?: string;
   ticketSize?: string;
   status?: string;
+  country?: string;
   limit?: number;
   offset?: number;
 }

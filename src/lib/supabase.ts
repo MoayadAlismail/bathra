@@ -252,6 +252,22 @@ export type Tables = {
     created_at: string;
     updated_at: string;
   };
+  matchmakings: {
+    id: string;
+    investor_id: string;
+    investor_name: string;
+    investor_email: string;
+    startup_id: string;
+    startup_name: string;
+    startup_email: string;
+    expiry_date: string;
+    is_interested: boolean;
+    is_archived: boolean;
+    matched_by: string;
+    comment?: string;
+    created_at: string;
+    updated_at: string;
+  };
 };
 
 // Export common types for convenience
@@ -262,6 +278,7 @@ export type Notification = Tables["notifications"];
 export type NewsletterCampaign = Tables["newsletter_campaigns"];
 export type UserInvite = Tables["user_invites"];
 export type InvestorStartupConnection = Tables["investor_startup_connections"];
+export type Matchmaking = Tables["matchmakings"];
 
 // Define specific response types to help with TypeScript safety
 export interface SupabaseResponse<T> {

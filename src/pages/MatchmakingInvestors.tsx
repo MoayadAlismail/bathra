@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Filter, Users, ArrowRight, X, Axis3D } from "lucide-react";
+import { Search, Filter, Users, ArrowRight, X, Unplug } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
@@ -210,7 +210,7 @@ const MatchmakingInvestors = () => {
           >
             <div className="max-w-4xl mx-auto text-center mb-12">
               <h1 className="text-4xl font-bold mb-4 flex items-center justify-center gap-3">
-                <Axis3D className="h-8 w-8 text-primary" />
+                <Unplug className="h-8 w-8 text-primary" />
                 Matchmaking
               </h1>
               <p className="text-xl text-muted-foreground">

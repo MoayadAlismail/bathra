@@ -8,8 +8,7 @@ import {
   LogOut,
   BarChart3,
   Shield,
-  FileText,
-  Heart,
+  Unplug,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -76,7 +75,7 @@ const AdminNavbar = () => {
     { label: "Dashboard", path: "/admin", icon: BarChart3 },
     { label: "Startups", path: "/admin?tab=startups", icon: Building },
     { label: "Investors", path: "/admin?tab=investors", icon: Users },
-    { label: "Matchmaking", path: "/admin/matchmaking", icon: Heart },
+    { label: "Matchmaking", path: "/admin/matchmaking", icon: Unplug },
     { label: "Sign-Out", action: handleSignOutClick, icon: LogOut },
   ];
 

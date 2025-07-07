@@ -29,6 +29,7 @@ import InvestorProfile from "./pages/InvestorProfile";
 import StatusGuard from "./components/auth/StatusGuard";
 import MatchmakingInvestors from "./pages/MatchmakingInvestors";
 import MatchmakingInvestorDetails from "./pages/MatchmakingInvestorDetails";
+import MatchmakingStartupSelection from "./pages/MatchmakingStartupSelection";
 import "./App.css";
 
 const queryClient = new QueryClient({
@@ -279,6 +280,16 @@ const AppRoutes = () => {
             <ProtectedRoute requiredAccountType="admin">
               <ErrorBoundary>
                 <MatchmakingInvestorDetails />
+              </ErrorBoundary>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/matchmaking/investor/:investorId/select-startups"
+          element={
+            <ProtectedRoute requiredAccountType="admin">
+              <ErrorBoundary>
+                <MatchmakingStartupSelection />
               </ErrorBoundary>
             </ProtectedRoute>
           }

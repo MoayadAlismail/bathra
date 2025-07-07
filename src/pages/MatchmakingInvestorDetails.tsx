@@ -76,10 +76,8 @@ const MatchmakingInvestorDetails = () => {
   };
 
   const handleCreateMatch = () => {
-    // TODO: Navigate to startup selection page
-    toast({
-      title: "Coming Soon",
-      description: "Startup selection will be implemented in the next step",
+    navigate(`/admin/matchmaking/investor/${investorId}/select-startups`, {
+      state: { investor },
     });
   };
 

@@ -46,7 +46,7 @@ interface InvestorFormData {
 
   // Background
   howDidYouHear: string;
-  numberOfInvestments: number;
+  numberOfInvestments: number | null;
   hasSecuredLeadInvestor: boolean;
   hasBeenStartupAdvisor: boolean;
   whyStrongCandidate: string;
@@ -135,7 +135,7 @@ export default function InvestorSignupForm() {
 
     // Background
     howDidYouHear: "",
-    numberOfInvestments: 0,
+    numberOfInvestments: null,
     hasSecuredLeadInvestor: false,
     hasBeenStartupAdvisor: false,
     whyStrongCandidate: "",
@@ -207,6 +207,9 @@ export default function InvestorSignupForm() {
       newErrors.push("Preferred company stage is required");
     if (!formData.averageTicketSize)
       newErrors.push("Average ticket size is required");
+    if (!formData.linkedinProfile)
+      newErrors.push("LinkedIn profile is required");
+    if (!formData.calendlyLink) newErrors.push("Calendly link is required");
     if (!formData.howDidYouHear)
       newErrors.push("Please tell us how you heard about us");
     if (!formData.whyStrongCandidate)
@@ -550,7 +553,7 @@ export default function InvestorSignupForm() {
         </CardHeader>
         <CardContent className="space-y-6">
           <div>
-            <Label htmlFor="linkedinProfile">LinkedIn Profile</Label>
+            <Label htmlFor="linkedinProfile">LinkedIn Profile *</Label>
             <Input
               id="linkedinProfile"
               value={formData.linkedinProfile}
@@ -561,11 +564,12 @@ export default function InvestorSignupForm() {
                 }))
               }
               placeholder="https://linkedin.com/in/yourprofile"
+              required
             />
           </div>
 
           <div>
-            <Label htmlFor="calendlyLink">Calendly Link</Label>
+            <Label htmlFor="calendlyLink">Calendly Link *</Label>
             <Input
               id="calendlyLink"
               value={formData.calendlyLink}
@@ -576,6 +580,7 @@ export default function InvestorSignupForm() {
                 }))
               }
               placeholder="https://calendly.com/yourlink"
+              required
             />
           </div>
 
@@ -651,24 +656,26 @@ export default function InvestorSignupForm() {
 
           <div>
             <Label htmlFor="numberOfInvestments">
-              Number of investments made
+              Number of investments made *
             </Label>
             <Input
               id="numberOfInvestments"
               type="number"
               min="0"
               value={
-                formData.numberOfInvestments === 0
+                formData.numberOfInvestments === null
                   ? ""
                   : formData.numberOfInvestments
               }
               onChange={(e) =>
                 setFormData((prev) => ({
                   ...prev,
-                  numberOfInvestments: parseInt(e.target.value) || 0,
+                  numberOfInvestments:
+                    e.target.value === "" ? null : parseInt(e.target.value),
                 }))
               }
               placeholder="0"
+              required
             />
           </div>
 

@@ -51,13 +51,13 @@ interface StartupFormData {
   uniqueValueProposition: string;
 
   // Financial info
-  currentRevenue: number;
+  currentRevenue: number | null;
   hasReceivedFunding: boolean;
-  monthlyBurnRate: number;
+  monthlyBurnRate: number | null;
   investmentInstrument: string;
-  capitalSeeking: number;
-  preMoneyValuation: number;
-  fundingAlreadyRaised: number;
+  capitalSeeking: number | null;
+  preMoneyValuation: number | null;
+  fundingAlreadyRaised: number | null;
 
   // Resources
   pitchDeckUrl?: string;
@@ -143,13 +143,13 @@ export default function StartupSignupForm() {
     uniqueValueProposition: "",
 
     // Financial info
-    currentRevenue: 0,
+    currentRevenue: null,
     hasReceivedFunding: false,
-    monthlyBurnRate: 0,
+    monthlyBurnRate: null,
     investmentInstrument: "",
-    capitalSeeking: 0,
-    preMoneyValuation: 0,
-    fundingAlreadyRaised: 0,
+    capitalSeeking: null,
+    preMoneyValuation: null,
+    fundingAlreadyRaised: null,
 
     // Resources
     pitchDeckUrl: "",
@@ -252,6 +252,9 @@ export default function StartupSignupForm() {
     if (!formData.startupName) newErrors.push("Startup name is required");
     if (!formData.industry) newErrors.push("Industry is required");
     if (!formData.stage) newErrors.push("Startup stage is required");
+    if (!formData.logoUrl) newErrors.push("Logo URL is required");
+    if (formData.socialMediaAccounts.length === 0)
+      newErrors.push("Please add at least one social media account");
     if (!formData.problemSolving)
       newErrors.push("Problem description is required");
     if (!formData.solutionDescription)
@@ -260,6 +263,8 @@ export default function StartupSignupForm() {
       newErrors.push("Unique value proposition is required");
     if (!formData.investmentInstrument)
       newErrors.push("Investment instrument is required");
+    if (!formData.calendlyLink) newErrors.push("Calendly link is required");
+    if (formData.teamSize === 0) newErrors.push("Team size is required");
     if (!formData.achievements)
       newErrors.push("Achievements description is required");
     if (!formData.risksAndMitigation)
@@ -546,7 +551,7 @@ export default function StartupSignupForm() {
             </Select>
           </div>
           <div>
-            <Label htmlFor="logoUrl">Logo URL</Label>
+            <Label htmlFor="logoUrl">Logo URL *</Label>
             <Input
               id="logoUrl"
               value={formData.logoUrl}
@@ -554,22 +559,25 @@ export default function StartupSignupForm() {
                 setFormData((prev) => ({ ...prev, logoUrl: e.target.value }))
               }
               placeholder="https://example.com/logo.png"
+              required
             />
           </div>
           <div>
-            <Label htmlFor="teamSize">Team Size</Label>
+            <Label htmlFor="teamSize">Team Size *</Label>
             <Input
               id="teamSize"
               type="number"
               min="1"
-              value={formData.teamSize}
+              step="1"
+              value={formData.teamSize === null ? "" : formData.teamSize}
               onChange={(e) =>
                 setFormData((prev) => ({
                   ...prev,
-                  teamSize: parseInt(e.target.value) || 1,
+                  teamSize: e.target.value === "" ? null : parseInt(e.target.value),
                 }))
               }
               placeholder="1"
+              required
             />
           </div>
         </CardContent>
@@ -582,7 +590,7 @@ export default function StartupSignupForm() {
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-between mb-4">
-            <Label>Social Media Profiles</Label>
+            <Label>Social Media Profiles *</Label>
             <Button
               type="button"
               variant="outline"
@@ -601,6 +609,7 @@ export default function StartupSignupForm() {
                 onChange={(e) =>
                   updateSocialMedia(index, "platform", e.target.value)
                 }
+                required
               />
               <Input
                 placeholder="Profile URL"
@@ -608,6 +617,7 @@ export default function StartupSignupForm() {
                 onChange={(e) =>
                   updateSocialMedia(index, "url", e.target.value)
                 }
+                required
               />
               <Button
                 type="button"
@@ -699,17 +709,18 @@ export default function StartupSignupForm() {
               id="currentRevenue"
               type="number"
               min="0"
-              step="0.01"
               value={
-                formData.currentRevenue === 0 ? "" : formData.currentRevenue
+                formData.currentRevenue === null ? "" : formData.currentRevenue
               }
               onChange={(e) =>
                 setFormData((prev) => ({
                   ...prev,
-                  currentRevenue: parseFloat(e.target.value) || 0,
+                  currentRevenue:
+                    e.target.value === "" ? null : parseFloat(e.target.value),
                 }))
               }
               placeholder="0"
+              required
             />
           </div>
           <div>
@@ -718,17 +729,20 @@ export default function StartupSignupForm() {
               id="monthlyBurnRate"
               type="number"
               min="0"
-              step="0.01"
               value={
-                formData.monthlyBurnRate === 0 ? "" : formData.monthlyBurnRate
+                formData.monthlyBurnRate === null
+                  ? ""
+                  : formData.monthlyBurnRate
               }
               onChange={(e) =>
                 setFormData((prev) => ({
                   ...prev,
-                  monthlyBurnRate: parseFloat(e.target.value) || 0,
+                  monthlyBurnRate:
+                    e.target.value === "" ? null : parseFloat(e.target.value),
                 }))
               }
               placeholder="0"
+              required
             />
           </div>
           <div>
@@ -737,17 +751,18 @@ export default function StartupSignupForm() {
               id="capitalSeeking"
               type="number"
               min="0"
-              step="0.01"
               value={
-                formData.capitalSeeking === 0 ? "" : formData.capitalSeeking
+                formData.capitalSeeking === null ? "" : formData.capitalSeeking
               }
               onChange={(e) =>
                 setFormData((prev) => ({
                   ...prev,
-                  capitalSeeking: parseFloat(e.target.value) || 0,
+                  capitalSeeking:
+                    e.target.value === "" ? null : parseFloat(e.target.value),
                 }))
               }
               placeholder="0"
+              required
             />
           </div>
           <div>
@@ -756,19 +771,20 @@ export default function StartupSignupForm() {
               id="preMoneyValuation"
               type="number"
               min="0"
-              step="0.01"
               value={
-                formData.preMoneyValuation === 0
+                formData.preMoneyValuation === null
                   ? ""
                   : formData.preMoneyValuation
               }
               onChange={(e) =>
                 setFormData((prev) => ({
                   ...prev,
-                  preMoneyValuation: parseFloat(e.target.value) || 0,
+                  preMoneyValuation:
+                    e.target.value === "" ? null : parseFloat(e.target.value),
                 }))
               }
               placeholder="0"
+              required
             />
           </div>
           <div>
@@ -779,19 +795,20 @@ export default function StartupSignupForm() {
               id="fundingAlreadyRaised"
               type="number"
               min="0"
-              step="0.01"
               value={
-                formData.fundingAlreadyRaised === 0
+                formData.fundingAlreadyRaised === null
                   ? ""
                   : formData.fundingAlreadyRaised
               }
               onChange={(e) =>
                 setFormData((prev) => ({
                   ...prev,
-                  fundingAlreadyRaised: parseFloat(e.target.value) || 0,
+                  fundingAlreadyRaised:
+                    e.target.value === "" ? null : parseFloat(e.target.value),
                 }))
               }
               placeholder="0"
+              required
             />
           </div>
           <div>
@@ -932,7 +949,7 @@ export default function StartupSignupForm() {
             />
           </div>
           <div>
-            <Label htmlFor="calendlyLink">Calendly Link</Label>
+            <Label htmlFor="calendlyLink">Calendly Link *</Label>
             <Input
               id="calendlyLink"
               value={formData.calendlyLink}
@@ -943,6 +960,7 @@ export default function StartupSignupForm() {
                 }))
               }
               placeholder="https://calendly.com/yourlink"
+              required
             />
           </div>
           <div>

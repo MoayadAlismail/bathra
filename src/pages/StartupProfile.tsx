@@ -68,6 +68,26 @@ const StartupProfile = () => {
     setStartupDetails(updatedStartup);
   };
 
+  const handleViewPitchDeck = async (pitchDeckUrl: string) => {
+    try {
+      console.log("pitchDeckUrl", pitchDeckUrl);
+
+      // Since we're using a public bucket, we can open URLs directly
+      // Just validate the URL exists and is accessible
+      if (pitchDeckUrl && pitchDeckUrl.trim() !== "") {
+        window.open(pitchDeckUrl, "_blank");
+      } else {
+        console.error("No pitch deck URL provided");
+      }
+    } catch (error) {
+      console.error("Error opening pitch deck:", error);
+      // Try to open anyway as fallback
+      if (pitchDeckUrl) {
+        window.open(pitchDeckUrl, "_blank");
+      }
+    }
+  };
+
   if (!user || !profile) return null;
 
   if (isLoading) {
@@ -505,7 +525,6 @@ const StartupProfile = () => {
                       Team & Resources
                     </h3>
                     <div className="space-y-4">
-
                       {/* Video Link */}
                       {startupDetails?.video_link && (
                         <div>
@@ -537,7 +556,7 @@ const StartupProfile = () => {
                             <Button
                               variant="outline"
                               onClick={() =>
-                                window.open(startupDetails.pitch_deck, "_blank")
+                                handleViewPitchDeck(startupDetails.pitch_deck!)
                               }
                               className="text-sm"
                             >

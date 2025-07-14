@@ -21,9 +21,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Loader, Plus, X, Save } from "lucide-react";
+import { Loader, Plus, X, Save, Upload } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { supabase, Startup } from "@/lib/supabase";
+import {
+  uploadPitchDeck,
+  extractFilePathFromUrl,
+  deletePitchDeck,
+} from "@/lib/storage-service";
 
 interface StartupProfileEditModalProps {
   isOpen: boolean;
@@ -162,6 +167,8 @@ const StartupProfileEditModal = ({
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [pitchDeckFile, setPitchDeckFile] = useState<File | null>(null);
+  const [isUploadingFile, setIsUploadingFile] = useState(false);
 
   useEffect(() => {
     if (isOpen && startup) {
@@ -340,6 +347,47 @@ const StartupProfileEditModal = ({
     setIsSubmitting(true);
 
     try {
+      // Upload new pitch deck if provided
+      let updatedPitchDeck = formData.pitchDeckUrl;
+      if (pitchDeckFile) {
+        setIsUploadingFile(true);
+
+        // Delete old pitch deck if it exists and is from our storage
+        if (
+          formData.pitchDeckUrl &&
+          (formData.pitchDeckUrl.includes("supabase") ||
+            formData.pitchDeckUrl.includes("pitchdecks"))
+        ) {
+          const oldFilePath = extractFilePathFromUrl(formData.pitchDeckUrl);
+          if (oldFilePath) {
+            const deleteResult = await deletePitchDeck(oldFilePath);
+            if (!deleteResult.success) {
+              console.warn(
+                "Failed to delete old pitch deck:",
+                deleteResult.error
+              );
+              // Continue anyway - don't block the upload
+            }
+          }
+        }
+
+        // Upload new pitch deck
+        const uploadResult = await uploadPitchDeck(pitchDeckFile, startup.id);
+        setIsUploadingFile(false);
+
+        if (!uploadResult.success) {
+          toast({
+            title: "Upload Error",
+            description: uploadResult.error || "Failed to upload pitch deck",
+            variant: "destructive",
+          });
+          setIsSubmitting(false);
+          return;
+        }
+
+        updatedPitchDeck = uploadResult.url;
+      }
+
       const updateData = {
         founder_info: formData.founderName,
         phone: formData.phone,
@@ -368,7 +416,7 @@ const StartupProfileEditModal = ({
         capital_seeking: formData.capitalSeeking,
         pre_money_valuation: formData.preMoneyValuation,
         funding_already_raised: formData.fundingAlreadyRaised,
-        pitch_deck: formData.pitchDeckUrl,
+        pitch_deck: updatedPitchDeck,
         co_founders: JSON.stringify(formData.coFounders),
         calendly_link: formData.calendlyLink,
         video_link: formData.videoLink,
@@ -918,18 +966,47 @@ const StartupProfileEditModal = ({
             </CardHeader>
             <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <Label htmlFor="pitchDeckUrl">Pitch Deck URL</Label>
-                <Input
-                  id="pitchDeckUrl"
-                  value={formData.pitchDeckUrl}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      pitchDeckUrl: e.target.value,
-                    }))
-                  }
-                  placeholder="https://example.com/pitchdeck.pdf"
-                />
+                <Label htmlFor="pitchDeckFile">Pitch Deck (PDF)</Label>
+                <div className="space-y-2">
+                  <div className="flex flex-col space-y-1">
+                    <Input
+                      id="pitchDeckFile"
+                      type="file"
+                      accept=".pdf"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        setPitchDeckFile(file || null);
+                      }}
+                      className="w-full h-auto min-h-[40px] py-1 file:mr-2 file:py-1 file:px-2 sm:file:py-1.5 sm:file:px-3 file:rounded-md file:border-0 file:text-xs sm:file:text-sm file:font-medium file:bg-primary file:text-primary-foreground hover:file:bg-primary/90 file:cursor-pointer file:transition-colors"
+                    />
+                  </div>
+                  {pitchDeckFile && (
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Upload className="h-4 w-4" />
+                      <span>{pitchDeckFile.name}</span>
+                      <span>
+                        ({(pitchDeckFile.size / 1024 / 1024).toFixed(2)} MB)
+                      </span>
+                    </div>
+                  )}
+                  {formData.pitchDeckUrl && !pitchDeckFile && (
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <span>Current: </span>
+                      <a
+                        href={formData.pitchDeckUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary hover:underline"
+                      >
+                        View current pitch deck
+                      </a>
+                    </div>
+                  )}
+                  <p className="text-xs text-muted-foreground">
+                    Upload a new pitch deck as a PDF file (max 10MB) or keep the
+                    current one
+                  </p>
+                </div>
               </div>
               <div>
                 <Label htmlFor="calendlyLink">Calendly Link</Label>
@@ -1086,7 +1163,7 @@ const StartupProfileEditModal = ({
               {isSubmitting ? (
                 <>
                   <Loader className="mr-2 h-4 w-4 animate-spin" />
-                  Updating...
+                  {isUploadingFile ? "Uploading Pitch Deck..." : "Updating..."}
                 </>
               ) : (
                 <>

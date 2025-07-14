@@ -24,7 +24,12 @@ import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/lib/supabase";
 import { AdminStartupInfo } from "@/lib/startup-types";
-import { Plus, X } from "lucide-react";
+import { Plus, X, Upload } from "lucide-react";
+import {
+  uploadPitchDeck,
+  extractFilePathFromUrl,
+  deletePitchDeck,
+} from "@/lib/storage-service";
 
 interface AdminStartupEditModalProps {
   startup: AdminStartupInfo;
@@ -132,6 +137,8 @@ const AdminStartupEditModal: React.FC<AdminStartupEditModalProps> = ({
     status: "pending",
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [pitchDeckFile, setPitchDeckFile] = useState<File | null>(null);
+  const [isUploadingFile, setIsUploadingFile] = useState(false);
 
   useEffect(() => {
     if (isOpen && startup) {
@@ -297,6 +304,47 @@ const AdminStartupEditModal: React.FC<AdminStartupEditModalProps> = ({
     try {
       setIsLoading(true);
 
+      // Upload new pitch deck if provided
+      let updatedPitchDeck = formData.pitch_deck;
+      if (pitchDeckFile) {
+        setIsUploadingFile(true);
+
+        // Delete old pitch deck if it exists and is from our storage
+        if (
+          formData.pitch_deck &&
+          (formData.pitch_deck.includes("supabase") ||
+            formData.pitch_deck.includes("pitchdecks"))
+        ) {
+          const oldFilePath = extractFilePathFromUrl(formData.pitch_deck);
+          if (oldFilePath) {
+            const deleteResult = await deletePitchDeck(oldFilePath);
+            if (!deleteResult.success) {
+              console.warn(
+                "Failed to delete old pitch deck:",
+                deleteResult.error
+              );
+              // Continue anyway - don't block the upload
+            }
+          }
+        }
+
+        // Upload new pitch deck
+        const uploadResult = await uploadPitchDeck(pitchDeckFile, startup.id);
+        setIsUploadingFile(false);
+
+        if (!uploadResult.success) {
+          toast({
+            title: "Upload Error",
+            description: uploadResult.error || "Failed to upload pitch deck",
+            variant: "destructive",
+          });
+          setIsLoading(false);
+          return;
+        }
+
+        updatedPitchDeck = uploadResult.url;
+      }
+
       const updateData = {
         // Basic info
         name: formData.name,
@@ -330,7 +378,7 @@ const AdminStartupEditModal: React.FC<AdminStartupEditModalProps> = ({
         founder_info: formData.founder_info,
         co_founders: JSON.stringify(formData.co_founders),
         team_size: formData.team_size,
-        pitch_deck: formData.pitch_deck,
+        pitch_deck: updatedPitchDeck,
         calendly_link: formData.calendly_link,
         video_link: formData.video_link,
 
@@ -863,14 +911,47 @@ const AdminStartupEditModal: React.FC<AdminStartupEditModalProps> = ({
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="pitch_deck">Pitch Deck URL</Label>
-                  <Input
-                    id="pitch_deck"
-                    value={formData.pitch_deck}
-                    onChange={(e) =>
-                      handleInputChange("pitch_deck", e.target.value)
-                    }
-                  />
+                  <Label htmlFor="pitch_deck_file">Pitch Deck (PDF)</Label>
+                  <div className="space-y-2">
+                    <div className="flex flex-col space-y-1">
+                      <Input
+                        id="pitch_deck_file"
+                        type="file"
+                        accept=".pdf"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          setPitchDeckFile(file || null);
+                        }}
+                        className="w-full h-auto min-h-[40px] py-1 file:mr-2 file:py-1 file:px-2 sm:file:py-1.5 sm:file:px-3 file:rounded-md file:border-0 file:text-xs sm:file:text-sm file:font-medium file:bg-primary file:text-primary-foreground hover:file:bg-primary/90 file:cursor-pointer file:transition-colors"
+                      />
+                    </div>
+                    {pitchDeckFile && (
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Upload className="h-4 w-4" />
+                        <span>{pitchDeckFile.name}</span>
+                        <span>
+                          ({(pitchDeckFile.size / 1024 / 1024).toFixed(2)} MB)
+                        </span>
+                      </div>
+                    )}
+                    {formData.pitch_deck && !pitchDeckFile && (
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <span>Current: </span>
+                        <a
+                          href={formData.pitch_deck}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-primary hover:underline"
+                        >
+                          View current pitch deck
+                        </a>
+                      </div>
+                    )}
+                    <p className="text-xs text-muted-foreground">
+                      Upload a new pitch deck as a PDF file (max 10MB) or keep
+                      the current one
+                    </p>
+                  </div>
                 </div>
                 <div>
                   <Label htmlFor="calendly_link">Calendly Link</Label>
@@ -936,7 +1017,11 @@ const AdminStartupEditModal: React.FC<AdminStartupEditModalProps> = ({
             Cancel
           </Button>
           <Button onClick={handleSave} disabled={isLoading}>
-            {isLoading ? "Saving..." : "Save Changes"}
+            {isLoading
+              ? isUploadingFile
+                ? "Uploading Pitch Deck..."
+                : "Saving..."
+              : "Save Changes"}
           </Button>
         </DialogFooter>
       </DialogContent>

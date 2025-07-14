@@ -19,6 +19,7 @@ import { Loader, Plus, X, Upload } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
 import { useSimpleAuth } from "@/lib/simple-auth-service";
+import { uploadPitchDeck } from "@/lib/storage-service";
 
 interface CoFounder {
   name: string;
@@ -61,6 +62,7 @@ interface StartupFormData {
 
   // Resources
   pitchDeckUrl?: string;
+  pitchDeckFile?: File;
   coFounders: CoFounder[];
   calendlyLink?: string;
   videoLink?: string;
@@ -153,6 +155,7 @@ export default function StartupSignupForm() {
 
     // Resources
     pitchDeckUrl: "",
+    pitchDeckFile: undefined,
     coFounders: [],
     calendlyLink: "",
     videoLink: "",
@@ -173,6 +176,7 @@ export default function StartupSignupForm() {
 
   const [errors, setErrors] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUploadingFile, setIsUploadingFile] = useState(false);
   const { signUp } = useSimpleAuth();
   const navigate = useNavigate();
 
@@ -289,7 +293,26 @@ export default function StartupSignupForm() {
     setErrors([]);
 
     try {
-      // First, sign up with basic credentials
+      // First, upload pitch deck if provided
+      let pitchDeckUrl = formData.pitchDeckUrl;
+      if (formData.pitchDeckFile) {
+        setIsUploadingFile(true);
+        const uploadResult = await uploadPitchDeck(
+          formData.pitchDeckFile,
+          formData.email
+        );
+        setIsUploadingFile(false);
+
+        if (!uploadResult.success) {
+          setErrors([uploadResult.error || "Failed to upload pitch deck"]);
+          setIsSubmitting(false);
+          return;
+        }
+
+        pitchDeckUrl = uploadResult.url;
+      }
+
+      // Then, sign up with basic credentials
       const result = await signUp({
         email: formData.email,
         password: formData.password,
@@ -339,7 +362,7 @@ export default function StartupSignupForm() {
           capitalSeeking: formData.capitalSeeking,
           preMoneyValuation: formData.preMoneyValuation,
           fundingAlreadyRaised: formData.fundingAlreadyRaised,
-          pitchDeckUrl: formData.pitchDeckUrl,
+          pitchDeckUrl: pitchDeckUrl,
           coFounders: formData.coFounders,
           calendlyLink: formData.calendlyLink,
           videoLink: formData.videoLink,
@@ -573,7 +596,8 @@ export default function StartupSignupForm() {
               onChange={(e) =>
                 setFormData((prev) => ({
                   ...prev,
-                  teamSize: e.target.value === "" ? null : parseInt(e.target.value),
+                  teamSize:
+                    e.target.value === "" ? null : parseInt(e.target.value),
                 }))
               }
               placeholder="1"
@@ -935,18 +959,37 @@ export default function StartupSignupForm() {
         </CardHeader>
         <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <Label htmlFor="pitchDeckUrl">Pitch Deck URL</Label>
-            <Input
-              id="pitchDeckUrl"
-              value={formData.pitchDeckUrl}
-              onChange={(e) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  pitchDeckUrl: e.target.value,
-                }))
-              }
-              placeholder="https://example.com/pitchdeck.pdf"
-            />
+            <Label htmlFor="pitchDeckFile">Pitch Deck (PDF)</Label>
+            <div className="space-y-2">
+              <div className="flex flex-col space-y-1">
+                <Input
+                  id="pitchDeckFile"
+                  type="file"
+                  accept=".pdf"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    setFormData((prev) => ({
+                      ...prev,
+                      pitchDeckFile: file,
+                    }));
+                  }}
+                  className="w-full h-auto min-h-[40px] py-1 file:mr-2 file:py-1 file:px-2 sm:file:py-1.5 sm:file:px-3 file:rounded-md file:border-0 file:text-xs sm:file:text-sm file:font-medium file:bg-primary file:text-primary-foreground hover:file:bg-primary/90 file:cursor-pointer file:transition-colors"
+                />
+              </div>
+              {formData.pitchDeckFile && (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Upload className="h-4 w-4" />
+                  <span>{formData.pitchDeckFile.name}</span>
+                  <span>
+                    ({(formData.pitchDeckFile.size / 1024 / 1024).toFixed(2)}{" "}
+                    MB)
+                  </span>
+                </div>
+              )}
+              <p className="text-xs text-muted-foreground">
+                Upload your pitch deck as a PDF file (max 10MB)
+              </p>
+            </div>
           </div>
           <div>
             <Label htmlFor="calendlyLink">Calendly Link *</Label>
@@ -1151,7 +1194,9 @@ export default function StartupSignupForm() {
           {isSubmitting ? (
             <>
               <Loader className="mr-2 h-4 w-4 animate-spin" />
-              Creating Account...
+              {isUploadingFile
+                ? "Uploading Pitch Deck..."
+                : "Creating Account..."}
             </>
           ) : (
             "Create Startup Account"

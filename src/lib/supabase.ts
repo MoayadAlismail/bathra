@@ -139,6 +139,7 @@ export type Tables = {
     video_link?: string;
     pitch_deck?: string;
     additional_files?: string;
+    additional_video_url: string;
 
     // Traction & Growth
     achievements?: string;

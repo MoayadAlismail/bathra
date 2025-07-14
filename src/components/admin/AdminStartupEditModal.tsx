@@ -123,6 +123,7 @@ const AdminStartupEditModal: React.FC<AdminStartupEditModalProps> = ({
     pitch_deck: "",
     calendly_link: "",
     video_link: "",
+    additional_video_url: "",
 
     // Strategic info
     achievements: "",
@@ -207,6 +208,7 @@ const AdminStartupEditModal: React.FC<AdminStartupEditModalProps> = ({
         pitch_deck: data.pitch_deck || "",
         calendly_link: data.calendly_link || "",
         video_link: data.video_link || "",
+        additional_video_url: data.additional_video_url || "",
 
         // Strategic info
         achievements: data.achievements || "",
@@ -381,6 +383,7 @@ const AdminStartupEditModal: React.FC<AdminStartupEditModalProps> = ({
         pitch_deck: updatedPitchDeck,
         calendly_link: formData.calendly_link,
         video_link: formData.video_link,
+        additional_video_url: formData.additional_video_url,
 
         // Strategic info
         achievements: formData.achievements,
@@ -970,6 +973,18 @@ const AdminStartupEditModal: React.FC<AdminStartupEditModalProps> = ({
                     value={formData.video_link}
                     onChange={(e) =>
                       handleInputChange("video_link", e.target.value)
+                    }
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="additional_video_url">
+                    Additional Video Link
+                  </Label>
+                  <Input
+                    id="additional_video_url"
+                    value={formData.additional_video_url}
+                    onChange={(e) =>
+                      handleInputChange("additional_video_url", e.target.value)
                     }
                   />
                 </div>

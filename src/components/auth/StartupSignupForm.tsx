@@ -66,6 +66,7 @@ interface StartupFormData {
   coFounders: CoFounder[];
   calendlyLink?: string;
   videoLink?: string;
+  additionalVideoUrl?: string;
   teamSize: number;
 
   // Strategic info
@@ -159,6 +160,7 @@ export default function StartupSignupForm() {
     coFounders: [],
     calendlyLink: "",
     videoLink: "",
+    additionalVideoUrl: "",
     teamSize: 1,
 
     // Strategic info
@@ -366,6 +368,7 @@ export default function StartupSignupForm() {
           coFounders: formData.coFounders,
           calendlyLink: formData.calendlyLink,
           videoLink: formData.videoLink,
+          additionalVideoUrl: formData.additionalVideoUrl,
           teamSize: formData.teamSize,
           achievements: formData.achievements,
           risksAndMitigation: formData.risksAndMitigation,
@@ -1015,6 +1018,22 @@ export default function StartupSignupForm() {
                 setFormData((prev) => ({ ...prev, videoLink: e.target.value }))
               }
               placeholder="https://youtube.com/watch?v=..."
+            />
+          </div>
+          <div>
+            <Label htmlFor="additionalVideoUrl">
+              Additional Video Link (optional)
+            </Label>
+            <Input
+              id="additionalVideoUrl"
+              value={formData.additionalVideoUrl}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  additionalVideoUrl: e.target.value,
+                }))
+              }
+              placeholder="https://example.com/additional-video"
             />
           </div>
         </CardContent>

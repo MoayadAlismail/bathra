@@ -77,6 +77,7 @@ interface StartupFormData {
   coFounders: CoFounder[];
   calendlyLink?: string;
   videoLink?: string;
+  additionalVideoUrl?: string;
   teamSize: number;
 
   // Strategic info
@@ -157,6 +158,7 @@ const StartupProfileEditModal = ({
     coFounders: [],
     calendlyLink: "",
     videoLink: "",
+    additionalVideoUrl: "",
     teamSize: 1,
     achievements: "",
     risksAndMitigation: "",
@@ -231,6 +233,7 @@ const StartupProfileEditModal = ({
         coFounders: Array.isArray(parsedCoFounders) ? parsedCoFounders : [],
         calendlyLink: startup.calendly_link || "",
         videoLink: startup.video_link || "",
+        additionalVideoUrl: startup.additional_video_url || "",
         teamSize: startup.team_size || 1,
         achievements: startup.achievements || "",
         risksAndMitigation: startup.risk_mitigation || startup.risks || "",
@@ -420,6 +423,7 @@ const StartupProfileEditModal = ({
         co_founders: JSON.stringify(formData.coFounders),
         calendly_link: formData.calendlyLink,
         video_link: formData.videoLink,
+        additional_video_url: formData.additionalVideoUrl,
         team_size: formData.teamSize,
         achievements: formData.achievements,
         risk_mitigation: formData.risksAndMitigation,
@@ -1034,6 +1038,22 @@ const StartupProfileEditModal = ({
                     }))
                   }
                   placeholder="https://youtube.com/watch?v=..."
+                />
+              </div>
+              <div>
+                <Label htmlFor="additionalVideoUrl">
+                  Additional Video Link (optional)
+                </Label>
+                <Input
+                  id="additionalVideoUrl"
+                  value={formData.additionalVideoUrl}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      additionalVideoUrl: e.target.value,
+                    }))
+                  }
+                  placeholder="https://example.com/additional-video"
                 />
               </div>
             </CardContent>

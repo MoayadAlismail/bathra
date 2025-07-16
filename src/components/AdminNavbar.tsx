@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
 import NotificationDropdown from "@/components/NotificationDropdown";
 import { canBrowseContent } from "@/lib/auth-utils";
+import { LanguageSelector } from "@/components/ui/LanguageSelector";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -148,6 +149,7 @@ const AdminNavbar = () => {
 
             {/* Admin Actions */}
             <div className="hidden lg:flex items-center space-x-2 xl:space-x-4 flex-shrink-0">
+              <LanguageSelector />
               {profile &&
                 (profile.accountType === "admin" ||
                   canBrowseContent(profile)) && <NotificationDropdown />}
@@ -222,6 +224,11 @@ const AdminNavbar = () => {
 
                 {/* Mobile Actions */}
                 <div className="pt-3 sm:pt-4 border-t border-border space-y-2">
+                  {/* Language Selector for mobile */}
+                  <div className="py-2">
+                    <LanguageSelector />
+                  </div>
+
                   {profile &&
                     (profile.accountType === "admin" ||
                       canBrowseContent(profile)) && (

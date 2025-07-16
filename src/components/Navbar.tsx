@@ -6,6 +6,7 @@ import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { canBrowseContent } from "@/lib/auth-utils";
 import NotificationDropdown from "@/components/NotificationDropdown";
+import { LanguageSelector } from "@/components/ui/LanguageSelector";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -297,6 +298,9 @@ const Navbar = () => {
                 </button>
               ))}
 
+              {/* Language Selector */}
+              <LanguageSelector />
+
               {/* Notifications for logged in users */}
               {user &&
                 (profile?.accountType === "admin" ||
@@ -338,6 +342,11 @@ const Navbar = () => {
                     {item.label}
                   </button>
                 ))}
+
+                {/* Language Selector for mobile */}
+                <div className="py-2 flex justify-start">
+                  <LanguageSelector />
+                </div>
 
                 {/* Notifications for logged in users on mobile */}
                 {user &&

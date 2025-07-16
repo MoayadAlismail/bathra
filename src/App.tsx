@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { ThemeProvider } from "./components/ThemeProvider";
+import { LanguageProvider } from "./context/LanguageContext";
 import { useEffect, useState, Suspense, Component, ReactNode } from "react";
 import { Analytics } from "@vercel/analytics/react";
 import Index from "./pages/Index";
@@ -356,24 +357,26 @@ const App = () => {
             <Toaster />
             <Sonner />
             <Analytics />
-            <Suspense
-              fallback={
-                <div className="flex h-screen items-center justify-center">
-                  <div className="text-center">
-                    <div
-                      className={`rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4 ${
-                        isIOS ? "animate-pulse" : "animate-spin"
-                      }`}
-                    ></div>
-                    <p className="text-muted-foreground">
-                      Loading application...
-                    </p>
+            <LanguageProvider>
+              <Suspense
+                fallback={
+                  <div className="flex h-screen items-center justify-center">
+                    <div className="text-center">
+                      <div
+                        className={`rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4 ${
+                          isIOS ? "animate-pulse" : "animate-spin"
+                        }`}
+                      ></div>
+                      <p className="text-muted-foreground">
+                        Loading application...
+                      </p>
+                    </div>
                   </div>
-                </div>
-              }
-            >
-              <AppRoutes />
-            </Suspense>
+                }
+              >
+                <AppRoutes />
+              </Suspense>
+            </LanguageProvider>
           </AuthProvider>
         </ThemeProvider>
       </TooltipProvider>

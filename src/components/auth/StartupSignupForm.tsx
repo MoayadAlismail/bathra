@@ -20,6 +20,7 @@ import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
 import { useSimpleAuth } from "@/lib/simple-auth-service";
 import { uploadPitchDeck } from "@/lib/storage-service";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface CoFounder {
   name: string;
@@ -122,6 +123,7 @@ const EXIT_STRATEGIES = [
 ];
 
 export default function StartupSignupForm() {
+  const { t } = useLanguage();
   const [formData, setFormData] = useState<StartupFormData>({
     // Auth fields
     email: "",
@@ -247,37 +249,36 @@ export default function StartupSignupForm() {
   const validateForm = (): string[] => {
     const newErrors: string[] = [];
 
-    if (!formData.email) newErrors.push("Email is required");
-    if (!formData.password) newErrors.push("Password is required");
+    if (!formData.email) newErrors.push(t("emailRequiredError"));
+    if (!formData.password) newErrors.push(t("passwordRequiredError"));
     if (formData.password !== formData.confirmPassword)
-      newErrors.push("Passwords don't match");
+      newErrors.push(t("passwordsDoNotMatchError"));
     if (formData.password.length < 8)
-      newErrors.push("Password must be at least 8 characters");
-    if (!formData.founderName) newErrors.push("Founder name is required");
-    if (!formData.phone) newErrors.push("Phone is required");
-    if (!formData.startupName) newErrors.push("Startup name is required");
-    if (!formData.industry) newErrors.push("Industry is required");
-    if (!formData.stage) newErrors.push("Startup stage is required");
-    if (!formData.logoUrl) newErrors.push("Logo URL is required");
+      newErrors.push(t("passwordMustBeAtLeast8CharactersError"));
+    if (!formData.founderName) newErrors.push(t("founderNameRequiredError"));
+    if (!formData.phone) newErrors.push(t("phoneRequiredError"));
+    if (!formData.startupName) newErrors.push(t("startupNameRequiredError"));
+    if (!formData.industry) newErrors.push(t("industryRequiredError"));
+    if (!formData.stage) newErrors.push(t("startupStageRequiredError"));
+    if (!formData.logoUrl) newErrors.push(t("logoUrlRequiredError"));
     if (formData.socialMediaAccounts.length === 0)
-      newErrors.push("Please add at least one social media account");
+      newErrors.push(t("pleaseAddAtLeastOneSocialMediaAccountError"));
     if (!formData.problemSolving)
-      newErrors.push("Problem description is required");
+      newErrors.push(t("problemDescriptionRequiredError"));
     if (!formData.solutionDescription)
-      newErrors.push("Solution description is required");
+      newErrors.push(t("solutionDescriptionRequiredError"));
     if (!formData.uniqueValueProposition)
-      newErrors.push("Unique value proposition is required");
+      newErrors.push(t("uniqueValuePropositionRequiredError"));
     if (!formData.investmentInstrument)
-      newErrors.push("Investment instrument is required");
-    if (!formData.calendlyLink) newErrors.push("Calendly link is required");
-    if (formData.teamSize === 0) newErrors.push("Team size is required");
+      newErrors.push(t("investmentInstrumentRequiredError"));
+    if (!formData.calendlyLink) newErrors.push(t("calendlyLinkRequiredError"));
+    if (formData.teamSize === 0) newErrors.push(t("teamSizeRequiredError"));
     if (!formData.achievements)
-      newErrors.push("Achievements description is required");
+      newErrors.push(t("achievementsDescriptionRequiredError"));
     if (!formData.risksAndMitigation)
-      newErrors.push("Risks and mitigation is required");
-    if (!formData.exitStrategy) newErrors.push("Exit strategy is required");
-    if (!formData.agreeToTerms)
-      newErrors.push("You must agree to the terms and conditions");
+      newErrors.push(t("risksAndMitigationRequiredError"));
+    if (!formData.exitStrategy) newErrors.push(t("exitStrategyRequiredError"));
+    if (!formData.agreeToTerms) newErrors.push(t("agreeToTermsRequiredError"));
 
     return newErrors;
   };
@@ -306,7 +307,7 @@ export default function StartupSignupForm() {
         setIsUploadingFile(false);
 
         if (!uploadResult.success) {
-          setErrors([uploadResult.error || "Failed to upload pitch deck"]);
+          setErrors([uploadResult.error || t("failedToUploadPitchDeckError")]);
           setIsSubmitting(false);
           return;
         }
@@ -332,9 +333,7 @@ export default function StartupSignupForm() {
         Array.isArray(result.user.identities) &&
         result.user.identities.length === 0
       ) {
-        setErrors([
-          "An account with this email already exists. Please sign in instead.",
-        ]);
+        setErrors([t("accountWithThisEmailAlreadyExistsError")]);
         setIsSubmitting(false);
         return;
       }
@@ -385,9 +384,7 @@ export default function StartupSignupForm() {
           JSON.stringify(fullRegistrationData)
         );
 
-        toast.success(
-          "Registration successful! Please check your email to verify your account."
-        );
+        toast.success(t("registrationSuccessfulEmailVerificationMessage"));
         navigate("/verify-email", { state: { email: formData.email } });
       }
     } catch (error) {
@@ -398,14 +395,12 @@ export default function StartupSignupForm() {
           error.message.includes("email already in use") ||
           error.message.includes("User already registered")
         ) {
-          setErrors([
-            "An account with this email already exists. Please sign in instead.",
-          ]);
+          setErrors([t("accountWithThisEmailAlreadyExistsError")]);
         } else {
           setErrors([error.message]);
         }
       } else {
-        setErrors(["Registration failed. Please try again."]);
+        setErrors([t("registrationFailedPleaseTryAgainError")]);
       }
     } finally {
       setIsSubmitting(false);
@@ -413,815 +408,827 @@ export default function StartupSignupForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-8">
-      {errors.length > 0 && (
-        <Alert variant="destructive">
-          <AlertDescription>
-            <ul className="list-disc list-inside space-y-1">
-              {errors.map((error, index) => (
-                <li key={index}>{error}</li>
-              ))}
-            </ul>
-          </AlertDescription>
-        </Alert>
-      )}
+    <div className="space-y-8">
+      <div className="flex justify-center items-center">
+        <h1 className="text-2xl font-bold">{t("startupSignupTitle")}</h1>
+      </div>
 
-      {/* Account Information */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Account Information</CardTitle>
-        </CardHeader>
-        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <Label htmlFor="email">Email *</Label>
-            <Input
-              id="email"
-              type="email"
-              value={formData.email}
-              onChange={(e) =>
-                setFormData((prev) => ({ ...prev, email: e.target.value }))
-              }
-              placeholder="founder@startup.com"
-              required
-            />
-          </div>
-          <div>
-            <Label htmlFor="password">Password *</Label>
-            <Input
-              id="password"
-              type="password"
-              value={formData.password}
-              onChange={(e) =>
-                setFormData((prev) => ({ ...prev, password: e.target.value }))
-              }
-              placeholder="Minimum 8 characters"
-              required
-            />
-          </div>
-          <div>
-            <Label htmlFor="confirmPassword">Confirm Password *</Label>
-            <Input
-              id="confirmPassword"
-              type="password"
-              value={formData.confirmPassword}
-              onChange={(e) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  confirmPassword: e.target.value,
-                }))
-              }
-              placeholder="Confirm your password"
-              required
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Basic Information */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Basic Information</CardTitle>
-        </CardHeader>
-        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <Label htmlFor="founderName">Founder Name *</Label>
-            <Input
-              id="founderName"
-              value={formData.founderName}
-              onChange={(e) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  founderName: e.target.value,
-                }))
-              }
-              placeholder="John Doe"
-              required
-            />
-          </div>
-          <div>
-            <Label htmlFor="phone">Phone *</Label>
-            <Input
-              id="phone"
-              value={formData.phone}
-              onChange={(e) =>
-                setFormData((prev) => ({ ...prev, phone: e.target.value }))
-              }
-              placeholder="+1 234 567 8900"
-              required
-            />
-          </div>
-          <div>
-            <Label htmlFor="startupName">Startup Name *</Label>
-            <Input
-              id="startupName"
-              value={formData.startupName}
-              onChange={(e) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  startupName: e.target.value,
-                }))
-              }
-              placeholder="Your startup name"
-              required
-            />
-          </div>
-          <div>
-            <Label htmlFor="website">Website</Label>
-            <Input
-              id="website"
-              value={formData.website}
-              onChange={(e) =>
-                setFormData((prev) => ({ ...prev, website: e.target.value }))
-              }
-              placeholder="https://yourstartu.com"
-            />
-          </div>
-          <div>
-            <Label htmlFor="industry">Industry *</Label>
-            <Select
-              value={formData.industry}
-              onValueChange={(value) =>
-                setFormData((prev) => ({ ...prev, industry: value }))
-              }
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select industry" />
-              </SelectTrigger>
-              <SelectContent>
-                {INDUSTRIES.map((industry) => (
-                  <SelectItem key={industry} value={industry}>
-                    {industry}
-                  </SelectItem>
+      <form onSubmit={handleSubmit} className="space-y-8">
+        {errors.length > 0 && (
+          <Alert variant="destructive">
+            <AlertDescription>
+              <ul className="list-disc list-inside space-y-1">
+                {errors.map((error, index) => (
+                  <li key={index}>{error}</li>
                 ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div>
-            <Label htmlFor="stage">Startup Stage *</Label>
-            <Select
-              value={formData.stage}
-              onValueChange={(value) =>
-                setFormData((prev) => ({ ...prev, stage: value }))
-              }
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select stage" />
-              </SelectTrigger>
-              <SelectContent>
-                {STARTUP_STAGES.map((stage) => (
-                  <SelectItem key={stage} value={stage}>
-                    {stage}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div>
-            <Label htmlFor="logoUrl">Logo URL *</Label>
-            <Input
-              id="logoUrl"
-              value={formData.logoUrl}
-              onChange={(e) =>
-                setFormData((prev) => ({ ...prev, logoUrl: e.target.value }))
-              }
-              placeholder="https://example.com/logo.png"
-              required
-            />
-          </div>
-          <div>
-            <Label htmlFor="teamSize">Team Size *</Label>
-            <Input
-              id="teamSize"
-              type="number"
-              min="1"
-              step="1"
-              value={formData.teamSize === null ? "" : formData.teamSize}
-              onChange={(e) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  teamSize:
-                    e.target.value === "" ? null : parseInt(e.target.value),
-                }))
-              }
-              placeholder="1"
-              required
-            />
-          </div>
-        </CardContent>
-      </Card>
+              </ul>
+            </AlertDescription>
+          </Alert>
+        )}
 
-      {/* Social Media */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Social Media Accounts</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center justify-between mb-4">
-            <Label>Social Media Profiles *</Label>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={addSocialMedia}
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Add Social Media
-            </Button>
-          </div>
-          {formData.socialMediaAccounts.map((social, index) => (
-            <div key={index} className="flex gap-4 items-center mb-3">
-              <Input
-                placeholder="Platform (Twitter, LinkedIn, etc.)"
-                value={social.platform}
-                onChange={(e) =>
-                  updateSocialMedia(index, "platform", e.target.value)
-                }
-                required
-              />
-              <Input
-                placeholder="Profile URL"
-                value={social.url}
-                onChange={(e) =>
-                  updateSocialMedia(index, "url", e.target.value)
-                }
-                required
-              />
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => removeSocialMedia(index)}
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
-          ))}
-        </CardContent>
-      </Card>
-
-      {/* Business Description */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Business Description</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div>
-            <Label htmlFor="problemSolving">
-              What problem are you solving? *
-            </Label>
-            <Textarea
-              id="problemSolving"
-              value={formData.problemSolving}
-              onChange={(e) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  problemSolving: e.target.value,
-                }))
-              }
-              placeholder="Describe the problem your startup is addressing..."
-              rows={3}
-              required
-            />
-          </div>
-          <div>
-            <Label htmlFor="solutionDescription">
-              What solution do you provide? *
-            </Label>
-            <Textarea
-              id="solutionDescription"
-              value={formData.solutionDescription}
-              onChange={(e) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  solutionDescription: e.target.value,
-                }))
-              }
-              placeholder="Describe your solution..."
-              rows={3}
-              required
-            />
-          </div>
-          <div>
-            <Label htmlFor="uniqueValueProposition">
-              What makes your startup unique? *
-            </Label>
-            <Textarea
-              id="uniqueValueProposition"
-              value={formData.uniqueValueProposition}
-              onChange={(e) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  uniqueValueProposition: e.target.value,
-                }))
-              }
-              placeholder="Describe what differentiates you from competitors..."
-              rows={3}
-              required
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Financial Information */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Financial Information</CardTitle>
-        </CardHeader>
-        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <Label htmlFor="currentRevenue">
-              Current Financial Year Revenue ($)
-            </Label>
-            <Input
-              id="currentRevenue"
-              type="number"
-              min="0"
-              value={
-                formData.currentRevenue === null ? "" : formData.currentRevenue
-              }
-              onChange={(e) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  currentRevenue:
-                    e.target.value === "" ? null : parseFloat(e.target.value),
-                }))
-              }
-              placeholder="0"
-              required
-            />
-          </div>
-          <div>
-            <Label htmlFor="monthlyBurnRate">Monthly Burn Rate ($)</Label>
-            <Input
-              id="monthlyBurnRate"
-              type="number"
-              min="0"
-              value={
-                formData.monthlyBurnRate === null
-                  ? ""
-                  : formData.monthlyBurnRate
-              }
-              onChange={(e) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  monthlyBurnRate:
-                    e.target.value === "" ? null : parseFloat(e.target.value),
-                }))
-              }
-              placeholder="0"
-              required
-            />
-          </div>
-          <div>
-            <Label htmlFor="capitalSeeking">Capital Seeking ($)</Label>
-            <Input
-              id="capitalSeeking"
-              type="number"
-              min="0"
-              value={
-                formData.capitalSeeking === null ? "" : formData.capitalSeeking
-              }
-              onChange={(e) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  capitalSeeking:
-                    e.target.value === "" ? null : parseFloat(e.target.value),
-                }))
-              }
-              placeholder="0"
-              required
-            />
-          </div>
-          <div>
-            <Label htmlFor="preMoneyValuation">Pre-Money Valuation ($)</Label>
-            <Input
-              id="preMoneyValuation"
-              type="number"
-              min="0"
-              value={
-                formData.preMoneyValuation === null
-                  ? ""
-                  : formData.preMoneyValuation
-              }
-              onChange={(e) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  preMoneyValuation:
-                    e.target.value === "" ? null : parseFloat(e.target.value),
-                }))
-              }
-              placeholder="0"
-              required
-            />
-          </div>
-          <div>
-            <Label htmlFor="fundingAlreadyRaised">
-              Funding Already Raised ($)
-            </Label>
-            <Input
-              id="fundingAlreadyRaised"
-              type="number"
-              min="0"
-              value={
-                formData.fundingAlreadyRaised === null
-                  ? ""
-                  : formData.fundingAlreadyRaised
-              }
-              onChange={(e) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  fundingAlreadyRaised:
-                    e.target.value === "" ? null : parseFloat(e.target.value),
-                }))
-              }
-              placeholder="0"
-              required
-            />
-          </div>
-          <div>
-            <Label htmlFor="investmentInstrument">
-              Investment Instrument *
-            </Label>
-            <Select
-              value={formData.investmentInstrument}
-              onValueChange={(value) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  investmentInstrument: value,
-                }))
-              }
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select instrument" />
-              </SelectTrigger>
-              <SelectContent>
-                {INVESTMENT_INSTRUMENTS.map((instrument) => (
-                  <SelectItem key={instrument} value={instrument}>
-                    {instrument}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Funding Status */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Funding Status</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center space-x-2 mb-4">
-            <Checkbox
-              id="hasReceivedFunding"
-              checked={formData.hasReceivedFunding}
-              onCheckedChange={(checked) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  hasReceivedFunding: !!checked,
-                }))
-              }
-            />
-            <Label htmlFor="hasReceivedFunding">
-              Has the company received any funding or investments to date?
-            </Label>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Co-Founders */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Co-Founders</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center justify-between mb-4">
-            <Label>Add Co-Founders</Label>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={addCoFounder}
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Add Co-Founder
-            </Button>
-          </div>
-          {formData.coFounders.map((coFounder, index) => (
-            <div key={index} className="border p-4 rounded-lg mb-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <Input
-                  placeholder="Co-Founder Name"
-                  value={coFounder.name}
-                  onChange={(e) =>
-                    updateCoFounder(index, "name", e.target.value)
-                  }
-                />
-                <Input
-                  placeholder="Role/Title"
-                  value={coFounder.role}
-                  onChange={(e) =>
-                    updateCoFounder(index, "role", e.target.value)
-                  }
-                />
-                <Input
-                  placeholder="Email"
-                  type="email"
-                  value={coFounder.email}
-                  onChange={(e) =>
-                    updateCoFounder(index, "email", e.target.value)
-                  }
-                />
-                <Input
-                  placeholder="LinkedIn Profile (optional)"
-                  value={coFounder.linkedinProfile}
-                  onChange={(e) =>
-                    updateCoFounder(index, "linkedinProfile", e.target.value)
-                  }
-                />
-              </div>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => removeCoFounder(index)}
-              >
-                <X className="h-4 w-4 mr-2" />
-                Remove Co-Founder
-              </Button>
-            </div>
-          ))}
-        </CardContent>
-      </Card>
-
-      {/* Resources */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Resources & Links</CardTitle>
-        </CardHeader>
-        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <Label htmlFor="pitchDeckFile">Pitch Deck (PDF)</Label>
-            <div className="space-y-2">
-              <div className="flex flex-col space-y-1">
-                <Input
-                  id="pitchDeckFile"
-                  type="file"
-                  accept=".pdf"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    setFormData((prev) => ({
-                      ...prev,
-                      pitchDeckFile: file,
-                    }));
-                  }}
-                  className="w-full h-auto min-h-[40px] py-1 file:mr-2 file:py-1 file:px-2 sm:file:py-1.5 sm:file:px-3 file:rounded-md file:border-0 file:text-xs sm:file:text-sm file:font-medium file:bg-primary file:text-primary-foreground hover:file:bg-primary/90 file:cursor-pointer file:transition-colors"
-                />
-              </div>
-              {formData.pitchDeckFile && (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Upload className="h-4 w-4" />
-                  <span>{formData.pitchDeckFile.name}</span>
-                  <span>
-                    ({(formData.pitchDeckFile.size / 1024 / 1024).toFixed(2)}{" "}
-                    MB)
-                  </span>
-                </div>
-              )}
-              <p className="text-xs text-muted-foreground">
-                Upload your pitch deck as a PDF file (max 10MB)
-              </p>
-            </div>
-          </div>
-          <div>
-            <Label htmlFor="calendlyLink">Calendly Link *</Label>
-            <Input
-              id="calendlyLink"
-              value={formData.calendlyLink}
-              onChange={(e) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  calendlyLink: e.target.value,
-                }))
-              }
-              placeholder="https://calendly.com/yourlink"
-              required
-            />
-          </div>
-          <div>
-            <Label htmlFor="videoLink">Video Link (optional)</Label>
-            <Input
-              id="videoLink"
-              value={formData.videoLink}
-              onChange={(e) =>
-                setFormData((prev) => ({ ...prev, videoLink: e.target.value }))
-              }
-              placeholder="https://youtube.com/watch?v=..."
-            />
-          </div>
-          <div>
-            <Label htmlFor="additionalVideoUrl">
-              Additional Video Link (optional)
-            </Label>
-            <Input
-              id="additionalVideoUrl"
-              value={formData.additionalVideoUrl}
-              onChange={(e) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  additionalVideoUrl: e.target.value,
-                }))
-              }
-              placeholder="https://example.com/additional-video"
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Strategic Information */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Strategic Information</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div>
-            <Label htmlFor="achievements">
-              What have you achieved so far? (revenue, traction, major
-              investments) *
-            </Label>
-            <Textarea
-              id="achievements"
-              value={formData.achievements}
-              onChange={(e) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  achievements: e.target.value,
-                }))
-              }
-              placeholder="Describe your key achievements, milestones, and traction..."
-              rows={4}
-              required
-            />
-          </div>
-          <div>
-            <Label htmlFor="risksAndMitigation">
-              What are the risks? What steps will you take to mitigate them? *
-            </Label>
-            <Textarea
-              id="risksAndMitigation"
-              value={formData.risksAndMitigation}
-              onChange={(e) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  risksAndMitigation: e.target.value,
-                }))
-              }
-              placeholder="Identify potential risks and your mitigation strategies..."
-              rows={4}
-              required
-            />
-          </div>
-          <div>
-            <Label htmlFor="exitStrategy">Exit Strategy *</Label>
-            <Select
-              value={formData.exitStrategy}
-              onValueChange={(value) =>
-                setFormData((prev) => ({ ...prev, exitStrategy: value }))
-              }
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select exit strategy" />
-              </SelectTrigger>
-              <SelectContent>
-                {EXIT_STRATEGIES.map((strategy) => (
-                  <SelectItem key={strategy} value={strategy}>
-                    {strategy}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Accelerator Experience */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Accelerator Experience</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="participatedAccelerator"
-              checked={formData.participatedAccelerator}
-              onCheckedChange={(checked) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  participatedAccelerator: !!checked,
-                }))
-              }
-            />
-            <Label htmlFor="participatedAccelerator">
-              Have you participated in any accelerator or incubator program?
-            </Label>
-          </div>
-          {formData.participatedAccelerator && (
+        {/* Account Information */}
+        <Card>
+          <CardHeader>
+            <CardTitle>{t("accountInformation")}</CardTitle>
+          </CardHeader>
+          <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <Label htmlFor="acceleratorDetails">
-                Accelerator/Incubator Details
+              <Label htmlFor="email">{t("emailLabel")}</Label>
+              <Input
+                id="email"
+                type="email"
+                value={formData.email}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, email: e.target.value }))
+                }
+                placeholder="founder@startup.com"
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="password">{t("passwordLabel")}</Label>
+              <Input
+                id="password"
+                type="password"
+                value={formData.password}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, password: e.target.value }))
+                }
+                placeholder="Minimum 8 characters"
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="confirmPassword">
+                {t("confirmPasswordLabel")}
               </Label>
-              <Textarea
-                id="acceleratorDetails"
-                value={formData.acceleratorDetails}
+              <Input
+                id="confirmPassword"
+                type="password"
+                value={formData.confirmPassword}
                 onChange={(e) =>
                   setFormData((prev) => ({
                     ...prev,
-                    acceleratorDetails: e.target.value,
+                    confirmPassword: e.target.value,
                   }))
                 }
-                placeholder="Which accelerator/incubator did you participate in? What was the outcome?"
-                rows={3}
+                placeholder="Confirm your password"
+                required
               />
             </div>
-          )}
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
 
-      {/* Agreement Checkboxes */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Agreement</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="agreeToTerms"
-              checked={formData.agreeToTerms}
-              onCheckedChange={(checked) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  agreeToTerms: !!checked,
-                }))
-              }
-              required
-            />
-            <Label
-              htmlFor="agreeToTerms"
-              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-            >
-              I agree to the{" "}
-              <a
-                href="/terms-and-conditions"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-primary hover:underline"
+        {/* Basic Information */}
+        <Card>
+          <CardHeader>
+            <CardTitle>{t("basicInformation")}</CardTitle>
+          </CardHeader>
+          <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <Label htmlFor="founderName">{t("founderNameLabel")}</Label>
+              <Input
+                id="founderName"
+                value={formData.founderName}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    founderName: e.target.value,
+                  }))
+                }
+                placeholder="John Doe"
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="phone">{t("phoneLabel")}</Label>
+              <Input
+                id="phone"
+                value={formData.phone}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, phone: e.target.value }))
+                }
+                placeholder="+1 234 567 8900"
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="startupName">{t("startupNameLabel")}</Label>
+              <Input
+                id="startupName"
+                value={formData.startupName}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    startupName: e.target.value,
+                  }))
+                }
+                placeholder="Your startup name"
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="website">{t("websiteLabel")}</Label>
+              <Input
+                id="website"
+                value={formData.website}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, website: e.target.value }))
+                }
+                placeholder="https://yourstartu.com"
+              />
+            </div>
+            <div>
+              <Label htmlFor="industry">{t("industryLabel")}</Label>
+              <Select
+                value={formData.industry}
+                onValueChange={(value) =>
+                  setFormData((prev) => ({ ...prev, industry: value }))
+                }
               >
-                terms and conditions
-              </a>{" "}
-              *
-            </Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="acceptNewsletter"
-              checked={formData.acceptNewsletter}
-              onCheckedChange={(checked) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  acceptNewsletter: !!checked,
-                }))
-              }
-            />
-            <Label
-              htmlFor="acceptNewsletter"
-              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-            >
-              I accept receiving newsletter
-            </Label>
-          </div>
-        </CardContent>
-      </Card>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select industry" />
+                </SelectTrigger>
+                <SelectContent>
+                  {INDUSTRIES.map((industry) => (
+                    <SelectItem key={industry} value={industry}>
+                      {industry}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="stage">{t("startupStageLabel")}</Label>
+              <Select
+                value={formData.stage}
+                onValueChange={(value) =>
+                  setFormData((prev) => ({ ...prev, stage: value }))
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select stage" />
+                </SelectTrigger>
+                <SelectContent>
+                  {STARTUP_STAGES.map((stage) => (
+                    <SelectItem key={stage} value={stage}>
+                      {stage}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="logoUrl">{t("logoUrlLabel")}</Label>
+              <Input
+                id="logoUrl"
+                value={formData.logoUrl}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, logoUrl: e.target.value }))
+                }
+                placeholder="https://example.com/logo.png"
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="teamSize">{t("teamSizeLabel")}</Label>
+              <Input
+                id="teamSize"
+                type="number"
+                min="1"
+                step="1"
+                value={formData.teamSize === null ? "" : formData.teamSize}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    teamSize:
+                      e.target.value === "" ? null : parseInt(e.target.value),
+                  }))
+                }
+                placeholder="1"
+                required
+              />
+            </div>
+          </CardContent>
+        </Card>
 
-      <div className="flex">
-        <Button
-          type="submit"
-          disabled={isSubmitting || !formData.agreeToTerms}
-          className="flex-1"
-          size="lg"
-        >
-          {isSubmitting ? (
-            <>
-              <Loader className="mr-2 h-4 w-4 animate-spin" />
-              {isUploadingFile
-                ? "Uploading Pitch Deck..."
-                : "Creating Account..."}
-            </>
-          ) : (
-            "Create Startup Account"
-          )}
-        </Button>
-      </div>
-    </form>
+        {/* Social Media */}
+        <Card>
+          <CardHeader>
+            <CardTitle>{t("socialMediaAccounts")}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-between mb-4">
+              <Label>{t("socialMediaProfilesLabel")}</Label>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={addSocialMedia}
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                {t("addSocialMediaButton")}
+              </Button>
+            </div>
+            {formData.socialMediaAccounts.map((social, index) => (
+              <div key={index} className="flex gap-4 items-center mb-3">
+                <Input
+                  placeholder={t("socialMediaProfilePlaceholder")}
+                  value={social.platform}
+                  onChange={(e) =>
+                    updateSocialMedia(index, "platform", e.target.value)
+                  }
+                  required
+                />
+                <Input
+                  placeholder={t("profileUrlPlaceholder")}
+                  value={social.url}
+                  onChange={(e) =>
+                    updateSocialMedia(index, "url", e.target.value)
+                  }
+                  required
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => removeSocialMedia(index)}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+
+        {/* Business Description */}
+        <Card>
+          <CardHeader>
+            <CardTitle>{t("businessDescription")}</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div>
+              <Label htmlFor="problemSolving">{t("problemSolvingLabel")}</Label>
+              <Textarea
+                id="problemSolving"
+                value={formData.problemSolving}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    problemSolving: e.target.value,
+                  }))
+                }
+                placeholder="Describe the problem your startup is addressing..."
+                rows={3}
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="solutionDescription">
+                {t("solutionDescriptionLabel")}
+              </Label>
+              <Textarea
+                id="solutionDescription"
+                value={formData.solutionDescription}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    solutionDescription: e.target.value,
+                  }))
+                }
+                placeholder="Describe your solution..."
+                rows={3}
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="uniqueValueProposition">
+                {t("uniqueValuePropositionLabel")}
+              </Label>
+              <Textarea
+                id="uniqueValueProposition"
+                value={formData.uniqueValueProposition}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    uniqueValueProposition: e.target.value,
+                  }))
+                }
+                placeholder="Describe what differentiates you from competitors..."
+                rows={3}
+                required
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Financial Information */}
+        <Card>
+          <CardHeader>
+            <CardTitle>{t("financialInformation")}</CardTitle>
+          </CardHeader>
+          <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <Label htmlFor="currentRevenue">{t("currentRevenueLabel")}</Label>
+              <Input
+                id="currentRevenue"
+                type="number"
+                min="0"
+                value={
+                  formData.currentRevenue === null
+                    ? ""
+                    : formData.currentRevenue
+                }
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    currentRevenue:
+                      e.target.value === "" ? null : parseFloat(e.target.value),
+                  }))
+                }
+                placeholder="0"
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="monthlyBurnRate">
+                {t("monthlyBurnRateLabel")}
+              </Label>
+              <Input
+                id="monthlyBurnRate"
+                type="number"
+                min="0"
+                value={
+                  formData.monthlyBurnRate === null
+                    ? ""
+                    : formData.monthlyBurnRate
+                }
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    monthlyBurnRate:
+                      e.target.value === "" ? null : parseFloat(e.target.value),
+                  }))
+                }
+                placeholder="0"
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="capitalSeeking">{t("capitalSeekingLabel")}</Label>
+              <Input
+                id="capitalSeeking"
+                type="number"
+                min="0"
+                value={
+                  formData.capitalSeeking === null
+                    ? ""
+                    : formData.capitalSeeking
+                }
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    capitalSeeking:
+                      e.target.value === "" ? null : parseFloat(e.target.value),
+                  }))
+                }
+                placeholder="0"
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="preMoneyValuation">Pre-Money Valuation ($)</Label>
+              <Input
+                id="preMoneyValuation"
+                type="number"
+                min="0"
+                value={
+                  formData.preMoneyValuation === null
+                    ? ""
+                    : formData.preMoneyValuation
+                }
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    preMoneyValuation:
+                      e.target.value === "" ? null : parseFloat(e.target.value),
+                  }))
+                }
+                placeholder="0"
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="fundingAlreadyRaised">
+                Funding Already Raised ($)
+              </Label>
+              <Input
+                id="fundingAlreadyRaised"
+                type="number"
+                min="0"
+                value={
+                  formData.fundingAlreadyRaised === null
+                    ? ""
+                    : formData.fundingAlreadyRaised
+                }
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    fundingAlreadyRaised:
+                      e.target.value === "" ? null : parseFloat(e.target.value),
+                  }))
+                }
+                placeholder="0"
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="investmentInstrument">
+                Investment Instrument *
+              </Label>
+              <Select
+                value={formData.investmentInstrument}
+                onValueChange={(value) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    investmentInstrument: value,
+                  }))
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select instrument" />
+                </SelectTrigger>
+                <SelectContent>
+                  {INVESTMENT_INSTRUMENTS.map((instrument) => (
+                    <SelectItem key={instrument} value={instrument}>
+                      {instrument}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Funding Status */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Funding Status</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center space-x-2 mb-4">
+              <Checkbox
+                id="hasReceivedFunding"
+                checked={formData.hasReceivedFunding}
+                onCheckedChange={(checked) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    hasReceivedFunding: !!checked,
+                  }))
+                }
+              />
+              <Label htmlFor="hasReceivedFunding">
+                Has the company received any funding or investments to date?
+              </Label>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Co-Founders */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Co-Founders</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-between mb-4">
+              <Label>Add Co-Founders</Label>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={addCoFounder}
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Add Co-Founder
+              </Button>
+            </div>
+            {formData.coFounders.map((coFounder, index) => (
+              <div key={index} className="border p-4 rounded-lg mb-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <Input
+                    placeholder="Co-Founder Name"
+                    value={coFounder.name}
+                    onChange={(e) =>
+                      updateCoFounder(index, "name", e.target.value)
+                    }
+                  />
+                  <Input
+                    placeholder="Role/Title"
+                    value={coFounder.role}
+                    onChange={(e) =>
+                      updateCoFounder(index, "role", e.target.value)
+                    }
+                  />
+                  <Input
+                    placeholder="Email"
+                    type="email"
+                    value={coFounder.email}
+                    onChange={(e) =>
+                      updateCoFounder(index, "email", e.target.value)
+                    }
+                  />
+                  <Input
+                    placeholder="LinkedIn Profile (optional)"
+                    value={coFounder.linkedinProfile}
+                    onChange={(e) =>
+                      updateCoFounder(index, "linkedinProfile", e.target.value)
+                    }
+                  />
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => removeCoFounder(index)}
+                >
+                  <X className="h-4 w-4 mr-2" />
+                  Remove Co-Founder
+                </Button>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+
+        {/* Resources */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Resources & Links</CardTitle>
+          </CardHeader>
+          <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <Label htmlFor="pitchDeckFile">Pitch Deck (PDF)</Label>
+              <div className="space-y-2">
+                <div className="flex flex-col space-y-1">
+                  <Input
+                    id="pitchDeckFile"
+                    type="file"
+                    accept=".pdf"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      setFormData((prev) => ({
+                        ...prev,
+                        pitchDeckFile: file,
+                      }));
+                    }}
+                    className="w-full h-auto min-h-[40px] py-1 file:mr-2 file:py-1 file:px-2 sm:file:py-1.5 sm:file:px-3 file:rounded-md file:border-0 file:text-xs sm:file:text-sm file:font-medium file:bg-primary file:text-primary-foreground hover:file:bg-primary/90 file:cursor-pointer file:transition-colors"
+                  />
+                </div>
+                {formData.pitchDeckFile && (
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Upload className="h-4 w-4" />
+                    <span>{formData.pitchDeckFile.name}</span>
+                    <span>
+                      ({(formData.pitchDeckFile.size / 1024 / 1024).toFixed(2)}{" "}
+                      MB)
+                    </span>
+                  </div>
+                )}
+                <p className="text-xs text-muted-foreground">
+                  Upload your pitch deck as a PDF file (max 10MB)
+                </p>
+              </div>
+            </div>
+            <div>
+              <Label htmlFor="calendlyLink">Calendly Link *</Label>
+              <Input
+                id="calendlyLink"
+                value={formData.calendlyLink}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    calendlyLink: e.target.value,
+                  }))
+                }
+                placeholder="https://calendly.com/yourlink"
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="videoLink">Video Link (optional)</Label>
+              <Input
+                id="videoLink"
+                value={formData.videoLink}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    videoLink: e.target.value,
+                  }))
+                }
+                placeholder="https://youtube.com/watch?v=..."
+              />
+            </div>
+            <div>
+              <Label htmlFor="additionalVideoUrl">
+                Additional Video Link (optional)
+              </Label>
+              <Input
+                id="additionalVideoUrl"
+                value={formData.additionalVideoUrl}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    additionalVideoUrl: e.target.value,
+                  }))
+                }
+                placeholder="https://example.com/additional-video"
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Strategic Information */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Strategic Information</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div>
+              <Label htmlFor="achievements">
+                What have you achieved so far? (revenue, traction, major
+                investments) *
+              </Label>
+              <Textarea
+                id="achievements"
+                value={formData.achievements}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    achievements: e.target.value,
+                  }))
+                }
+                placeholder="Describe your key achievements, milestones, and traction..."
+                rows={4}
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="risksAndMitigation">
+                What are the risks? What steps will you take to mitigate them? *
+              </Label>
+              <Textarea
+                id="risksAndMitigation"
+                value={formData.risksAndMitigation}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    risksAndMitigation: e.target.value,
+                  }))
+                }
+                placeholder="Identify potential risks and your mitigation strategies..."
+                rows={4}
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="exitStrategy">Exit Strategy *</Label>
+              <Select
+                value={formData.exitStrategy}
+                onValueChange={(value) =>
+                  setFormData((prev) => ({ ...prev, exitStrategy: value }))
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select exit strategy" />
+                </SelectTrigger>
+                <SelectContent>
+                  {EXIT_STRATEGIES.map((strategy) => (
+                    <SelectItem key={strategy} value={strategy}>
+                      {strategy}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Accelerator Experience */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Accelerator Experience</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="participatedAccelerator"
+                checked={formData.participatedAccelerator}
+                onCheckedChange={(checked) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    participatedAccelerator: !!checked,
+                  }))
+                }
+              />
+              <Label htmlFor="participatedAccelerator">
+                Have you participated in any accelerator or incubator program?
+              </Label>
+            </div>
+            {formData.participatedAccelerator && (
+              <div>
+                <Label htmlFor="acceleratorDetails">
+                  Accelerator/Incubator Details
+                </Label>
+                <Textarea
+                  id="acceleratorDetails"
+                  value={formData.acceleratorDetails}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      acceleratorDetails: e.target.value,
+                    }))
+                  }
+                  placeholder="Which accelerator/incubator did you participate in? What was the outcome?"
+                  rows={3}
+                />
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Agreement Checkboxes */}
+        <Card>
+          <CardHeader>
+            <CardTitle>{t("agreement")}</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="agreeToTerms"
+                checked={formData.agreeToTerms}
+                onCheckedChange={(checked) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    agreeToTerms: !!checked,
+                  }))
+                }
+                required
+              />
+              <Label
+                htmlFor="agreeToTerms"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                {t("agreeToTermsLabel")}{" "}
+                <a
+                  href="/terms-and-conditions"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary hover:underline"
+                >
+                  {t("termsAndConditionsLink")}
+                </a>
+              </Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="acceptNewsletter"
+                checked={formData.acceptNewsletter}
+                onCheckedChange={(checked) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    acceptNewsletter: !!checked,
+                  }))
+                }
+              />
+              <Label
+                htmlFor="acceptNewsletter"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                {t("acceptNewsletterLabel")}
+              </Label>
+            </div>
+          </CardContent>
+        </Card>
+
+        <div className="flex">
+          <Button
+            type="submit"
+            disabled={isSubmitting || !formData.agreeToTerms}
+            className="flex-1"
+            size="lg"
+          >
+            {isSubmitting ? (
+              <>
+                <Loader className="mr-2 h-4 w-4 animate-spin" />
+                {isUploadingFile
+                  ? t("uploadingPitchDeck")
+                  : t("creatingAccountButton")}
+              </>
+            ) : (
+              t("createStartupAccountButton")
+            )}
+          </Button>
+        </div>
+      </form>
+    </div>
   );
 }

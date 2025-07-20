@@ -7,9 +7,19 @@ import React, {
 } from "react";
 import {
   Language,
-  TranslationKey,
-  translations,
-} from "@/utils/language/signup";
+  homeTranslations,
+  signupTranslations,
+  startupTranslations,
+} from "@/utils/language";
+
+// Combine all translations into one object
+const translations = {
+  ...homeTranslations,
+  ...signupTranslations,
+  ...startupTranslations,
+};
+
+export type TranslationKey = keyof typeof translations;
 
 interface LanguageContextType {
   language: Language;
@@ -65,7 +75,11 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
   };
 
   const t = (key: TranslationKey): string => {
-    return translations[key]?.[language] || translations[key]?.English || key;
+    return (
+      (translations[key] as Record<Language, string>)?.[language] ||
+      (translations[key] as Record<Language, string>)?.English ||
+      key
+    );
   };
 
   const isRTL = language === "Arabic";

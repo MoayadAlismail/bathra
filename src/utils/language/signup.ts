@@ -1,8 +1,6 @@
 export type Language = "English" | "Arabic";
 
-export type TranslationKey = keyof typeof translations;
-
-export const translations = {
+export const signupTranslations = {
   // Common
   accountInformation: {
     English: "Account Information",

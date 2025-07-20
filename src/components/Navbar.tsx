@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { canBrowseContent } from "@/lib/auth-utils";
 import NotificationDropdown from "@/components/NotificationDropdown";
 import { LanguageSelector } from "@/components/ui/LanguageSelector";
+import { useLanguage } from "@/context/LanguageContext";
+import { homeTranslations } from "@/utils/language/home";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -14,6 +16,7 @@ const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
+  const { language } = useLanguage();
 
   const accountType = profile?.accountType;
 
@@ -88,9 +91,18 @@ const Navbar = () => {
   // Get navigation items based on user type and authentication status
   const getNavItems = () => {
     const publicItems = [
-      { label: "Home", path: "/" },
-      { label: "How It Works", path: "/#how-it-works" },
-      { label: "Articles", path: "/articles" },
+      {
+        label: homeTranslations.navHome[language],
+        path: "/",
+      },
+      {
+        label: homeTranslations.navHowItWorks[language],
+        path: "/#how-it-works",
+      },
+      {
+        label: homeTranslations.navArticles[language],
+        path: "/articles",
+      },
     ];
 
     if (!user) return publicItems;
@@ -103,16 +115,34 @@ const Navbar = () => {
     // When logged in, don't show "How It Works" for a cleaner experience
     if (accountType === "startup") {
       return [
-        { label: "Dashboard", path: "/startup-dashboard" },
-        { label: "Profile", path: "/startup-profile" },
-        { label: "Articles", path: "/articles" },
+        {
+          label: homeTranslations.navDashboard[language],
+          path: "/startup-dashboard",
+        },
+        {
+          label: homeTranslations.navProfile[language],
+          path: "/startup-profile",
+        },
+        {
+          label: homeTranslations.navArticles[language],
+          path: "/articles",
+        },
       ];
     } else {
       // For investors (individual or VC)
       return [
-        { label: "Dashboard", path: "/investor-dashboard" },
-        { label: "Profile", path: "/investor-profile" },
-        { label: "Articles", path: "/articles" },
+        {
+          label: homeTranslations.navDashboard[language],
+          path: "/investor-dashboard",
+        },
+        {
+          label: homeTranslations.navProfile[language],
+          path: "/investor-profile",
+        },
+        {
+          label: homeTranslations.navArticles[language],
+          path: "/articles",
+        },
       ];
     }
   };
@@ -132,7 +162,7 @@ const Navbar = () => {
           className="flex items-center gap-2"
         >
           <LogIn className="w-4 h-4" />
-          Sign In
+          {homeTranslations.navSignIn[language]}
         </Button>
       );
     }
@@ -171,7 +201,7 @@ const Navbar = () => {
       return (
         <div className="flex items-center space-x-4">
           <Button variant="ghost" size="sm" onClick={handleLogout}>
-            Sign Out
+            {homeTranslations.navSignOut[language]}
           </Button>
         </div>
       );
@@ -180,7 +210,7 @@ const Navbar = () => {
       return (
         <div className="flex items-center space-x-4">
           <Button variant="ghost" size="sm" onClick={handleLogout}>
-            Sign Out
+            {homeTranslations.navSignOut[language]}
           </Button>
         </div>
       );
@@ -199,7 +229,7 @@ const Navbar = () => {
           className="flex items-center gap-2 text-foreground hover:text-primary transition-colors duration-200 py-2 text-left"
         >
           <LogIn className="w-4 h-4" />
-          Sign In
+          {homeTranslations.navSignIn[language]}
         </button>
       );
     }
@@ -245,7 +275,7 @@ const Navbar = () => {
           }}
           className="text-foreground hover:text-primary transition-colors duration-200 py-2 text-left"
         >
-          Sign Out
+          {homeTranslations.navSignOut[language]}
         </button>
       );
     } else {
@@ -258,7 +288,7 @@ const Navbar = () => {
             }}
             className="text-foreground hover:text-primary transition-colors duration-200 py-2 text-left"
           >
-            Sign Out
+            {homeTranslations.navSignOut[language]}
           </button>
         </>
       );

@@ -1,5 +1,7 @@
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
+import { useLanguage } from "@/context/LanguageContext";
+import { homeTranslations } from "@/utils/language/home";
 
 interface TrustedCompany {
   name: string;
@@ -9,6 +11,7 @@ interface TrustedCompany {
 
 const TrustedBy = () => {
   const [isIOS, setIsIOS] = useState(false);
+  const { language } = useLanguage();
 
   useEffect(() => {
     // Detect iOS Safari
@@ -32,15 +35,16 @@ const TrustedBy = () => {
           className="text-center"
         >
           <span className="inline-block px-4 py-2 bg-secondary rounded-full text-foreground text-sm font-medium mb-4">
-            Our Network
+            {homeTranslations.trustedByOurNetwork[language]}
           </span>
           <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
-            Trusted by{" "}
-            <span className="text-primary">innovative companies</span>
+            {homeTranslations.trustedByTitle[language]}{" "}
+            <span className="text-primary">
+              {homeTranslations.trustedByTitlePrimary[language]}
+            </span>
           </h2>
           <p className="text-muted-foreground mb-12 max-w-2xl mx-auto">
-            Join a network of successful startups and experienced investors who
-            are driving innovation across the region.
+            {homeTranslations.trustedBySubtitle[language]}
           </p>
 
           {trustedCompanies.length > 0 && (

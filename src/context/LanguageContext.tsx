@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useEffect,
+} from "react";
 import {
   Language,
   TranslationKey,
@@ -20,8 +26,43 @@ interface LanguageProviderProps {
   children: ReactNode;
 }
 
+// Helper function to get initial language
+const getInitialLanguage = (): Language => {
+  try {
+    // First, check localStorage for saved preference
+    const savedLanguage = localStorage.getItem(
+      "preferred-language"
+    ) as Language;
+    if (savedLanguage && ["English", "Arabic"].includes(savedLanguage)) {
+      return savedLanguage;
+    }
+
+    // Fallback to browser language detection
+    const browserLanguage = navigator.language || navigator.languages?.[0];
+    if (browserLanguage?.startsWith("ar")) {
+      return "Arabic";
+    }
+  } catch (error) {
+    // localStorage might not be available (SSR, privacy mode, etc.)
+    console.warn("Could not access localStorage for language preference");
+  }
+
+  // Default fallback
+  return "English";
+};
+
 export function LanguageProvider({ children }: LanguageProviderProps) {
-  const [language, setLanguage] = useState<Language>("English");
+  const [language, setLanguageState] = useState<Language>(getInitialLanguage);
+
+  // Enhanced setLanguage that persists to localStorage
+  const setLanguage = (newLanguage: Language) => {
+    try {
+      localStorage.setItem("preferred-language", newLanguage);
+    } catch (error) {
+      console.warn("Could not save language preference to localStorage");
+    }
+    setLanguageState(newLanguage);
+  };
 
   const t = (key: TranslationKey): string => {
     return translations[key]?.[language] || translations[key]?.English || key;

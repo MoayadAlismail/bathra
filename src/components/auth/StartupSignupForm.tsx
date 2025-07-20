@@ -123,7 +123,7 @@ const EXIT_STRATEGIES = [
 ];
 
 export default function StartupSignupForm() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [formData, setFormData] = useState<StartupFormData>({
     // Auth fields
     email: "",
@@ -407,6 +407,11 @@ export default function StartupSignupForm() {
     }
   };
 
+  // Helper function to handle placeholders based on language
+  const getPlaceholder = (englishText: string) => {
+    return language === "English" ? englishText : "";
+  };
+
   return (
     <div className="space-y-8">
       <div className="flex justify-center items-center">
@@ -441,7 +446,7 @@ export default function StartupSignupForm() {
                 onChange={(e) =>
                   setFormData((prev) => ({ ...prev, email: e.target.value }))
                 }
-                placeholder="founder@startup.com"
+                placeholder={getPlaceholder("founder@startup.com")}
                 required
               />
             </div>
@@ -454,7 +459,7 @@ export default function StartupSignupForm() {
                 onChange={(e) =>
                   setFormData((prev) => ({ ...prev, password: e.target.value }))
                 }
-                placeholder="Minimum 8 characters"
+                placeholder={getPlaceholder("Minimum 8 characters")}
                 required
               />
             </div>
@@ -472,7 +477,7 @@ export default function StartupSignupForm() {
                     confirmPassword: e.target.value,
                   }))
                 }
-                placeholder="Confirm your password"
+                placeholder={getPlaceholder("Confirm your password")}
                 required
               />
             </div>
@@ -496,7 +501,7 @@ export default function StartupSignupForm() {
                     founderName: e.target.value,
                   }))
                 }
-                placeholder="John Doe"
+                placeholder={getPlaceholder("John Doe")}
                 required
               />
             </div>
@@ -508,7 +513,7 @@ export default function StartupSignupForm() {
                 onChange={(e) =>
                   setFormData((prev) => ({ ...prev, phone: e.target.value }))
                 }
-                placeholder="+1 234 567 8900"
+                placeholder={getPlaceholder("+1 234 567 8900")}
                 required
               />
             </div>
@@ -523,7 +528,7 @@ export default function StartupSignupForm() {
                     startupName: e.target.value,
                   }))
                 }
-                placeholder="Your startup name"
+                placeholder={getPlaceholder("Your startup name")}
                 required
               />
             </div>
@@ -535,7 +540,7 @@ export default function StartupSignupForm() {
                 onChange={(e) =>
                   setFormData((prev) => ({ ...prev, website: e.target.value }))
                 }
-                placeholder="https://yourstartu.com"
+                placeholder={getPlaceholder("https://yourstartup.com")}
               />
             </div>
             <div>
@@ -586,7 +591,7 @@ export default function StartupSignupForm() {
                 onChange={(e) =>
                   setFormData((prev) => ({ ...prev, logoUrl: e.target.value }))
                 }
-                placeholder="https://example.com/logo.png"
+                placeholder={getPlaceholder("https://example.com/logo.png")}
                 required
               />
             </div>
@@ -605,7 +610,7 @@ export default function StartupSignupForm() {
                       e.target.value === "" ? null : parseInt(e.target.value),
                   }))
                 }
-                placeholder="1"
+                placeholder={getPlaceholder("1")}
                 required
               />
             </div>
@@ -633,7 +638,11 @@ export default function StartupSignupForm() {
             {formData.socialMediaAccounts.map((social, index) => (
               <div key={index} className="flex gap-4 items-center mb-3">
                 <Input
-                  placeholder={t("socialMediaProfilePlaceholder")}
+                  placeholder={
+                    language === "English"
+                      ? t("socialMediaProfilePlaceholder")
+                      : ""
+                  }
                   value={social.platform}
                   onChange={(e) =>
                     updateSocialMedia(index, "platform", e.target.value)
@@ -641,7 +650,9 @@ export default function StartupSignupForm() {
                   required
                 />
                 <Input
-                  placeholder={t("profileUrlPlaceholder")}
+                  placeholder={
+                    language === "English" ? t("profileUrlPlaceholder") : ""
+                  }
                   value={social.url}
                   onChange={(e) =>
                     updateSocialMedia(index, "url", e.target.value)
@@ -678,7 +689,9 @@ export default function StartupSignupForm() {
                     problemSolving: e.target.value,
                   }))
                 }
-                placeholder="Describe the problem your startup is addressing..."
+                placeholder={getPlaceholder(
+                  "Describe the problem your startup is addressing..."
+                )}
                 rows={3}
                 required
               />
@@ -696,7 +709,7 @@ export default function StartupSignupForm() {
                     solutionDescription: e.target.value,
                   }))
                 }
-                placeholder="Describe your solution..."
+                placeholder={getPlaceholder("Describe your solution...")}
                 rows={3}
                 required
               />
@@ -714,7 +727,9 @@ export default function StartupSignupForm() {
                     uniqueValueProposition: e.target.value,
                   }))
                 }
-                placeholder="Describe what differentiates you from competitors..."
+                placeholder={getPlaceholder(
+                  "Describe what differentiates you from competitors..."
+                )}
                 rows={3}
                 required
               />
@@ -746,7 +761,7 @@ export default function StartupSignupForm() {
                       e.target.value === "" ? null : parseFloat(e.target.value),
                   }))
                 }
-                placeholder="0"
+                placeholder={getPlaceholder("0")}
                 required
               />
             </div>
@@ -770,7 +785,7 @@ export default function StartupSignupForm() {
                       e.target.value === "" ? null : parseFloat(e.target.value),
                   }))
                 }
-                placeholder="0"
+                placeholder={getPlaceholder("0")}
                 required
               />
             </div>
@@ -792,12 +807,14 @@ export default function StartupSignupForm() {
                       e.target.value === "" ? null : parseFloat(e.target.value),
                   }))
                 }
-                placeholder="0"
+                placeholder={getPlaceholder("0")}
                 required
               />
             </div>
             <div>
-              <Label htmlFor="preMoneyValuation">Pre-Money Valuation ($)</Label>
+              <Label htmlFor="preMoneyValuation">
+                {t("preMoneyValuationLabel")}
+              </Label>
               <Input
                 id="preMoneyValuation"
                 type="number"
@@ -814,13 +831,13 @@ export default function StartupSignupForm() {
                       e.target.value === "" ? null : parseFloat(e.target.value),
                   }))
                 }
-                placeholder="0"
+                placeholder={getPlaceholder("0")}
                 required
               />
             </div>
             <div>
               <Label htmlFor="fundingAlreadyRaised">
-                Funding Already Raised ($)
+                {t("fundingAlreadyRaisedLabel")}
               </Label>
               <Input
                 id="fundingAlreadyRaised"
@@ -838,13 +855,13 @@ export default function StartupSignupForm() {
                       e.target.value === "" ? null : parseFloat(e.target.value),
                   }))
                 }
-                placeholder="0"
+                placeholder={getPlaceholder("0")}
                 required
               />
             </div>
             <div>
               <Label htmlFor="investmentInstrument">
-                Investment Instrument *
+                {t("investmentInstrumentLabel")}
               </Label>
               <Select
                 value={formData.investmentInstrument}
@@ -873,7 +890,7 @@ export default function StartupSignupForm() {
         {/* Funding Status */}
         <Card>
           <CardHeader>
-            <CardTitle>Funding Status</CardTitle>
+            <CardTitle>{t("fundingStatus")}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center space-x-2 mb-4">
@@ -888,7 +905,7 @@ export default function StartupSignupForm() {
                 }
               />
               <Label htmlFor="hasReceivedFunding">
-                Has the company received any funding or investments to date?
+                {t("hasReceivedFundingLabel")}
               </Label>
             </div>
           </CardContent>
@@ -897,11 +914,11 @@ export default function StartupSignupForm() {
         {/* Co-Founders */}
         <Card>
           <CardHeader>
-            <CardTitle>Co-Founders</CardTitle>
+            <CardTitle>{t("coFounders")}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center justify-between mb-4">
-              <Label>Add Co-Founders</Label>
+              <Label>{t("addCoFoundersLabel")}</Label>
               <Button
                 type="button"
                 variant="outline"
@@ -909,28 +926,28 @@ export default function StartupSignupForm() {
                 onClick={addCoFounder}
               >
                 <Plus className="h-4 w-4 mr-2" />
-                Add Co-Founder
+                {t("addCoFounderButton")}
               </Button>
             </div>
             {formData.coFounders.map((coFounder, index) => (
               <div key={index} className="border p-4 rounded-lg mb-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                   <Input
-                    placeholder="Co-Founder Name"
+                    placeholder={t("coFounderNamePlaceholder")}
                     value={coFounder.name}
                     onChange={(e) =>
                       updateCoFounder(index, "name", e.target.value)
                     }
                   />
                   <Input
-                    placeholder="Role/Title"
+                    placeholder={t("roleTitlePlaceholder")}
                     value={coFounder.role}
                     onChange={(e) =>
                       updateCoFounder(index, "role", e.target.value)
                     }
                   />
                   <Input
-                    placeholder="Email"
+                    placeholder={t("emailPlaceholder")}
                     type="email"
                     value={coFounder.email}
                     onChange={(e) =>
@@ -938,7 +955,7 @@ export default function StartupSignupForm() {
                     }
                   />
                   <Input
-                    placeholder="LinkedIn Profile (optional)"
+                    placeholder={t("linkedinProfileOptionalPlaceholder")}
                     value={coFounder.linkedinProfile}
                     onChange={(e) =>
                       updateCoFounder(index, "linkedinProfile", e.target.value)
@@ -952,7 +969,7 @@ export default function StartupSignupForm() {
                   onClick={() => removeCoFounder(index)}
                 >
                   <X className="h-4 w-4 mr-2" />
-                  Remove Co-Founder
+                  {t("removeCoFounderButton")}
                 </Button>
               </div>
             ))}
@@ -962,11 +979,11 @@ export default function StartupSignupForm() {
         {/* Resources */}
         <Card>
           <CardHeader>
-            <CardTitle>Resources & Links</CardTitle>
+            <CardTitle>{t("resourcesAndLinks")}</CardTitle>
           </CardHeader>
           <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <Label htmlFor="pitchDeckFile">Pitch Deck (PDF)</Label>
+              <Label htmlFor="pitchDeckFile">{t("pitchDeckLabel")}</Label>
               <div className="space-y-2">
                 <div className="flex flex-col space-y-1">
                   <Input
@@ -999,7 +1016,7 @@ export default function StartupSignupForm() {
               </div>
             </div>
             <div>
-              <Label htmlFor="calendlyLink">Calendly Link *</Label>
+              <Label htmlFor="calendlyLink">{t("calendlyLinkLabel")}</Label>
               <Input
                 id="calendlyLink"
                 value={formData.calendlyLink}
@@ -1009,12 +1026,12 @@ export default function StartupSignupForm() {
                     calendlyLink: e.target.value,
                   }))
                 }
-                placeholder="https://calendly.com/yourlink"
+                placeholder={getPlaceholder("https://calendly.com/yourlink")}
                 required
               />
             </div>
             <div>
-              <Label htmlFor="videoLink">Video Link (optional)</Label>
+              <Label htmlFor="videoLink">{t("videoLinkLabel")}</Label>
               <Input
                 id="videoLink"
                 value={formData.videoLink}
@@ -1024,12 +1041,12 @@ export default function StartupSignupForm() {
                     videoLink: e.target.value,
                   }))
                 }
-                placeholder="https://youtube.com/watch?v=..."
+                placeholder={getPlaceholder("https://youtube.com/watch?v=...")}
               />
             </div>
             <div>
               <Label htmlFor="additionalVideoUrl">
-                Additional Video Link (optional)
+                {t("additionalVideoLinkLabel")}
               </Label>
               <Input
                 id="additionalVideoUrl"
@@ -1040,7 +1057,9 @@ export default function StartupSignupForm() {
                     additionalVideoUrl: e.target.value,
                   }))
                 }
-                placeholder="https://example.com/additional-video"
+                placeholder={getPlaceholder(
+                  "https://example.com/additional-video"
+                )}
               />
             </div>
           </CardContent>
@@ -1049,14 +1068,11 @@ export default function StartupSignupForm() {
         {/* Strategic Information */}
         <Card>
           <CardHeader>
-            <CardTitle>Strategic Information</CardTitle>
+            <CardTitle>{t("strategicInformation")}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             <div>
-              <Label htmlFor="achievements">
-                What have you achieved so far? (revenue, traction, major
-                investments) *
-              </Label>
+              <Label htmlFor="achievements">{t("achievementsLabel")}</Label>
               <Textarea
                 id="achievements"
                 value={formData.achievements}
@@ -1066,14 +1082,16 @@ export default function StartupSignupForm() {
                     achievements: e.target.value,
                   }))
                 }
-                placeholder="Describe your key achievements, milestones, and traction..."
+                placeholder={getPlaceholder(
+                  "Describe your key achievements, milestones, and traction..."
+                )}
                 rows={4}
                 required
               />
             </div>
             <div>
               <Label htmlFor="risksAndMitigation">
-                What are the risks? What steps will you take to mitigate them? *
+                {t("risksAndMitigationLabel")}
               </Label>
               <Textarea
                 id="risksAndMitigation"
@@ -1084,13 +1102,15 @@ export default function StartupSignupForm() {
                     risksAndMitigation: e.target.value,
                   }))
                 }
-                placeholder="Identify potential risks and your mitigation strategies..."
+                placeholder={getPlaceholder(
+                  "Identify potential risks and your mitigation strategies..."
+                )}
                 rows={4}
                 required
               />
             </div>
             <div>
-              <Label htmlFor="exitStrategy">Exit Strategy *</Label>
+              <Label htmlFor="exitStrategy">{t("exitStrategyLabel")}</Label>
               <Select
                 value={formData.exitStrategy}
                 onValueChange={(value) =>
@@ -1115,7 +1135,7 @@ export default function StartupSignupForm() {
         {/* Accelerator Experience */}
         <Card>
           <CardHeader>
-            <CardTitle>Accelerator Experience</CardTitle>
+            <CardTitle>{t("acceleratorExperience")}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center space-x-2">
@@ -1130,13 +1150,13 @@ export default function StartupSignupForm() {
                 }
               />
               <Label htmlFor="participatedAccelerator">
-                Have you participated in any accelerator or incubator program?
+                {t("participatedAcceleratorLabel")}
               </Label>
             </div>
             {formData.participatedAccelerator && (
               <div>
                 <Label htmlFor="acceleratorDetails">
-                  Accelerator/Incubator Details
+                  {t("acceleratorDetailsLabel")}
                 </Label>
                 <Textarea
                   id="acceleratorDetails"
@@ -1147,7 +1167,9 @@ export default function StartupSignupForm() {
                       acceleratorDetails: e.target.value,
                     }))
                   }
-                  placeholder="Which accelerator/incubator did you participate in? What was the outcome?"
+                  placeholder={getPlaceholder(
+                    "Which accelerator/incubator did you participate in? What was the outcome?"
+                  )}
                   rows={3}
                 />
               </div>

@@ -64,7 +64,7 @@ export const translations = {
   },
   socialMediaProfilesLabel: {
     English: "Social Media Profiles *",
-    Arabic: "ملفات تعريف الوسائط الاجتماعية *",
+    Arabic: "حسابات التواصل الاجتماعي *",
   },
   businessDescription: { English: "Business Description", Arabic: "وصف العمل" },
   problemSolvingLabel: {
@@ -112,12 +112,12 @@ export const translations = {
     English: "Has the company received any funding or investments to date?",
     Arabic: "هل تلقت الشركة أي تمويل أو استثمارات حتى الآن؟",
   },
-  coFounders: { English: "Co-Founders", Arabic: "المؤسسون المشاركون" },
+  coFounders: { English: "Co-Founders", Arabic: "المؤسسون" },
   addCoFoundersLabel: {
     English: "Add Co-Founders",
-    Arabic: "أضف مؤسسين مشاركين",
+    Arabic: "أضف المؤسسين مشاركين",
   },
-  addCoFounderButton: { English: "Add Co-Founder", Arabic: "أضف مؤسس مشارك" },
+  addCoFounderButton: { English: "Add Co-Founder", Arabic: "أضف شريك مؤسس" },
   coFounderNamePlaceholder: {
     English: "Co-Founder Name",
     Arabic: "اسم المؤسس المشارك",
@@ -130,7 +130,7 @@ export const translations = {
   },
   removeCoFounderButton: {
     English: "Remove Co-Founder",
-    Arabic: "إزالة المؤسس المشارك",
+    Arabic: "إزالة شريك مؤسس",
   },
   resourcesAndLinks: {
     English: "Resources & Links",
@@ -139,7 +139,7 @@ export const translations = {
   pitchDeckLabel: { English: "Pitch Deck (PDF)", Arabic: "ملف العرض (PDF)" },
   videoLinkLabel: {
     English: "Video Link (optional)",
-    Arabic: "رابط الفيديو (اختياري)",
+    Arabic: "رابط فيديو (اختياري)",
   },
   additionalVideoLinkLabel: {
     English: "Additional Video Link (optional)",
@@ -157,11 +157,11 @@ export const translations = {
   },
   risksAndMitigationLabel: {
     English: "What are the risks? What steps will you take to mitigate them? *",
-    Arabic: "ما هي المخاطر؟ ما هي الخطوات التي ستتخذها للتخفيف منها؟ *",
+    Arabic: "ما هي المخاطر؟ وما هي الخطوات التي ستتخذها للتخفيف منها؟ *",
   },
   exitStrategyLabel: {
     English: "Exit Strategy *",
-    Arabic: "استراتيجية الخروج *",
+    Arabic: "استراتيجية التخارج *",
   },
   acceleratorExperience: {
     English: "Accelerator Experience",
@@ -173,7 +173,7 @@ export const translations = {
   },
   acceleratorDetailsLabel: {
     English: "Accelerator/Incubator Details",
-    Arabic: "تفاصيل المسرع/الحاضنة",
+    Arabic: "تفاصيل المسرعة/الحاضنة",
   },
   agreement: { English: "Agreement", Arabic: "اتفاقية" },
   createStartupAccountButton: {
@@ -182,7 +182,7 @@ export const translations = {
   },
   uploadingPitchDeck: {
     English: "Uploading Pitch Deck...",
-    Arabic: "جاري تحميل ملف العرض...",
+    Arabic: "جاري إرفاق ملف العرض...",
   },
 
   // Investor Form
@@ -239,7 +239,7 @@ export const translations = {
   },
   hasSecuredLeadInvestorLabel: {
     English: "Have you ever secured a lead investor?",
-    Arabic: "هل سبق لك تأمين مستثمر رئيسي؟",
+    Arabic: "هل سبق لك قيادة جولة كمستثمر رئيسي؟",
   },
   hasBeenStartupAdvisorLabel: {
     English: "Have you participated as a startup advisor before?",
@@ -247,7 +247,7 @@ export const translations = {
   },
   whyStrongCandidateLabel: {
     English: "What makes you a strong candidate for Bathra? *",
-    Arabic: "ما الذي يجعلك مرشحًا قويًا لـ Bathra؟ *",
+    Arabic: "ما الذي يجعلك مرشحًا قويًا لبذرة *",
   },
   createInvestorAccountButton: {
     English: "Create Investor Account",
@@ -383,7 +383,7 @@ export const translations = {
   },
   linkedinProfileRequiredError: {
     English: "LinkedIn profile is required",
-    Arabic: "ملف تعريف LinkedIn مطلوب",
+    Arabic: "ملف تعريف لنكدإن",
   },
   howDidYouHearRequiredError: {
     English: "Please tell us how you heard about us",

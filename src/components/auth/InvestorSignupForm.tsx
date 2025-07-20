@@ -109,7 +109,7 @@ const HOW_DID_YOU_HEAR = [
 ];
 
 export default function InvestorSignupForm() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [formData, setFormData] = useState<InvestorFormData>({
     // Auth fields
     email: "",
@@ -314,6 +314,11 @@ export default function InvestorSignupForm() {
     }
   };
 
+  // Helper function to handle placeholders based on language
+  const getPlaceholder = (englishText: string) => {
+    return language === "English" ? englishText : "";
+  };
+
   return (
     <div className="space-y-8">
       <div className="flex justify-center items-center">
@@ -348,7 +353,7 @@ export default function InvestorSignupForm() {
                 onChange={(e) =>
                   setFormData((prev) => ({ ...prev, email: e.target.value }))
                 }
-                placeholder="your@email.com"
+                placeholder={getPlaceholder("your@email.com")}
                 required
               />
             </div>
@@ -361,7 +366,7 @@ export default function InvestorSignupForm() {
                 onChange={(e) =>
                   setFormData((prev) => ({ ...prev, password: e.target.value }))
                 }
-                placeholder="Minimum 8 characters"
+                placeholder={getPlaceholder("Minimum 8 characters")}
                 required
               />
             </div>
@@ -379,7 +384,7 @@ export default function InvestorSignupForm() {
                     confirmPassword: e.target.value,
                   }))
                 }
-                placeholder="Confirm your password"
+                placeholder={getPlaceholder("Confirm your password")}
                 required
               />
             </div>
@@ -400,7 +405,7 @@ export default function InvestorSignupForm() {
                 onChange={(e) =>
                   setFormData((prev) => ({ ...prev, name: e.target.value }))
                 }
-                placeholder="John Doe"
+                placeholder={getPlaceholder("John Doe")}
                 required
               />
             </div>
@@ -412,7 +417,7 @@ export default function InvestorSignupForm() {
                 onChange={(e) =>
                   setFormData((prev) => ({ ...prev, phone: e.target.value }))
                 }
-                placeholder="+1 234 567 8900"
+                placeholder={getPlaceholder("+1 234 567 8900")}
                 required
               />
             </div>
@@ -436,7 +441,7 @@ export default function InvestorSignupForm() {
                 onChange={(e) =>
                   setFormData((prev) => ({ ...prev, company: e.target.value }))
                 }
-                placeholder="Company name"
+                placeholder={getPlaceholder("Company name")}
               />
             </div>
             <div>
@@ -447,7 +452,7 @@ export default function InvestorSignupForm() {
                 onChange={(e) =>
                   setFormData((prev) => ({ ...prev, role: e.target.value }))
                 }
-                placeholder="Investor, Partner, CEO, etc."
+                placeholder={getPlaceholder("Investor, Partner, CEO, etc.")}
                 required
               />
             </div>
@@ -459,7 +464,7 @@ export default function InvestorSignupForm() {
                 onChange={(e) =>
                   setFormData((prev) => ({ ...prev, country: e.target.value }))
                 }
-                placeholder="United States"
+                placeholder={getPlaceholder("United States")}
                 required
               />
             </div>
@@ -471,7 +476,7 @@ export default function InvestorSignupForm() {
                 onChange={(e) =>
                   setFormData((prev) => ({ ...prev, city: e.target.value }))
                 }
-                placeholder="New York"
+                placeholder={getPlaceholder("New York")}
                 required
               />
             </div>
@@ -481,11 +486,11 @@ export default function InvestorSignupForm() {
         {/* Investment Preferences */}
         <Card>
           <CardHeader>
-            <CardTitle>Investment Preferences</CardTitle>
+            <CardTitle>{t("investmentPreferences")}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             <div>
-              <Label>Preferred Industries * (Select multiple)</Label>
+              <Label>{t("preferredIndustriesLabel")}</Label>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-2">
                 {INDUSTRIES.map((industry) => (
                   <div key={industry} className="flex items-center space-x-2">
@@ -505,7 +510,7 @@ export default function InvestorSignupForm() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <Label htmlFor="preferredStage">
-                  Preferred Company Stage *
+                  {t("preferredCompanyStageLabel")}
                 </Label>
                 <Select
                   value={formData.preferredStage}
@@ -514,7 +519,9 @@ export default function InvestorSignupForm() {
                   }
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select preferred stage" />
+                    <SelectValue
+                      placeholder={getPlaceholder("Select preferred stage")}
+                    />
                   </SelectTrigger>
                   <SelectContent>
                     {COMPANY_STAGES.map((stage) => (
@@ -527,7 +534,9 @@ export default function InvestorSignupForm() {
               </div>
 
               <div>
-                <Label htmlFor="averageTicketSize">Average Ticket Size *</Label>
+                <Label htmlFor="averageTicketSize">
+                  {t("averageTicketSizeLabel")}
+                </Label>
                 <Select
                   value={formData.averageTicketSize}
                   onValueChange={(value) =>
@@ -538,7 +547,9 @@ export default function InvestorSignupForm() {
                   }
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select ticket size" />
+                    <SelectValue
+                      placeholder={getPlaceholder("Select ticket size")}
+                    />
                   </SelectTrigger>
                   <SelectContent>
                     {TICKET_SIZES.map((size) => (
@@ -556,11 +567,13 @@ export default function InvestorSignupForm() {
         {/* Social Profiles */}
         <Card>
           <CardHeader>
-            <CardTitle>Social Profiles</CardTitle>
+            <CardTitle>{t("socialProfiles")}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             <div>
-              <Label htmlFor="linkedinProfile">LinkedIn Profile *</Label>
+              <Label htmlFor="linkedinProfile">
+                {t("linkedinProfileLabel")}
+              </Label>
               <Input
                 id="linkedinProfile"
                 value={formData.linkedinProfile}
@@ -570,13 +583,15 @@ export default function InvestorSignupForm() {
                     linkedinProfile: e.target.value,
                   }))
                 }
-                placeholder="https://linkedin.com/in/yourprofile"
+                placeholder={getPlaceholder(
+                  "https://linkedin.com/in/yourprofile"
+                )}
                 required
               />
             </div>
 
             <div>
-              <Label htmlFor="calendlyLink">Calendly Link *</Label>
+              <Label htmlFor="calendlyLink">{t("calendlyLinkLabel")}</Label>
               <Input
                 id="calendlyLink"
                 value={formData.calendlyLink}
@@ -586,14 +601,14 @@ export default function InvestorSignupForm() {
                     calendlyLink: e.target.value,
                   }))
                 }
-                placeholder="https://calendly.com/yourlink"
+                placeholder={getPlaceholder("https://calendly.com/yourlink")}
                 required
               />
             </div>
 
             <div>
               <div className="flex items-center justify-between mb-4">
-                <Label>Other Social Media Profiles</Label>
+                <Label>{t("otherSocialMediaProfilesLabel")}</Label>
                 <Button
                   type="button"
                   variant="outline"
@@ -601,20 +616,26 @@ export default function InvestorSignupForm() {
                   onClick={addSocialMedia}
                 >
                   <Plus className="h-4 w-4 mr-2" />
-                  Add Social Media
+                  {t("addSocialMediaButton")}
                 </Button>
               </div>
               {formData.otherSocialMedia.map((social, index) => (
                 <div key={index} className="flex gap-4 items-center mb-3">
                   <Input
-                    placeholder="Platform (Twitter, Instagram, etc.)"
+                    placeholder={
+                      language === "English"
+                        ? t("socialMediaProfilePlaceholder")
+                        : ""
+                    }
                     value={social.platform}
                     onChange={(e) =>
                       updateSocialMedia(index, "platform", e.target.value)
                     }
                   />
                   <Input
-                    placeholder="Profile URL"
+                    placeholder={
+                      language === "English" ? t("profileUrlPlaceholder") : ""
+                    }
                     value={social.url}
                     onChange={(e) =>
                       updateSocialMedia(index, "url", e.target.value)
@@ -637,13 +658,11 @@ export default function InvestorSignupForm() {
         {/* Background & Experience */}
         <Card>
           <CardHeader>
-            <CardTitle>Background & Experience</CardTitle>
+            <CardTitle>{t("backgroundAndExperience")}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             <div>
-              <Label htmlFor="howDidYouHear">
-                How did you hear about us? *
-              </Label>
+              <Label htmlFor="howDidYouHear">{t("howDidYouHearLabel")}</Label>
               <Select
                 value={formData.howDidYouHear}
                 onValueChange={(value) =>
@@ -651,7 +670,11 @@ export default function InvestorSignupForm() {
                 }
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select how you heard about us" />
+                  <SelectValue
+                    placeholder={getPlaceholder(
+                      "Select how you heard about us"
+                    )}
+                  />
                 </SelectTrigger>
                 <SelectContent>
                   {HOW_DID_YOU_HEAR.map((option) => (
@@ -665,7 +688,7 @@ export default function InvestorSignupForm() {
 
             <div>
               <Label htmlFor="numberOfInvestments">
-                Number of investments made *
+                {t("numberOfInvestmentsLabel")}
               </Label>
               <Input
                 id="numberOfInvestments"
@@ -683,7 +706,7 @@ export default function InvestorSignupForm() {
                       e.target.value === "" ? null : parseInt(e.target.value),
                   }))
                 }
-                placeholder="0"
+                placeholder={getPlaceholder("0")}
                 required
               />
             </div>
@@ -701,7 +724,7 @@ export default function InvestorSignupForm() {
                   }
                 />
                 <Label htmlFor="hasSecuredLeadInvestor">
-                  Have you ever secured a lead investor?
+                  {t("hasSecuredLeadInvestorLabel")}
                 </Label>
               </div>
 
@@ -717,14 +740,14 @@ export default function InvestorSignupForm() {
                   }
                 />
                 <Label htmlFor="hasBeenStartupAdvisor">
-                  Have you participated as a startup advisor before?
+                  {t("hasBeenStartupAdvisorLabel")}
                 </Label>
               </div>
             </div>
 
             <div>
               <Label htmlFor="whyStrongCandidate">
-                What makes you a strong candidate for Bathra? *
+                {t("whyStrongCandidateLabel")}
               </Label>
               <Textarea
                 id="whyStrongCandidate"
@@ -735,7 +758,9 @@ export default function InvestorSignupForm() {
                     whyStrongCandidate: e.target.value,
                   }))
                 }
-                placeholder="Tell us about your investment experience, expertise, and what you can bring to the Bathra community..."
+                placeholder={getPlaceholder(
+                  "Tell us about your investment experience, expertise, and what you can bring to the Bathra community..."
+                )}
                 rows={4}
                 required
               />

@@ -57,11 +57,11 @@ export const startupTranslations = {
   },
   labelSocialMedia: {
     English: "Social Media",
-    Arabic: "وسائل التواصل الاجتماعي",
+    Arabic: "حسابات التواصل الاجتماعي",
   },
   fundingInfo: {
     English: "Funding Information",
-    Arabic: "معلومات التمويل",
+    Arabic: "معلومات مالية",
   },
   labelCapitalSeeking: {
     English: "Capital Seeking",
@@ -69,7 +69,7 @@ export const startupTranslations = {
   },
   labelFundingRaised: {
     English: "Funding Already Raised",
-    Arabic: "التمويل الذي تم جمعه",
+    Arabic: "التمويل الذي تم جمعه بالفعل",
   },
   labelPreMoneyValuation: {
     English: "Pre-Money Valuation",
@@ -81,7 +81,7 @@ export const startupTranslations = {
   },
   labelProblem: {
     English: "Problem We're Solving",
-    Arabic: "المشكلة التي نحلها",
+    Arabic: "المشكلة التي تحلها",
   },
   noDescriptionProvided: {
     English: "No description provided",
@@ -89,15 +89,15 @@ export const startupTranslations = {
   },
   labelSolution: {
     English: "Our Solution",
-    Arabic: "حلنا",
+    Arabic: "الحل الذي تقدمه",
   },
   labelUniqueness: {
     English: "What Makes Us Unique",
-    Arabic: "ما يميزنا",
+    Arabic: "ما الذي يجعل الشركة فريدة من نوعها",
   },
   labelCoFounders: {
     English: "Co-Founders",
-    Arabic: "المؤسسون المشاركون",
+    Arabic: "المؤسسون",
   },
   financialDetails: {
     English: "Financial Details",
@@ -109,11 +109,11 @@ export const startupTranslations = {
   },
   labelCurrentYearRevenue: {
     English: "Current Year Revenue",
-    Arabic: "إيرادات العام الحالي",
+    Arabic: "إيرادات السنة المالية الحالية",
   },
   labelMonthlyBurn: {
     English: "Monthly Burn Rate",
-    Arabic: "معدل الصرف الشهري",
+    Arabic: "معدل الحرق الشهري",
   },
   labelInvestmentInstrument: {
     English: "Investment Instrument",
@@ -121,7 +121,7 @@ export const startupTranslations = {
   },
   labelHasReceivedFunding: {
     English: "Has Received Funding",
-    Arabic: "هل تلقيت تمويلاً",
+    Arabic: "هل تلقت الشركة أي تمويل أو استثمارات حتى الآن",
   },
   yes: {
     English: "Yes",
@@ -145,7 +145,7 @@ export const startupTranslations = {
   },
   labelRiskMitigation: {
     English: "Risk Mitigation Strategy",
-    Arabic: "استراتيجية تخفيف المخاطر",
+    Arabic: "استراتيجية التخفيف من المخاطر",
   },
   labelExitStrategy: {
     English: "Exit Strategy",
@@ -153,7 +153,7 @@ export const startupTranslations = {
   },
   labelParticipatedInAccelerator: {
     English: "Participated in Accelerator",
-    Arabic: "المشاركة في مسرعة أعمال",
+    Arabic: "المشاركة في برنامج مسرع أو حاضنة أعمال",
   },
   teamAndResources: {
     English: "Team & Resources",
@@ -169,11 +169,11 @@ export const startupTranslations = {
   },
   pitchDeck: {
     English: "Pitch Deck",
-    Arabic: "عرض تقديمي",
+    Arabic: "ملف العرض",
   },
   viewPitchDeck: {
     English: "View Pitch Deck",
-    Arabic: "عرض الملف التقديمي",
+    Arabic: "عرض ملف العرض",
   },
   additionalFiles: {
     English: "Additional Files",

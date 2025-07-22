@@ -10,6 +10,7 @@ import {
   homeTranslations,
   signupTranslations,
   startupTranslations,
+  investorTranslations,
 } from "@/utils/language";
 
 // Combine all translations into one object
@@ -17,6 +18,7 @@ const translations = {
   ...homeTranslations,
   ...signupTranslations,
   ...startupTranslations,
+  ...investorTranslations,
 };
 
 export type TranslationKey = keyof typeof translations;

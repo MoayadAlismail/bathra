@@ -22,14 +22,32 @@ import {
   ArticleCategory,
 } from "@/lib/article-types";
 import Footer from "@/components/Footer";
+import { useLanguage } from "@/context/LanguageContext";
+import { homeTranslations } from "@/utils/language/home";
 
 const ArticleDetail = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
+  const { language } = useLanguage();
   const { toast } = useToast();
   const [article, setArticle] = useState<Article | null>(null);
   const [loading, setLoading] = useState(true);
   const [relatedArticles, setRelatedArticles] = useState<Article[]>([]);
+
+  // Helper function to get category translations
+  const getCategoryTranslation = (category: ArticleCategory) => {
+    const categoryMap = {
+      news: homeTranslations.categoryNews[language],
+      industry_insights: homeTranslations.categoryIndustryInsights[language],
+      startup_tips: homeTranslations.categoryStartupTips[language],
+      investment_guide: homeTranslations.categoryInvestmentGuide[language],
+      company_updates: homeTranslations.categoryCompanyUpdates[language],
+      market_analysis: homeTranslations.categoryMarketAnalysis[language],
+      founder_stories: homeTranslations.categoryFounderStories[language],
+      investor_spotlight: homeTranslations.categoryInvestorSpotlight[language],
+    };
+    return categoryMap[category] || category;
+  };
 
   useEffect(() => {
     if (!slug) {
@@ -49,7 +67,7 @@ const ArticleDetail = () => {
 
       if (response.error) {
         toast({
-          title: "Error",
+          title: homeTranslations.articlesErrorTitle[language],
           description: response.error,
           variant: "destructive",
         });
@@ -61,8 +79,8 @@ const ArticleDetail = () => {
       }
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to load article",
+        title: homeTranslations.articlesErrorTitle[language],
+        description: homeTranslations.articleDetailLoadError[language],
         variant: "destructive",
       });
       navigate("/articles");
@@ -88,7 +106,7 @@ const ArticleDetail = () => {
   };
 
   const formatDate = (dateString: string | null) => {
-    if (!dateString) return "Draft";
+    if (!dateString) return homeTranslations.articlesDraftStatus[language];
     return new Date(dateString).toLocaleDateString("en-US", {
       year: "numeric",
       month: "long",
@@ -115,16 +133,18 @@ const ArticleDetail = () => {
         // Fallback to copying URL
         navigator.clipboard.writeText(window.location.href);
         toast({
-          title: "Link copied",
-          description: "Article link copied to clipboard",
+          title: homeTranslations.articleDetailLinkCopied[language],
+          description:
+            homeTranslations.articleDetailLinkCopiedDescription[language],
         });
       }
     } else {
       // Fallback to copying URL
       navigator.clipboard.writeText(window.location.href);
       toast({
-        title: "Link copied",
-        description: "Article link copied to clipboard",
+        title: homeTranslations.articleDetailLinkCopied[language],
+        description:
+          homeTranslations.articleDetailLinkCopiedDescription[language],
       });
     }
   };
@@ -141,7 +161,9 @@ const ArticleDetail = () => {
               className="text-center py-12"
             >
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-              <p className="text-muted-foreground">Loading article...</p>
+              <p className="text-muted-foreground">
+                {homeTranslations.articleDetailLoadingText[language]}
+              </p>
             </motion.div>
           </div>
         </div>
@@ -156,9 +178,11 @@ const ArticleDetail = () => {
         <div className="pt-28 pb-10">
           <div className="container mx-auto px-4">
             <div className="text-center py-12">
-              <h1 className="text-2xl font-bold mb-4">Article not found</h1>
+              <h1 className="text-2xl font-bold mb-4">
+                {homeTranslations.articleDetailNotFound[language]}
+              </h1>
               <Button onClick={() => navigate("/articles")}>
-                Back to Articles
+                {homeTranslations.articleDetailBackToArticles[language]}
               </Button>
             </div>
           </div>
@@ -185,7 +209,7 @@ const ArticleDetail = () => {
               className="gap-2"
             >
               <ArrowLeft className="h-4 w-4" />
-              Back to Articles
+              {homeTranslations.articleDetailBackToArticles[language]}
             </Button>
           </motion.div>
 
@@ -199,10 +223,12 @@ const ArticleDetail = () => {
             {/* Category and Featured Badge */}
             <div className="flex items-center gap-3 mb-4">
               <Badge variant="secondary">
-                {ARTICLE_CATEGORY_LABELS[article.category as ArticleCategory]}
+                {getCategoryTranslation(article.category as ArticleCategory)}
               </Badge>
               {article.is_featured && (
-                <Badge className="bg-primary">Featured</Badge>
+                <Badge className="bg-primary">
+                  {homeTranslations.articlesFeaturedBadge[language]}
+                </Badge>
               )}
             </div>
 
@@ -230,11 +256,13 @@ const ArticleDetail = () => {
               </span>
               <span className="flex items-center gap-2">
                 <Eye className="h-4 w-4" />
-                {article.views_count} views
+                {article.views_count}{" "}
+                {homeTranslations.articleDetailViews[language]}
               </span>
               <span className="flex items-center gap-2">
                 <Clock className="h-4 w-4" />
-                {estimateReadingTime(article.content)} min read
+                {estimateReadingTime(article.content)}{" "}
+                {homeTranslations.articleDetailMinRead[language]}
               </span>
             </div>
 
@@ -247,7 +275,7 @@ const ArticleDetail = () => {
                 className="gap-2"
               >
                 <Share2 className="h-4 w-4" />
-                Share
+                {homeTranslations.articleDetailShare[language]}
               </Button>
             </div>
           </motion.div>
@@ -303,7 +331,9 @@ const ArticleDetail = () => {
               transition={{ duration: 0.5, delay: 0.3 }}
               className="mb-8"
             >
-              <h3 className="text-lg font-semibold mb-3">Tags</h3>
+              <h3 className="text-lg font-semibold mb-3">
+                {homeTranslations.articleDetailTags[language]}
+              </h3>
               <div className="flex flex-wrap gap-2">
                 {article.tags.map((tag) => (
                   <Badge key={tag} variant="outline" className="gap-1">
@@ -323,7 +353,9 @@ const ArticleDetail = () => {
               transition={{ duration: 0.5, delay: 0.4 }}
               className="mt-12"
             >
-              <h3 className="text-2xl font-bold mb-6">Related Articles</h3>
+              <h3 className="text-2xl font-bold mb-6">
+                {homeTranslations.articleDetailRelatedArticles[language]}
+              </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {relatedArticles.map((relatedArticle) => (
                   <Card
@@ -342,11 +374,9 @@ const ArticleDetail = () => {
                     )}
                     <CardContent className="p-4">
                       <Badge variant="secondary" className="mb-2">
-                        {
-                          ARTICLE_CATEGORY_LABELS[
-                            relatedArticle.category as ArticleCategory
-                          ]
-                        }
+                        {getCategoryTranslation(
+                          relatedArticle.category as ArticleCategory
+                        )}
                       </Badge>
                       <h4 className="font-semibold line-clamp-2 mb-2">
                         {relatedArticle.title}

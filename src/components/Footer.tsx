@@ -1,7 +1,10 @@
 import { Link } from "react-router-dom";
 import { Twitter, Linkedin, Github, Mail } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
+import { homeTranslations } from "@/utils/language/home";
 
 const Footer = () => {
+  const { language } = useLanguage();
   return (
     <footer className="bg-black text-white py-12 mt-auto">
       <div className="container mx-auto px-4">
@@ -17,14 +20,16 @@ const Footer = () => {
               <span className="text-xl font-bold">Bathra</span>
             </div>
             <p className="text-gray-400 text-sm leading-relaxed">
-              Connecting innovative startups with visionary investors to build
-              the future together.
+              {homeTranslations.footerDescription[language]}
             </p>
           </div>
 
           {/* Quick Links */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
+            <h3 className="text-lg font-semibold mb-4">
+              {" "}
+              {homeTranslations.footerQuickLinks[language]}
+            </h3>
             <ul className="space-y-2">
               <li>
                 <Link
@@ -32,7 +37,7 @@ const Footer = () => {
                   onClick={() => window.scrollTo(0, 0)}
                   className="text-gray-400 hover:text-white transition-colors duration-200"
                 >
-                  Home
+                  {homeTranslations.footerHome[language]}
                 </Link>
               </li>
               <li>
@@ -41,7 +46,7 @@ const Footer = () => {
                   onClick={() => window.scrollTo(0, 0)}
                   className="text-gray-400 hover:text-white transition-colors duration-200"
                 >
-                  Articles
+                  {homeTranslations.footerArticles[language]}
                 </Link>
               </li>
               <li>
@@ -50,7 +55,7 @@ const Footer = () => {
                   onClick={() => window.scrollTo(0, 0)}
                   className="text-gray-400 hover:text-white transition-colors duration-200"
                 >
-                  Join Platform
+                  {homeTranslations.footerJoinPlatform[language]}
                 </Link>
               </li>
             </ul>
@@ -58,7 +63,9 @@ const Footer = () => {
 
           {/* Legal & Social */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Learn More</h3>
+            <h3 className="text-lg font-semibold mb-4">
+              {homeTranslations.footerLearnMore[language]}
+            </h3>
             <ul className="space-y-2 mb-6">
               <li>
                 <Link
@@ -66,7 +73,7 @@ const Footer = () => {
                   onClick={() => window.scrollTo(0, 0)}
                   className="text-gray-400 hover:text-white transition-colors duration-200"
                 >
-                  Terms and Conditions
+                  {homeTranslations.footerTerms[language]}
                 </Link>
               </li>
             </ul>
@@ -105,7 +112,8 @@ const Footer = () => {
         {/* Bottom Bar */}
         <div className="border-t border-gray-800 mt-8 pt-8 text-center">
           <p className="text-gray-400 text-sm">
-            © {new Date().getFullYear()} Bathra. All rights reserved.
+            © {new Date().getFullYear()} Bathra.
+            {homeTranslations.footerRights[language]}
           </p>
         </div>
       </div>

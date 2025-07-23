@@ -35,9 +35,11 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useNotifications } from "@/hooks/useNotifications";
 import { useAuth } from "@/context/AuthContext";
+import { useLanguage } from "@/context/LanguageContext";
 import { Notification } from "@/lib/supabase";
 import { NotificationService } from "@/lib/notification-service";
 import { canBrowseContent } from "@/lib/auth-utils";
+import { notificationTranslations } from "@/utils/language";
 
 interface NotificationDropdownProps {
   onToggle?: (isOpen: boolean) => void;
@@ -47,6 +49,7 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
   onToggle,
 }) => {
   const { user, profile } = useAuth();
+  const { language } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const [selectedNotification, setSelectedNotification] =
     useState<Notification | null>(null);
@@ -75,6 +78,60 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
   const [allNotifications, setAllNotifications] = useState<Notification[]>([]);
   const [allLoading, setAllLoading] = useState(false);
   const [allHasMore, setAllHasMore] = useState(true);
+
+  // Helper function to get translated text
+  const t = (key: keyof typeof notificationTranslations) => {
+    return notificationTranslations[key][language];
+  };
+
+  // Helper function for notification types
+  const getNotificationType = (type: string) => {
+    const typeKey =
+      type as keyof typeof notificationTranslations.notificationTypes;
+    return (
+      notificationTranslations.notificationTypes[typeKey]?.[language] || type
+    );
+  };
+
+  // Helper function for priority levels
+  const getPriorityText = (priority: string) => {
+    const priorityKey =
+      priority as keyof typeof notificationTranslations.priority;
+    return (
+      notificationTranslations.priority[priorityKey]?.[language] || priority
+    );
+  };
+
+  // Helper function for pluralization
+  const getPlural = (count: number, singular: string, plural?: string) => {
+    if (language === "Arabic") {
+      // Arabic has complex pluralization rules
+      if (count === 0) return "";
+      if (count === 1) return "";
+      if (count === 2) return "ان";
+      if (count >= 3 && count <= 10) return "ات";
+      return "اً";
+    }
+    return count === 1 ? "" : "s";
+  };
+
+  // Helper function for unread count message
+  const getUnreadMessage = (count: number) => {
+    const plural = getPlural(count, "notification");
+    if (language === "Arabic") {
+      return `لديك ${count} إشعار${plural} غير مقروء${plural}`;
+    }
+    return `You have ${count} unread notification${plural}`;
+  };
+
+  // Helper function for notification count
+  const getNotificationCount = (count: number) => {
+    const plural = getPlural(count, "notification");
+    if (language === "Arabic") {
+      return `${count} إشعار${plural}`;
+    }
+    return `${count} notification${plural}`;
+  };
 
   // Refresh data when dropdown is opened
   useEffect(() => {
@@ -200,7 +257,7 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
           disabled={loading}
         >
           <Bell className="h-4 w-4" />
-          {loading ? "Loading..." : "Notifications"}
+          {loading ? t("loading") : t("notifications")}
           {unreadCount > 0 && (
             <Badge
               variant="destructive"
@@ -223,7 +280,7 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
               <div className="p-3 sm:p-4 border-b">
                 <div className="flex items-center justify-between">
                   <h3 className="font-semibold text-base sm:text-lg">
-                    Notifications
+                    {t("notifications")}
                   </h3>
                   <div className="flex items-center gap-1 sm:gap-2">
                     {unreadCount > 0 && (
@@ -233,8 +290,10 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
                         onClick={markAllAsRead}
                         className="text-xs px-2 sm:px-3"
                       >
-                        <span className="hidden sm:inline">Mark all read</span>
-                        <span className="sm:hidden">Mark read</span>
+                        <span className="hidden sm:inline">
+                          {t("markAllRead")}
+                        </span>
+                        <span className="sm:hidden">{t("markRead")}</span>
                       </Button>
                     )}
                     <Button
@@ -249,8 +308,7 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
                 </div>
                 {unreadCount > 0 && (
                   <p className="text-sm text-muted-foreground mt-1">
-                    You have {unreadCount} unread notification
-                    {unreadCount !== 1 ? "s" : ""}
+                    {getUnreadMessage(unreadCount)}
                   </p>
                 )}
               </div>
@@ -265,7 +323,7 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
                     <div className="text-center py-8">
                       <Bell className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
                       <p className="text-muted-foreground">
-                        No notifications yet
+                        {t("noNotificationsYet")}
                       </p>
                     </div>
                   ) : (
@@ -320,7 +378,7 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
                     onClick={handleShowAll}
                     className="w-full"
                   >
-                    View All Notifications
+                    {t("viewAllNotifications")}
                   </Button>
                 </div>
               )}
@@ -366,7 +424,7 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
                       className="flex items-center gap-2"
                     >
                       <ExternalLink className="h-4 w-4" />
-                      {selectedNotification.action_label || "Take Action"}
+                      {selectedNotification.action_label || t("takeAction")}
                     </Button>
                   </div>
                 )}
@@ -380,10 +438,10 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
         <DialogContent className="max-w-4xl mx-2 sm:mx-auto max-h-[95vh] w-[calc(100vw-1rem)] sm:w-auto overflow-hidden">
           <DialogHeader className="pb-2">
             <DialogTitle className="text-lg sm:text-2xl">
-              All Notifications
+              {t("allNotificationsTitle")}
             </DialogTitle>
             <DialogDescription className="text-sm">
-              Manage all your notifications in one place
+              {t("allNotificationsDescription")}
             </DialogDescription>
           </DialogHeader>
 
@@ -391,12 +449,16 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-3 sm:mb-4 px-1">
               <div className="flex items-center gap-2 flex-wrap">
                 <Badge variant="secondary" className="text-xs">
-                  {allNotifications.length} notification
-                  {allNotifications.length !== 1 ? "s" : ""}
+                  {getNotificationCount(allNotifications.length)}
                 </Badge>
                 {unreadCount > 0 && (
                   <Badge variant="destructive" className="text-xs">
-                    {unreadCount} unread
+                    {language === "Arabic"
+                      ? `${unreadCount} غير مقروء${getPlural(
+                          unreadCount,
+                          "notification"
+                        )}`
+                      : `${unreadCount} unread`}
                   </Badge>
                 )}
               </div>
@@ -407,7 +469,7 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
                 disabled={allLoading}
                 className="w-full sm:w-auto text-xs sm:text-sm"
               >
-                Refresh
+                {t("refresh")}
               </Button>
             </div>
 
@@ -421,7 +483,7 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
                   <div className="text-center py-8 sm:py-12">
                     <Bell className="h-12 w-12 sm:h-16 sm:w-16 text-muted-foreground mx-auto mb-4" />
                     <p className="text-base sm:text-lg text-muted-foreground">
-                      No notifications yet
+                      {t("noNotificationsYet")}
                     </p>
                   </div>
                 ) : (
@@ -450,7 +512,7 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
                                   variant="outline"
                                   className="text-xs hidden sm:inline-flex"
                                 >
-                                  {notification.type.replace("_", " ")}
+                                  {getNotificationType(notification.type)}
                                 </Badge>
                                 {!notification.is_read && (
                                   <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
@@ -477,7 +539,7 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
                                 }
                                 className="text-xs flex-shrink-0"
                               >
-                                {notification.priority}
+                                {getPriorityText(notification.priority)}
                               </Badge>
                             </div>
                           </div>
@@ -495,7 +557,7 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
                     onClick={loadMoreAll}
                     disabled={allLoading}
                   >
-                    Load More
+                    {t("loadMore")}
                   </Button>
                 </div>
               )}

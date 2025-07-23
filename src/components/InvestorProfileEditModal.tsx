@@ -25,6 +25,9 @@ import { Loader, Plus, X, Save } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { supabase, Investor } from "@/lib/supabase";
 import { Badge } from "@/components/ui/badge";
+import { useLanguage } from "@/context/LanguageContext";
+import { signupTranslations } from "@/utils/language/signup";
+import { investorTranslations } from "@/utils/language/investor";
 
 interface InvestorProfileEditModalProps {
   isOpen: boolean;
@@ -127,6 +130,7 @@ const InvestorProfileEditModal = ({
   investor,
   onUpdate,
 }: InvestorProfileEditModalProps) => {
+  const { language } = useLanguage();
   const [formData, setFormData] = useState<InvestorFormData>({
     name: "",
     phone: "",
@@ -229,24 +233,34 @@ const InvestorProfileEditModal = ({
   const validateForm = (): string[] => {
     const errors: string[] = [];
 
-    if (!formData.name.trim()) errors.push("Name is required");
-    if (!formData.phone.trim()) errors.push("Phone is required");
-    if (!formData.birthday) errors.push("Birthday is required");
-    if (!formData.role.trim()) errors.push("Role is required");
-    if (!formData.country.trim()) errors.push("Country is required");
-    if (!formData.city.trim()) errors.push("City is required");
+    if (!formData.name.trim())
+      errors.push(signupTranslations.nameRequiredError[language]);
+    if (!formData.phone.trim())
+      errors.push(signupTranslations.phoneRequiredError[language]);
+    if (!formData.birthday)
+      errors.push(signupTranslations.birthdayRequiredError[language]);
+    if (!formData.role.trim())
+      errors.push(signupTranslations.roleRequiredError[language]);
+    if (!formData.country.trim())
+      errors.push(signupTranslations.countryRequiredError[language]);
+    if (!formData.city.trim())
+      errors.push(signupTranslations.cityRequiredError[language]);
     if (formData.preferredIndustries.length === 0)
-      errors.push("At least one preferred industry is required");
+      errors.push(
+        signupTranslations.preferredIndustriesRequiredError[language]
+      );
     if (!formData.preferredStage)
-      errors.push("Preferred company stage is required");
+      errors.push(
+        signupTranslations.preferredCompanyStageRequiredError[language]
+      );
     if (!formData.averageTicketSize)
-      errors.push("Average ticket size is required");
+      errors.push(signupTranslations.averageTicketSizeRequiredError[language]);
     if (!formData.linkedinProfile.trim())
-      errors.push("LinkedIn profile is required");
+      errors.push(signupTranslations.linkedinProfileRequiredError[language]);
     if (!formData.howDidYouHear.trim())
-      errors.push("How you heard about us is required");
+      errors.push(signupTranslations.howDidYouHearRequiredError[language]);
     if (!formData.whyStrongCandidate.trim())
-      errors.push("Why you're a strong candidate is required");
+      errors.push(signupTranslations.whyStrongCandidateRequiredError[language]);
 
     return errors;
   };
@@ -257,7 +271,7 @@ const InvestorProfileEditModal = ({
     const errors = validateForm();
     if (errors.length > 0) {
       toast({
-        title: "Validation Error",
+        title: investorTranslations.validationErrorTitle[language],
         description: errors.join(", "),
         variant: "destructive",
       });
@@ -301,16 +315,16 @@ const InvestorProfileEditModal = ({
       if (data) {
         onUpdate(data);
         toast({
-          title: "Profile Updated",
-          description: "Your profile has been successfully updated.",
+          title: investorTranslations.profileUpdatedTitle[language],
+          description: investorTranslations.profileUpdatedDescription[language],
         });
         onClose();
       }
     } catch (error) {
       console.error("Error updating profile:", error);
       toast({
-        title: "Update Failed",
-        description: "Failed to update your profile. Please try again.",
+        title: investorTranslations.updateFailedTitle[language],
+        description: investorTranslations.updateFailedDescription[language],
         variant: "destructive",
       });
     } finally {
@@ -322,10 +336,11 @@ const InvestorProfileEditModal = ({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold">Edit Profile</DialogTitle>
+          <DialogTitle className="text-2xl font-bold">
+            {investorTranslations.editProfileTitle[language]}
+          </DialogTitle>
           <DialogDescription>
-            Update your investor profile information. All fields marked with *
-            are required.
+            {investorTranslations.editProfileDescription[language]}
           </DialogDescription>
         </DialogHeader>
 
@@ -333,12 +348,16 @@ const InvestorProfileEditModal = ({
           {/* Personal Information */}
           <Card>
             <CardHeader>
-              <CardTitle>Personal Information</CardTitle>
+              <CardTitle>
+                {signupTranslations.personalInformation[language]}
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="name">Full Name *</Label>
+                  <Label htmlFor="name">
+                    {signupTranslations.fullNameLabel[language]}
+                  </Label>
                   <Input
                     id="name"
                     value={formData.name}
@@ -350,7 +369,9 @@ const InvestorProfileEditModal = ({
                   />
                 </div>
                 <div>
-                  <Label htmlFor="phone">Phone *</Label>
+                  <Label htmlFor="phone">
+                    {signupTranslations.phoneLabel[language]}
+                  </Label>
                   <Input
                     id="phone"
                     type="tel"
@@ -366,7 +387,9 @@ const InvestorProfileEditModal = ({
                   />
                 </div>
                 <div>
-                  <Label htmlFor="birthday">Birthday *</Label>
+                  <Label htmlFor="birthday">
+                    {signupTranslations.birthdayLabel[language]}
+                  </Label>
                   <Input
                     id="birthday"
                     type="date"
@@ -381,7 +404,9 @@ const InvestorProfileEditModal = ({
                   />
                 </div>
                 <div>
-                  <Label htmlFor="company">Company</Label>
+                  <Label htmlFor="company">
+                    {signupTranslations.companyOptionalLabel[language]}
+                  </Label>
                   <Input
                     id="company"
                     value={formData.company}
@@ -395,7 +420,9 @@ const InvestorProfileEditModal = ({
                   />
                 </div>
                 <div>
-                  <Label htmlFor="role">Role *</Label>
+                  <Label htmlFor="role">
+                    {signupTranslations.roleLabel[language]}
+                  </Label>
                   <Input
                     id="role"
                     value={formData.role}
@@ -407,7 +434,9 @@ const InvestorProfileEditModal = ({
                   />
                 </div>
                 <div>
-                  <Label htmlFor="country">Country *</Label>
+                  <Label htmlFor="country">
+                    {signupTranslations.countryLabel[language]}
+                  </Label>
                   <Input
                     id="country"
                     value={formData.country}
@@ -422,7 +451,9 @@ const InvestorProfileEditModal = ({
                   />
                 </div>
                 <div>
-                  <Label htmlFor="city">City *</Label>
+                  <Label htmlFor="city">
+                    {signupTranslations.cityLabel[language]}
+                  </Label>
                   <Input
                     id="city"
                     value={formData.city}
@@ -440,11 +471,15 @@ const InvestorProfileEditModal = ({
           {/* Investment Preferences */}
           <Card>
             <CardHeader>
-              <CardTitle>Investment Preferences</CardTitle>
+              <CardTitle>
+                {signupTranslations.investmentPreferences[language]}
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <Label>Preferred Industries *</Label>
+                <Label>
+                  {signupTranslations.preferredIndustriesLabel[language]}
+                </Label>
                 <div className="flex flex-wrap gap-2 mt-2">
                   {INDUSTRIES.map((industry) => (
                     <Badge
@@ -466,7 +501,7 @@ const InvestorProfileEditModal = ({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="preferredStage">
-                    Preferred Company Stage *
+                    {signupTranslations.preferredCompanyStageLabel[language]}
                   </Label>
                   <Select
                     value={formData.preferredStage}
@@ -492,7 +527,7 @@ const InvestorProfileEditModal = ({
 
                 <div>
                   <Label htmlFor="averageTicketSize">
-                    Average Ticket Size *
+                    {signupTranslations.averageTicketSizeLabel[language]}
                   </Label>
                   <Select
                     value={formData.averageTicketSize}
@@ -522,11 +557,15 @@ const InvestorProfileEditModal = ({
           {/* Social Profiles */}
           <Card>
             <CardHeader>
-              <CardTitle>Social Profiles</CardTitle>
+              <CardTitle>
+                {signupTranslations.socialProfiles[language]}
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <Label htmlFor="linkedinProfile">LinkedIn Profile *</Label>
+                <Label htmlFor="linkedinProfile">
+                  {signupTranslations.linkedinProfileLabel[language]}
+                </Label>
                 <Input
                   id="linkedinProfile"
                   type="url"
@@ -543,7 +582,9 @@ const InvestorProfileEditModal = ({
               </div>
 
               <div>
-                <Label htmlFor="calendlyLink">Calendly Link</Label>
+                <Label htmlFor="calendlyLink">
+                  {signupTranslations.calendlyLinkLabel[language]}
+                </Label>
                 <Input
                   id="calendlyLink"
                   type="url"
@@ -560,7 +601,9 @@ const InvestorProfileEditModal = ({
 
               <div>
                 <div className="flex justify-between items-center mb-2">
-                  <Label>Other Social Media Profiles</Label>
+                  <Label>
+                    {signupTranslations.otherSocialMediaProfilesLabel[language]}
+                  </Label>
                   <Button
                     type="button"
                     variant="outline"
@@ -568,7 +611,7 @@ const InvestorProfileEditModal = ({
                     onClick={addSocialMedia}
                   >
                     <Plus className="h-4 w-4 mr-2" />
-                    Add Profile
+                    {investorTranslations.addProfileButton[language]}
                   </Button>
                 </div>
                 {formData.otherSocialMedia.map((social, index) => (
@@ -591,7 +634,9 @@ const InvestorProfileEditModal = ({
                       </SelectContent>
                     </Select>
                     <Input
-                      placeholder="Profile URL"
+                      placeholder={
+                        signupTranslations.profileUrlPlaceholder[language]
+                      }
                       value={social.url}
                       onChange={(e) =>
                         updateSocialMedia(index, "url", e.target.value)
@@ -615,12 +660,14 @@ const InvestorProfileEditModal = ({
           {/* Background Information */}
           <Card>
             <CardHeader>
-              <CardTitle>Background Information</CardTitle>
+              <CardTitle>
+                {investorTranslations.backgroundInformation[language]}
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
                 <Label htmlFor="howDidYouHear">
-                  How did you hear about us? *
+                  {signupTranslations.howDidYouHearLabel[language]}
                 </Label>
                 <Select
                   value={formData.howDidYouHear}
@@ -643,7 +690,7 @@ const InvestorProfileEditModal = ({
 
               <div>
                 <Label htmlFor="numberOfInvestments">
-                  Number of Previous Investments
+                  {signupTranslations.numberOfInvestmentsLabel[language]}
                 </Label>
                 <Input
                   id="numberOfInvestments"
@@ -672,7 +719,7 @@ const InvestorProfileEditModal = ({
                     }
                   />
                   <Label htmlFor="hasSecuredLeadInvestor">
-                    I have previously secured a lead investor position
+                    {signupTranslations.hasSecuredLeadInvestorLabel[language]}
                   </Label>
                 </div>
 
@@ -688,14 +735,14 @@ const InvestorProfileEditModal = ({
                     }
                   />
                   <Label htmlFor="hasBeenStartupAdvisor">
-                    I have experience as a startup advisor
+                    {signupTranslations.hasBeenStartupAdvisorLabel[language]}
                   </Label>
                 </div>
               </div>
 
               <div>
                 <Label htmlFor="whyStrongCandidate">
-                  Why are you a strong candidate? *
+                  {signupTranslations.whyStrongCandidateLabel[language]}
                 </Label>
                 <Textarea
                   id="whyStrongCandidate"
@@ -722,18 +769,18 @@ const InvestorProfileEditModal = ({
               onClick={onClose}
               disabled={isSubmitting}
             >
-              Cancel
+              {investorTranslations.cancelButton[language]}
             </Button>
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? (
                 <>
                   <Loader className="mr-2 h-4 w-4 animate-spin" />
-                  Updating...
+                  {investorTranslations.updatingButton[language]}
                 </>
               ) : (
                 <>
                   <Save className="mr-2 h-4 w-4" />
-                  Update Profile
+                  {investorTranslations.updateProfileButton[language]}
                 </>
               )}
             </Button>

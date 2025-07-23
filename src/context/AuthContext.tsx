@@ -133,6 +133,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         }
 
         setProfile(userProfile);
+
+        // Emit event for LanguageContext to handle admin language enforcement
+        const event = new CustomEvent("authProfileChange", {
+          detail: { profile: userProfile },
+        });
+        window.dispatchEvent(event);
       }
     } catch (error) {
       console.error("Error initializing auth:", error);
@@ -149,7 +155,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setIsLoading(true);
 
       const loggedInUser = await simpleAuthService.login(credentials);
-      
+
       if (loggedInUser) {
         setUser(loggedInUser);
 
@@ -214,6 +220,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         }
 
         setProfile(userProfile);
+
+        // Emit event for LanguageContext to handle admin language enforcement
+        const event = new CustomEvent("authProfileChange", {
+          detail: { profile: userProfile },
+        });
+        window.dispatchEvent(event);
+
         toast.success("Successfully signed in");
         return { success: true, user: loggedInUser };
       } else {
@@ -285,6 +298,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       setUser(null);
       setProfile(null);
+
+      // Emit event for LanguageContext to handle profile clearing
+      const event = new CustomEvent("authProfileChange", {
+        detail: { profile: null },
+      });
+      window.dispatchEvent(event);
+
       toast.success("Successfully signed out");
     } catch (error) {
       console.error("Sign out error:", error);

@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Edit, ArrowLeft, ExternalLink, DollarSign, Users } from "lucide-react";
 import StartupProfileEditModal from "@/components/StartupProfileEditModal";
 import Footer from "@/components/Footer";
+import { useLanguage } from "@/context/LanguageContext";
+import { TranslationKey } from "@/context/LanguageContext";
 
 interface SocialMediaAccount {
   platform: string;
@@ -29,6 +31,7 @@ interface AdditionalFile {
 
 const StartupProfile = () => {
   const { user, profile } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
   const [startupDetails, setStartupDetails] = useState<Startup | null>(null);
@@ -97,7 +100,9 @@ const StartupProfile = () => {
         <div className="flex h-screen items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-            <p className="text-muted-foreground">Loading profile...</p>
+            <p className="text-muted-foreground">
+              {t("loadingProfile" as TranslationKey)}
+            </p>
           </div>
         </div>
       </div>
@@ -123,7 +128,7 @@ const StartupProfile = () => {
                 className="flex items-center gap-2"
               >
                 <ArrowLeft className="h-4 w-4" />
-                Back to Dashboard
+                {t("backToDashboard" as TranslationKey)}
               </Button>
               <Button
                 onClick={() => setIsEditModalOpen(true)}
@@ -131,11 +136,11 @@ const StartupProfile = () => {
                 className="ml-auto"
               >
                 <Edit className="mr-2 h-4 w-4" />
-                Edit Profile
+                {t("editProfile" as TranslationKey)}
               </Button>
             </div>
             <h1 className="text-3xl font-bold text-gradient mb-4">
-              Startup Profile
+              {t("startupProfileTitle" as TranslationKey)}
             </h1>
 
             {/* Profile Content */}
@@ -148,10 +153,12 @@ const StartupProfile = () => {
                   </div>
                   <div>
                     <h2 className="text-2xl font-bold">
-                      {startupDetails?.name || "Startup Name"}
+                      {startupDetails?.name ||
+                        t("startupNamePlaceholder" as TranslationKey)}
                     </h2>
                     <p className="text-muted-foreground">
-                      {startupDetails?.industry || "Industry"}
+                      {startupDetails?.industry ||
+                        t("industryPlaceholder" as TranslationKey)}
                     </p>
                     <div className="flex items-center gap-2 mt-1">
                       <span
@@ -162,8 +169,8 @@ const StartupProfile = () => {
                         }`}
                       >
                         {startupDetails?.status === "approved"
-                          ? "Approved"
-                          : "Pending Verification"}
+                          ? t("statusApproved" as TranslationKey)
+                          : t("pendingVerification" as TranslationKey)}
                       </span>
                     </div>
                   </div>
@@ -178,7 +185,7 @@ const StartupProfile = () => {
                     className="mb-6"
                   >
                     <ExternalLink className="mr-2 h-4 w-4" />
-                    Visit Website
+                    {t("visitWebsite" as TranslationKey)}
                   </Button>
                 )}
               </div>
@@ -189,36 +196,39 @@ const StartupProfile = () => {
                 <div className="space-y-6">
                   <div>
                     <h3 className="text-lg font-semibold mb-4">
-                      Company Information
+                      {t("companyInfo" as TranslationKey)}
                     </h3>
                     <div className="space-y-4">
                       <div>
                         <label className="text-sm font-medium text-muted-foreground">
-                          Industry
+                          {t("labelIndustry" as TranslationKey)}
                         </label>
                         <p className="text-foreground">
-                          {startupDetails?.industry || "Not specified"}
+                          {startupDetails?.industry ||
+                            t("notSpecified" as TranslationKey)}
                         </p>
                       </div>
                       <div>
                         <label className="text-sm font-medium text-muted-foreground">
-                          Stage
+                          {t("labelStage" as TranslationKey)}
                         </label>
                         <p className="text-foreground">
-                          {startupDetails?.stage || "Not specified"}
+                          {startupDetails?.stage ||
+                            t("notSpecified" as TranslationKey)}
                         </p>
                       </div>
                       <div>
                         <label className="text-sm font-medium text-muted-foreground">
-                          Team Size
+                          {t("labelTeamSize" as TranslationKey)}
                         </label>
                         <p className="text-foreground">
-                          {startupDetails?.team_size || "Not specified"}
+                          {startupDetails?.team_size ||
+                            t("notSpecified" as TranslationKey)}
                         </p>
                       </div>
                       <div>
                         <label className="text-sm font-medium text-muted-foreground">
-                          Social Media
+                          {t("labelSocialMedia" as TranslationKey)}
                         </label>
                         <div className="text-foreground">
                           {startupDetails?.social_media_accounts ? (
@@ -259,7 +269,9 @@ const StartupProfile = () => {
                               })()}
                             </div>
                           ) : (
-                            <p className="text-sm">Not specified</p>
+                            <p className="text-sm">
+                              {t("notSpecified" as TranslationKey)}
+                            </p>
                           )}
                         </div>
                       </div>
@@ -269,38 +281,38 @@ const StartupProfile = () => {
                   {/* Funding Information */}
                   <div>
                     <h3 className="text-lg font-semibold mb-4">
-                      Funding Information
+                      {t("fundingInfo" as TranslationKey)}
                     </h3>
                     <div className="space-y-4">
                       <div>
                         <label className="text-sm font-medium text-muted-foreground">
-                          Capital Seeking
+                          {t("labelCapitalSeeking" as TranslationKey)}
                         </label>
                         <p className="text-foreground flex items-center gap-2">
                           <DollarSign className="h-4 w-4" />
                           {startupDetails?.capital_seeking
                             ? `$${startupDetails.capital_seeking.toLocaleString()}`
-                            : "Not specified"}
+                            : t("notSpecified" as TranslationKey)}
                         </p>
                       </div>
                       <div>
                         <label className="text-sm font-medium text-muted-foreground">
-                          Funding Already Raised
+                          {t("labelFundingRaised" as TranslationKey)}
                         </label>
                         <p className="text-foreground flex items-center gap-2">
                           <DollarSign className="h-4 w-4" />
                           {startupDetails?.funding_already_raised
                             ? `$${startupDetails.funding_already_raised.toLocaleString()}`
-                            : "Not specified"}
+                            : t("notSpecified" as TranslationKey)}
                         </p>
                       </div>
                       <div>
                         <label className="text-sm font-medium text-muted-foreground">
-                          Pre-Money Valuation
+                          {t("labelPreMoneyValuation" as TranslationKey)}
                         </label>
                         <p className="text-foreground">
                           {startupDetails?.pre_money_valuation ||
-                            "Not specified"}
+                            t("notSpecified" as TranslationKey)}
                         </p>
                       </div>
                     </div>
@@ -310,36 +322,40 @@ const StartupProfile = () => {
                 {/* Detailed Information */}
                 <div className="space-y-6">
                   <div>
-                    <h3 className="text-lg font-semibold mb-4">About</h3>
+                    <h3 className="text-lg font-semibold mb-4">
+                      {t("about" as TranslationKey)}
+                    </h3>
                     <div className="space-y-4">
                       <div>
                         <label className="text-sm font-medium text-muted-foreground">
-                          Problem We're Solving
+                          {t("labelProblem" as TranslationKey)}
                         </label>
                         <p className="text-foreground text-sm leading-relaxed mt-1">
                           {startupDetails?.problem_solving ||
-                            "No description provided"}
+                            t("noDescriptionProvided" as TranslationKey)}
                         </p>
                       </div>
                       <div>
                         <label className="text-sm font-medium text-muted-foreground">
-                          Our Solution
+                          {t("labelSolution" as TranslationKey)}
                         </label>
                         <p className="text-foreground text-sm leading-relaxed mt-1">
-                          {startupDetails?.solution || "Not specified"}
+                          {startupDetails?.solution ||
+                            t("notSpecified" as TranslationKey)}
                         </p>
                       </div>
                       <div>
                         <label className="text-sm font-medium text-muted-foreground">
-                          What Makes Us Unique
+                          {t("labelUniqueness" as TranslationKey)}
                         </label>
                         <p className="text-foreground text-sm leading-relaxed mt-1">
-                          {startupDetails?.uniqueness || "Not specified"}
+                          {startupDetails?.uniqueness ||
+                            t("notSpecified" as TranslationKey)}
                         </p>
                       </div>
                       <div>
                         <label className="text-sm font-medium text-muted-foreground">
-                          Co-Founders
+                          {t("labelCoFounders" as TranslationKey)}
                         </label>
                         <div className="text-foreground mt-1">
                           {startupDetails?.co_founders ? (
@@ -401,7 +417,9 @@ const StartupProfile = () => {
                               })()}
                             </div>
                           ) : (
-                            <p className="text-sm">Not specified</p>
+                            <p className="text-sm">
+                              {t("notSpecified" as TranslationKey)}
+                            </p>
                           )}
                         </div>
                       </div>
@@ -411,58 +429,58 @@ const StartupProfile = () => {
                   {/* Financial Details */}
                   <div>
                     <h3 className="text-lg font-semibold mb-4">
-                      Financial Details
+                      {t("financialDetails" as TranslationKey)}
                     </h3>
                     <div className="space-y-4">
                       <div>
                         <label className="text-sm font-medium text-muted-foreground">
-                          Previous Year Revenue
+                          {t("labelPrevYearRevenue" as TranslationKey)}
                         </label>
                         <p className="text-foreground text-sm leading-relaxed mt-1">
                           {startupDetails?.previous_financial_year_revenue
                             ? `$${startupDetails.previous_financial_year_revenue.toLocaleString()}`
-                            : "Not specified"}
+                            : t("notSpecified" as TranslationKey)}
                         </p>
                       </div>
                       <div>
                         <label className="text-sm font-medium text-muted-foreground">
-                          Current Year Revenue
+                          {t("labelCurrentYearRevenue" as TranslationKey)}
                         </label>
                         <p className="text-foreground text-sm leading-relaxed mt-1">
                           {startupDetails?.current_financial_year_revenue
                             ? `$${startupDetails.current_financial_year_revenue.toLocaleString()}`
-                            : "Not specified"}
+                            : t("notSpecified" as TranslationKey)}
                         </p>
                       </div>
                       <div>
                         <label className="text-sm font-medium text-muted-foreground">
-                          Monthly Burn Rate
+                          {t("labelMonthlyBurn" as TranslationKey)}
                         </label>
                         <p className="text-foreground text-sm leading-relaxed mt-1">
                           {startupDetails?.monthly_burn_rate
                             ? `$${startupDetails.monthly_burn_rate.toLocaleString()}`
-                            : "Not specified"}
+                            : t("notSpecified" as TranslationKey)}
                         </p>
                       </div>
                       <div>
                         <label className="text-sm font-medium text-muted-foreground">
-                          Investment Instrument
+                          {t("labelInvestmentInstrument" as TranslationKey)}
                         </label>
                         <p className="text-foreground text-sm leading-relaxed mt-1">
                           {startupDetails?.investment_instrument ||
-                            "Not specified"}
+                            t("notSpecified" as TranslationKey)}
                         </p>
                       </div>
                       <div>
                         <label className="text-sm font-medium text-muted-foreground">
-                          Has Received Funding
+                          {t("labelHasReceivedFunding" as TranslationKey)}
                         </label>
                         <p className="text-foreground text-sm leading-relaxed mt-1">
                           {startupDetails?.has_received_funding !== undefined
                             ? startupDetails.has_received_funding
-                              ? "Yes"
-                              : "No"
-                            : "Not specified"}
+                              ? t("yes" as TranslationKey)
+                              : t("no" as TranslationKey)
+                            : t("notSpecified" as TranslationKey)}
                         </p>
                       </div>
                     </div>
@@ -471,49 +489,55 @@ const StartupProfile = () => {
                   {/* Traction & Growth */}
                   <div>
                     <h3 className="text-lg font-semibold mb-4">
-                      Traction & Growth
+                      {t("tractionAndGrowth" as TranslationKey)}
                     </h3>
                     <div className="space-y-4">
                       <div>
                         <label className="text-sm font-medium text-muted-foreground">
-                          Key Achievements
+                          {t("labelKeyAchievements" as TranslationKey)}
                         </label>
                         <p className="text-foreground text-sm leading-relaxed mt-1">
-                          {startupDetails?.achievements || "Not specified"}
+                          {startupDetails?.achievements ||
+                            t("notSpecified" as TranslationKey)}
                         </p>
                       </div>
                       <div>
                         <label className="text-sm font-medium text-muted-foreground">
-                          Risks & Challenges
+                          {t("labelRisks" as TranslationKey)}
                         </label>
                         <p className="text-foreground text-sm leading-relaxed mt-1">
-                          {startupDetails?.risks || "Not specified"}
+                          {startupDetails?.risks ||
+                            t("notSpecified" as TranslationKey)}
                         </p>
                       </div>
                       <div>
                         <label className="text-sm font-medium text-muted-foreground">
-                          Risk Mitigation Strategy
+                          {t("labelRiskMitigation" as TranslationKey)}
                         </label>
                         <p className="text-foreground text-sm leading-relaxed mt-1">
-                          {startupDetails?.risk_mitigation || "Not specified"}
+                          {startupDetails?.risk_mitigation ||
+                            t("notSpecified" as TranslationKey)}
                         </p>
                       </div>
                       <div>
                         <label className="text-sm font-medium text-muted-foreground">
-                          Exit Strategy
+                          {t("labelExitStrategy" as TranslationKey)}
                         </label>
                         <p className="text-foreground text-sm leading-relaxed mt-1">
-                          {startupDetails?.exit_strategy || "Not specified"}
+                          {startupDetails?.exit_strategy ||
+                            t("notSpecified" as TranslationKey)}
                         </p>
                       </div>
                       <div>
                         <label className="text-sm font-medium text-muted-foreground">
-                          Participated in Accelerator
+                          {t(
+                            "labelParticipatedInAccelerator" as TranslationKey
+                          )}
                         </label>
                         <p className="text-foreground text-sm leading-relaxed mt-1">
                           {startupDetails?.participated_in_accelerator
-                            ? "Yes"
-                            : "No"}
+                            ? t("yes" as TranslationKey)
+                            : t("no" as TranslationKey)}
                         </p>
                       </div>
                     </div>
@@ -522,14 +546,14 @@ const StartupProfile = () => {
                   {/* Team & Resources */}
                   <div>
                     <h3 className="text-lg font-semibold mb-4">
-                      Team & Resources
+                      {t("teamAndResources" as TranslationKey)}
                     </h3>
                     <div className="space-y-4">
                       {/* Video Link */}
                       {startupDetails?.video_link && (
                         <div>
                           <label className="text-sm font-medium text-muted-foreground">
-                            Video Presentation
+                            {t("videoPresentation" as TranslationKey)}
                           </label>
                           <div className="mt-1">
                             <Button
@@ -540,7 +564,7 @@ const StartupProfile = () => {
                               className="text-sm"
                             >
                               <ExternalLink className="mr-2 h-4 w-4" />
-                              Watch Video
+                              {t("watchVideo" as TranslationKey)}
                             </Button>
                           </div>
                         </div>
@@ -550,7 +574,7 @@ const StartupProfile = () => {
                       {startupDetails?.pitch_deck && (
                         <div>
                           <label className="text-sm font-medium text-muted-foreground">
-                            Pitch Deck
+                            {t("pitchDeck" as TranslationKey)}
                           </label>
                           <div className="mt-1">
                             <Button
@@ -561,7 +585,7 @@ const StartupProfile = () => {
                               className="text-sm"
                             >
                               <ExternalLink className="mr-2 h-4 w-4" />
-                              View Pitch Deck
+                              {t("viewPitchDeck" as TranslationKey)}
                             </Button>
                           </div>
                         </div>
@@ -571,7 +595,7 @@ const StartupProfile = () => {
                       {startupDetails?.additional_files && (
                         <div>
                           <label className="text-sm font-medium text-muted-foreground">
-                            Additional Files
+                            {t("additionalFiles" as TranslationKey)}
                           </label>
                           <div className="mt-1">
                             {(() => {
@@ -617,7 +641,7 @@ const StartupProfile = () => {
                                     className="text-sm"
                                   >
                                     <ExternalLink className="mr-2 h-4 w-4" />
-                                    View Files
+                                    {t("viewFiles" as TranslationKey)}
                                   </Button>
                                 );
                               }

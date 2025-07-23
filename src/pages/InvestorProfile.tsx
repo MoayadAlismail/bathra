@@ -15,6 +15,8 @@ import {
 } from "lucide-react";
 import InvestorProfileEditModal from "@/components/InvestorProfileEditModal";
 import Footer from "@/components/Footer";
+import { useLanguage } from "@/context/LanguageContext";
+import { TranslationKey } from "@/context/LanguageContext";
 
 interface SocialMediaAccount {
   platform: string;
@@ -23,6 +25,7 @@ interface SocialMediaAccount {
 
 const InvestorProfile = () => {
   const { user, profile } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
   const [investorDetails, setInvestorDetails] = useState<Investor | null>(null);
@@ -71,7 +74,9 @@ const InvestorProfile = () => {
         <div className="flex h-screen items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-            <p className="text-muted-foreground">Loading profile...</p>
+            <p className="text-muted-foreground">
+              {t("loadingProfile" as TranslationKey)}
+            </p>
           </div>
         </div>
       </div>
@@ -97,7 +102,7 @@ const InvestorProfile = () => {
                 className="flex items-center gap-2"
               >
                 <ArrowLeft className="h-4 w-4" />
-                Back to Dashboard
+                {t("backToDashboard" as TranslationKey)}
               </Button>
               <Button
                 onClick={() => setIsEditModalOpen(true)}
@@ -105,11 +110,11 @@ const InvestorProfile = () => {
                 className="ml-auto"
               >
                 <Edit className="mr-2 h-4 w-4" />
-                Edit Profile
+                {t("editProfile" as TranslationKey)}
               </Button>
             </div>
             <h1 className="text-3xl font-bold text-gradient mb-4">
-              Investor Profile
+              {t("investorProfileTitle" as TranslationKey)}
             </h1>
 
             {/* Profile Content */}
@@ -122,10 +127,12 @@ const InvestorProfile = () => {
                   </div>
                   <div>
                     <h2 className="text-2xl font-bold">
-                      {investorDetails?.name || "Investor Name"}
+                      {investorDetails?.name ||
+                        t("investorNamePlaceholder" as TranslationKey)}
                     </h2>
                     <p className="text-muted-foreground">
-                      {investorDetails?.role || "Investor"}
+                      {investorDetails?.role ||
+                        t("investorRolePlaceholder" as TranslationKey)}
                     </p>
                     <div className="flex items-center gap-2 mt-1">
                       <span
@@ -136,8 +143,8 @@ const InvestorProfile = () => {
                         }`}
                       >
                         {investorDetails?.status === "approved"
-                          ? "Verified Investor"
-                          : "Pending Verification"}
+                          ? t("verifiedInvestor" as TranslationKey)
+                          : t("pendingVerification" as TranslationKey)}
                       </span>
                     </div>
                   </div>
@@ -150,41 +157,44 @@ const InvestorProfile = () => {
                 <div className="space-y-6">
                   <div>
                     <h3 className="text-lg font-semibold mb-4">
-                      Basic Information
+                      {t("basicInformation" as TranslationKey)}
                     </h3>
                     <div className="space-y-4">
                       <div>
                         <label className="text-sm font-medium text-muted-foreground">
-                          Company/Organization
+                          {t("labelCompany" as TranslationKey)}
                         </label>
                         <p className="text-foreground">
-                          {investorDetails?.company || "Not specified"}
+                          {investorDetails?.company ||
+                            t("notSpecified" as TranslationKey)}
                         </p>
                       </div>
                       <div>
                         <label className="text-sm font-medium text-muted-foreground">
-                          Role/Title
+                          {t("labelRole" as TranslationKey)}
                         </label>
                         <p className="text-foreground">
-                          {investorDetails?.role || "Not specified"}
+                          {investorDetails?.role ||
+                            t("notSpecified" as TranslationKey)}
                         </p>
                       </div>
                       <div>
                         <label className="text-sm font-medium text-muted-foreground">
-                          Location
+                          {t("labelLocation" as TranslationKey)}
                         </label>
                         <p className="text-foreground">
                           {investorDetails?.city && investorDetails?.country
                             ? `${investorDetails.city}, ${investorDetails.country}`
-                            : "Not specified"}
+                            : t("notSpecified" as TranslationKey)}
                         </p>
                       </div>
                       <div>
                         <label className="text-sm font-medium text-muted-foreground">
-                          How They Heard About Us
+                          {t("labelHeardAboutUs" as TranslationKey)}
                         </label>
                         <p className="text-foreground">
-                          {investorDetails?.heard_about_us || "Not specified"}
+                          {investorDetails?.heard_about_us ||
+                            t("notSpecified" as TranslationKey)}
                         </p>
                       </div>
                     </div>
@@ -193,45 +203,45 @@ const InvestorProfile = () => {
                   {/* Investment Information */}
                   <div>
                     <h3 className="text-lg font-semibold mb-4">
-                      Investment Profile
+                      {t("investmentProfile" as TranslationKey)}
                     </h3>
                     <div className="space-y-4">
                       <div>
                         <label className="text-sm font-medium text-muted-foreground">
-                          Preferred Industries
+                          {t("labelPreferredIndustries" as TranslationKey)}
                         </label>
                         <p className="text-foreground">
                           {investorDetails?.preferred_industries ||
-                            "Not specified"}
+                            t("notSpecified" as TranslationKey)}
                         </p>
                       </div>
                       <div>
                         <label className="text-sm font-medium text-muted-foreground">
-                          Preferred Company Stage
+                          {t("labelPreferredStage" as TranslationKey)}
                         </label>
                         <p className="text-foreground">
                           {investorDetails?.preferred_company_stage ||
-                            "Not specified"}
+                            t("notSpecified" as TranslationKey)}
                         </p>
                       </div>
                       <div>
                         <label className="text-sm font-medium text-muted-foreground">
-                          Average Ticket Size
+                          {t("labelTicketSize" as TranslationKey)}
                         </label>
                         <p className="text-foreground flex items-center gap-2">
                           <DollarSign className="h-4 w-4" />
                           {investorDetails?.average_ticket_size ||
-                            "Not specified"}
+                            t("notSpecified" as TranslationKey)}
                         </p>
                       </div>
                       <div>
                         <label className="text-sm font-medium text-muted-foreground">
-                          Number of Investments
+                          {t("labelNumOfInvestments" as TranslationKey)}
                         </label>
                         <p className="text-foreground flex items-center gap-2">
                           <Building2 className="h-4 w-4" />
                           {investorDetails?.number_of_investments ||
-                            "Not specified"}
+                            t("notSpecified" as TranslationKey)}
                         </p>
                       </div>
                     </div>
@@ -242,41 +252,41 @@ const InvestorProfile = () => {
                 <div className="space-y-6">
                   <div>
                     <h3 className="text-lg font-semibold mb-4">
-                      Experience & Background
+                      {t("experienceAndBackground" as TranslationKey)}
                     </h3>
                     <div className="space-y-4">
                       <div>
                         <label className="text-sm font-medium text-muted-foreground">
-                          Strong Candidate Reason
+                          {t("labelStrongCandidateReason" as TranslationKey)}
                         </label>
                         <p className="text-foreground text-sm leading-relaxed mt-1">
                           {investorDetails?.strong_candidate_reason ||
-                            "Not specified"}
+                            t("notSpecified" as TranslationKey)}
                         </p>
                       </div>
                       <div>
                         <label className="text-sm font-medium text-muted-foreground">
-                          Secured Lead Investor
+                          {t("labelSecuredLeadInvestor" as TranslationKey)}
                         </label>
                         <p className="text-foreground text-sm leading-relaxed mt-1">
                           {investorDetails?.secured_lead_investor !== undefined
                             ? investorDetails.secured_lead_investor
-                              ? "Yes"
-                              : "No"
-                            : "Not specified"}
+                              ? t("yes" as TranslationKey)
+                              : t("no" as TranslationKey)
+                            : t("notSpecified" as TranslationKey)}
                         </p>
                       </div>
                       <div>
                         <label className="text-sm font-medium text-muted-foreground">
-                          Participated as Advisor
+                          {t("labelParticipatedAsAdvisor" as TranslationKey)}
                         </label>
                         <p className="text-foreground text-sm leading-relaxed mt-1">
                           {investorDetails?.participated_as_advisor !==
                           undefined
                             ? investorDetails.participated_as_advisor
-                              ? "Yes"
-                              : "No"
-                            : "Not specified"}
+                              ? t("yes" as TranslationKey)
+                              : t("no" as TranslationKey)
+                            : t("notSpecified" as TranslationKey)}
                         </p>
                       </div>
                     </div>
@@ -285,13 +295,13 @@ const InvestorProfile = () => {
                   {/* Social Media & Contact */}
                   <div>
                     <h3 className="text-lg font-semibold mb-4">
-                      Contact & Social
+                      {t("contactAndSocial" as TranslationKey)}
                     </h3>
                     <div className="space-y-4">
                       {investorDetails?.linkedin_profile && (
                         <div>
                           <label className="text-sm font-medium text-muted-foreground">
-                            LinkedIn Profile
+                            {t("labelLinkedIn" as TranslationKey)}
                           </label>
                           <div className="mt-1">
                             <Button
@@ -315,7 +325,7 @@ const InvestorProfile = () => {
                       {investorDetails?.other_social_media_profile && (
                         <div>
                           <label className="text-sm font-medium text-muted-foreground">
-                            Other Social Media
+                            {t("labelOtherSocial" as TranslationKey)}
                           </label>
                           <div className="text-foreground mt-1">
                             {(() => {

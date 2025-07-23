@@ -1,16 +1,19 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
+import { useLanguage } from "@/context/LanguageContext";
+import { TranslationKey } from "@/context/LanguageContext";
 
 interface MatchmakingOrbProps {
   userType: "startup" | "investor";
 }
 
 const MatchmakingOrb: React.FC<MatchmakingOrbProps> = ({ userType }) => {
+  const { t } = useLanguage();
   const message =
     userType === "startup"
-      ? "Matchmaking in progress. We're actively looking for an investor that deserves you."
-      : "Matchmaking in progress. We're actively looking for a startup that deserves you.";
+      ? t("matchmakingMessageStartup" as TranslationKey)
+      : t("matchmakingMessageInvestor" as TranslationKey);
 
   const [isIOS, setIsIOS] = useState(false);
 
@@ -116,7 +119,7 @@ const MatchmakingOrb: React.FC<MatchmakingOrbProps> = ({ userType }) => {
         transition={{ delay: 0.5, duration: 0.8 }}
       >
         <h2 className="text-2xl font-bold text-gradient mb-4">
-          Matchmaking in Progress
+          {t("matchmakingInProgress" as TranslationKey)}
         </h2>
         <p className="text-muted-foreground text-lg leading-relaxed">
           {message}

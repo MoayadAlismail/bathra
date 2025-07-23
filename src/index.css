@@ -179,7 +179,7 @@ a.underline,
   text-align: right;
 }
 
-[dir="rtl"] .flex {
+[dir="rtl"] .flex:not(.flex-col):not(.flex-col-reverse) {
   flex-direction: row-reverse;
 }
 

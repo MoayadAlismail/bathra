@@ -30,11 +30,14 @@ import {
   PaginatedArticles,
 } from "@/lib/article-types";
 import Footer from "@/components/Footer";
+import { useLanguage } from "@/context/LanguageContext";
+import { homeTranslations } from "@/utils/language/home";
 
 const ITEMS_PER_PAGE = 12;
 
 const Articles = () => {
   const navigate = useNavigate();
+  const { language } = useLanguage();
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -43,6 +46,21 @@ const Articles = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
   const { toast } = useToast();
+
+  // Helper function to get category translations
+  const getCategoryTranslation = (category: ArticleCategory) => {
+    const categoryMap = {
+      news: homeTranslations.categoryNews[language],
+      industry_insights: homeTranslations.categoryIndustryInsights[language],
+      startup_tips: homeTranslations.categoryStartupTips[language],
+      investment_guide: homeTranslations.categoryInvestmentGuide[language],
+      company_updates: homeTranslations.categoryCompanyUpdates[language],
+      market_analysis: homeTranslations.categoryMarketAnalysis[language],
+      founder_stories: homeTranslations.categoryFounderStories[language],
+      investor_spotlight: homeTranslations.categoryInvestorSpotlight[language],
+    };
+    return categoryMap[category] || category;
+  };
 
   const loadArticles = async () => {
     setLoading(true);
@@ -58,7 +76,7 @@ const Articles = () => {
 
       if (response.error) {
         toast({
-          title: "Error",
+          title: homeTranslations.articlesErrorTitle[language],
           description: response.error,
           variant: "destructive",
         });
@@ -69,8 +87,8 @@ const Articles = () => {
       }
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to load articles",
+        title: homeTranslations.articlesErrorTitle[language],
+        description: homeTranslations.articlesLoadError[language],
         variant: "destructive",
       });
     } finally {
@@ -93,7 +111,7 @@ const Articles = () => {
   };
 
   const formatDate = (dateString: string | null) => {
-    if (!dateString) return "Draft";
+    if (!dateString) return homeTranslations.articlesDraftStatus[language];
     return new Date(dateString).toLocaleDateString("en-US", {
       year: "numeric",
       month: "long",
@@ -115,11 +133,10 @@ const Articles = () => {
             className="text-center mb-12"
           >
             <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
-              Latest News & Insights
+              {homeTranslations.articlesTitle[language]}
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Stay updated with the latest trends, insights, and news from the
-              startup and investment world.
+              {homeTranslations.articlesSubtitle[language]}
             </p>
           </motion.div>
 
@@ -134,7 +151,9 @@ const Articles = () => {
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                 <Input
-                  placeholder="Search articles..."
+                  placeholder={
+                    homeTranslations.articlesSearchPlaceholder[language]
+                  }
                   value={searchTerm}
                   onChange={(e) => handleSearch(e.target.value)}
                   className="pl-10"
@@ -146,14 +165,20 @@ const Articles = () => {
               >
                 <SelectTrigger className="w-full md:w-48">
                   <Filter className="h-4 w-4 mr-2" />
-                  <SelectValue placeholder="Category" />
+                  <SelectValue
+                    placeholder={
+                      homeTranslations.articlesCategoryLabel[language]
+                    }
+                  />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Categories</SelectItem>
+                  <SelectItem value="all">
+                    {homeTranslations.articlesAllCategories[language]}
+                  </SelectItem>
                   {Object.entries(ARTICLE_CATEGORY_LABELS).map(
                     ([key, label]) => (
                       <SelectItem key={key} value={key}>
-                        {label}
+                        {getCategoryTranslation(key as ArticleCategory)}
                       </SelectItem>
                     )
                   )}
@@ -171,8 +196,12 @@ const Articles = () => {
             >
               <p className="text-muted-foreground">
                 {total === 0
-                  ? "No articles found"
-                  : `${total} article${total !== 1 ? "s" : ""} found`}
+                  ? homeTranslations.articlesNoArticlesFound[language]
+                  : `${total} ${
+                      total === 1
+                        ? homeTranslations.articlesFoundSingular[language]
+                        : homeTranslations.articlesFoundPlural[language]
+                    }`}
               </p>
             </motion.div>
           )}
@@ -185,7 +214,9 @@ const Articles = () => {
               className="text-center py-12"
             >
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-              <p className="text-muted-foreground">Loading articles...</p>
+              <p className="text-muted-foreground">
+                {homeTranslations.articlesLoadingText[language]}
+              </p>
             </motion.div>
           )}
 
@@ -217,7 +248,7 @@ const Articles = () => {
                         />
                         {article.is_featured && (
                           <Badge className="absolute top-2 left-2 bg-primary">
-                            Featured
+                            {homeTranslations.articlesFeaturedBadge[language]}
                           </Badge>
                         )}
                       </div>
@@ -225,11 +256,9 @@ const Articles = () => {
                     <CardHeader>
                       <div className="flex items-center gap-2 mb-2">
                         <Badge variant="secondary">
-                          {
-                            ARTICLE_CATEGORY_LABELS[
-                              article.category as ArticleCategory
-                            ]
-                          }
+                          {getCategoryTranslation(
+                            article.category as ArticleCategory
+                          )}
                         </Badge>
                       </div>
                       <CardTitle className="line-clamp-2 group-hover:text-primary transition-colors">
@@ -293,11 +322,15 @@ const Articles = () => {
             >
               <Card className="max-w-md mx-auto">
                 <CardHeader>
-                  <CardTitle>No Articles Found</CardTitle>
+                  <CardTitle>
+                    {homeTranslations.articlesEmptyStateTitle[language]}
+                  </CardTitle>
                   <CardDescription>
                     {searchTerm || selectedCategory
-                      ? "Try adjusting your search criteria or filters."
-                      : "No articles have been published yet. Check back soon!"}
+                      ? homeTranslations.articlesEmptyStateFiltered[language]
+                      : homeTranslations.articlesEmptyStateNoPublished[
+                          language
+                        ]}
                   </CardDescription>
                 </CardHeader>
               </Card>

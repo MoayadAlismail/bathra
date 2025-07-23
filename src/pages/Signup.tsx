@@ -10,10 +10,18 @@ import { AccountType } from "@/lib/account-types";
 import InvestorSignupForm from "@/components/auth/InvestorSignupForm";
 import StartupSignupForm from "@/components/auth/StartupSignupForm";
 import Footer from "@/components/Footer";
+import { useLanguage } from "@/context/LanguageContext";
+import { signupTranslations } from "@/utils/language";
 
 export default function Signup() {
   const [step, setStep] = useState<"selection" | "form">("selection");
   const [accountType, setAccountType] = useState<AccountType | null>(null);
+  const { language } = useLanguage();
+
+  // Helper function to get translated text
+  const t = (key: keyof typeof signupTranslations) => {
+    return signupTranslations[key][language];
+  };
 
   const handleAccountTypeSelection = (type: AccountType) => {
     setAccountType(type);
@@ -39,16 +47,16 @@ export default function Signup() {
               className="max-w-md mx-auto"
             >
               <div className="text-center mb-8">
-                <h1 className="text-3xl font-bold mb-4">Join Bathra</h1>
+                <h1 className="text-3xl font-bold mb-4">{t("joinBathra")}</h1>
                 <p className="text-muted-foreground">
-                  Choose your account type to get started
+                  {t("chooseAccountType")}
                 </p>
               </div>
 
               <Card>
                 <CardHeader>
                   <CardTitle className="text-center">
-                    Select Account Type
+                    {t("selectAccountType")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
@@ -70,10 +78,10 @@ export default function Signup() {
                           className="font-medium flex items-center cursor-pointer"
                         >
                           <Briefcase className="mr-2 h-5 w-5 text-primary" />
-                          I'm an Investor
+                          {t("imAnInvestor")}
                         </Label>
                         <p className="text-sm text-muted-foreground mt-1">
-                          Looking to invest in promising startups
+                          {t("investorDescription")}
                         </p>
                       </div>
                     </div>
@@ -89,10 +97,10 @@ export default function Signup() {
                           className="font-medium flex items-center cursor-pointer"
                         >
                           <Building className="mr-2 h-5 w-5 text-primary" />
-                          I'm a Startup
+                          {t("imAStartup")}
                         </Label>
                         <p className="text-sm text-muted-foreground mt-1">
-                          Seeking investment and connections
+                          {t("startupDescription")}
                         </p>
                       </div>
                     </div>
@@ -105,13 +113,13 @@ export default function Signup() {
                     disabled={!accountType}
                     className="w-full"
                   >
-                    Continue
+                    {t("continueButton")}
                   </Button>
 
                   <div className="text-center text-sm text-muted-foreground">
-                    Already have an account?{" "}
+                    {t("alreadyHaveAccount")}{" "}
                     <a href="/login" className="text-primary hover:underline">
-                      Sign in
+                      {t("signInLink")}
                     </a>
                   </div>
                 </CardContent>
@@ -132,15 +140,14 @@ export default function Signup() {
                   onClick={handleBackToSelection}
                   className="mb-4"
                 >
-                  ← Back to Account Type
+                  {t("backToAccountType")}
                 </Button>
                 <h1 className="text-3xl font-bold mb-2">
-                  {accountType === "investor" ? "Investor" : "Startup"}{" "}
-                  Registration
+                  {accountType === "investor"
+                    ? t("investorRegistration")
+                    : t("startupRegistration")}
                 </h1>
-                <p className="text-muted-foreground">
-                  Complete your profile to get started
-                </p>
+                <p className="text-muted-foreground">{t("completeProfile")}</p>
               </div>
 
               {accountType === "investor" ? (

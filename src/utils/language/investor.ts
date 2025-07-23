@@ -136,4 +136,56 @@ export const investorTranslations = {
     English: "Other Social Media",
     Arabic: "وسائل تواصل اجتماعي أخرى",
   },
+
+  // Profile Edit Modal
+  editProfileTitle: {
+    English: "Edit Profile",
+    Arabic: "تعديل الملف الشخصي",
+  },
+  editProfileDescription: {
+    English:
+      "Update your investor profile information. All fields marked with * are required.",
+    Arabic:
+      "حدث معلومات ملف المستثمر الخاص بك. جميع الحقول المحددة بـ * مطلوبة.",
+  },
+  backgroundInformation: {
+    English: "Background Information",
+    Arabic: "معلومات الخلفية",
+  },
+  cancelButton: {
+    English: "Cancel",
+    Arabic: "إلغاء",
+  },
+  updateProfileButton: {
+    English: "Update Profile",
+    Arabic: "تحديث الملف الشخصي",
+  },
+  updatingButton: {
+    English: "Updating...",
+    Arabic: "جاري التحديث...",
+  },
+  profileUpdatedTitle: {
+    English: "Profile Updated",
+    Arabic: "تم تحديث الملف الشخصي",
+  },
+  profileUpdatedDescription: {
+    English: "Your profile has been successfully updated.",
+    Arabic: "تم تحديث ملفك الشخصي بنجاح.",
+  },
+  updateFailedTitle: {
+    English: "Update Failed",
+    Arabic: "فشل التحديث",
+  },
+  updateFailedDescription: {
+    English: "Failed to update your profile. Please try again.",
+    Arabic: "فشل في تحديث ملفك الشخصي. يرجى المحاولة مرة أخرى.",
+  },
+  validationErrorTitle: {
+    English: "Validation Error",
+    Arabic: "خطأ في التحقق",
+  },
+  addProfileButton: {
+    English: "Add Profile",
+    Arabic: "إضافة ملف شخصي",
+  },
 };

@@ -12,6 +12,7 @@ import {
   startupTranslations,
   investorTranslations,
 } from "@/utils/language";
+import { UserProfile } from "@/lib/auth-types";
 
 // Combine all translations into one object
 const translations = {
@@ -28,6 +29,7 @@ interface LanguageContextType {
   setLanguage: (language: Language) => void;
   t: (key: TranslationKey) => string;
   isRTL: boolean;
+  canChangeLanguage: boolean;
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(
@@ -65,9 +67,50 @@ const getInitialLanguage = (): Language => {
 
 export function LanguageProvider({ children }: LanguageProviderProps) {
   const [language, setLanguageState] = useState<Language>(getInitialLanguage);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
 
-  // Enhanced setLanguage that persists to localStorage
+  // Listen for auth context changes to enforce admin language rules
+  useEffect(() => {
+    // We'll listen for auth changes through a custom event to avoid circular imports
+    const handleAuthChange = (event: CustomEvent) => {
+      const { profile } = event.detail;
+      setUserProfile(profile);
+
+      // Force English for admin users
+      if (profile?.accountType === "admin") {
+        setLanguageState("English");
+        try {
+          localStorage.setItem("preferred-language", "English");
+        } catch (error) {
+          console.warn("Could not save language preference to localStorage");
+        }
+      }
+    };
+
+    window.addEventListener(
+      "authProfileChange",
+      handleAuthChange as EventListener
+    );
+
+    return () => {
+      window.removeEventListener(
+        "authProfileChange",
+        handleAuthChange as EventListener
+      );
+    };
+  }, []);
+
+  // Check if user can change language (non-admin users only)
+  const canChangeLanguage = userProfile?.accountType !== "admin";
+
+  // Enhanced setLanguage that respects admin restrictions
   const setLanguage = (newLanguage: Language) => {
+    // Prevent language change for admin users
+    if (userProfile?.accountType === "admin") {
+      console.warn("Language change is not allowed for admin users");
+      return;
+    }
+
     try {
       localStorage.setItem("preferred-language", newLanguage);
     } catch (error) {
@@ -91,6 +134,7 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
     setLanguage,
     t,
     isRTL,
+    canChangeLanguage,
   };
 
   return (

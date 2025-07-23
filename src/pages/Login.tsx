@@ -6,8 +6,10 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { Loader } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import { useLanguage } from "@/context/LanguageContext";
 import Navbar from "@/components/Navbar";
 import UserTypeSelectionModal from "@/components/auth/UserTypeSelectionModal";
+import { signupTranslations } from "@/utils/language";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -29,17 +31,23 @@ import {
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
-const formSchema = z.object({
-  email: z.string().email("Invalid email format"),
-  password: z.string().min(1, "Password is required"),
-});
-
 const Login = () => {
   const [loginError, setLoginError] = useState("");
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [showUserTypeModal, setShowUserTypeModal] = useState(false);
   const { signIn } = useAuth();
+  const { language } = useLanguage();
   const navigate = useNavigate();
+
+  // Helper function to get translated text
+  const t = (key: keyof typeof signupTranslations) => {
+    return signupTranslations[key][language];
+  };
+
+  const formSchema = z.object({
+    email: z.string().email(t("loginInvalidEmailError")),
+    password: z.string().min(1, t("passwordRequiredError")),
+  });
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -62,7 +70,7 @@ const Login = () => {
       if (result.success && result.user) {
         // After successful login, redirect based on account type using the returned user data
         const accountType = result.user.accountType;
-        
+
         if (accountType === "investor") {
           navigate("/investor-dashboard");
         } else if (accountType === "startup") {
@@ -75,16 +83,12 @@ const Login = () => {
         }
       } else {
         // Error will be handled by signIn function via toast, but we should also set local error
-        setLoginError(
-          "Login failed. Please check your credentials and try again."
-        );
+        setLoginError(t("loginFailedError"));
       }
     } catch (error) {
       console.error("Login error:", error);
       setLoginError(
-        error instanceof Error
-          ? error.message
-          : "An unexpected error occurred during login"
+        error instanceof Error ? error.message : t("unexpectedLoginError")
       );
     } finally {
       setIsLoggingIn(false);
@@ -104,10 +108,10 @@ const Login = () => {
           >
             <Card className="neo-blur">
               <CardHeader>
-                <CardTitle className="text-2xl font-bold">Sign in</CardTitle>
-                <CardDescription>
-                  Sign in to your account to access the Bathra platform
-                </CardDescription>
+                <CardTitle className="text-2xl font-bold">
+                  {t("signInTitle")}
+                </CardTitle>
+                <CardDescription>{t("signInDescription")}</CardDescription>
               </CardHeader>
               <CardContent>
                 {loginError && (
@@ -126,7 +130,9 @@ const Login = () => {
                       name="email"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Email</FormLabel>
+                          <FormLabel>
+                            {t("emailLabel").replace(" *", "")}
+                          </FormLabel>
                           <FormControl>
                             <Input
                               placeholder="your@email.com"
@@ -143,9 +149,11 @@ const Login = () => {
                       name="password"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Password</FormLabel>
+                          <FormLabel>
+                            {t("passwordLabel").replace(" *", "")}
+                          </FormLabel>
                           <FormControl>
-                            <Input
+                                                          <Input
                               type="password"
                               placeholder="••••••••"
                               {...field}
@@ -164,10 +172,10 @@ const Login = () => {
                       {isLoggingIn ? (
                         <>
                           <Loader className="mr-2 h-4 w-4 animate-spin" />
-                          Signing In...
+                          {t("signingIn")}
                         </>
                       ) : (
-                        "Sign In"
+                        t("signInButton")
                       )}
                     </Button>
                   </form>
@@ -175,12 +183,12 @@ const Login = () => {
               </CardContent>
               <CardFooter className="flex-col">
                 <div className="mt-4 text-center text-sm">
-                  Don't have an account?{" "}
+                  {t("noAccountText")}{" "}
                   <button
                     onClick={() => navigate("/signup")}
                     className="text-primary hover:underline bg-transparent border-none cursor-pointer"
                   >
-                    Register here
+                    {t("registerHereLink")}
                   </button>
                 </div>
               </CardFooter>

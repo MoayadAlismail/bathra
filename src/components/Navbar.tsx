@@ -317,7 +317,7 @@ const Navbar = () => {
               <img src="/Logo.svg" alt="Bathra Logo" className="h-5 w-auto" />
             </button>
 
-            <div className="hidden md:flex items-center space-x-6">
+            <div className="hidden md:flex items-center gap-6">
               {navItems.map((item) => (
                 <button
                   key={item.label}

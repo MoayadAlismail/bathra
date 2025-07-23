@@ -29,6 +29,9 @@ import {
   extractFilePathFromUrl,
   deletePitchDeck,
 } from "@/lib/storage-service";
+import { useLanguage } from "@/context/LanguageContext";
+import { signupTranslations } from "@/utils/language/signup";
+import { startupTranslations } from "@/utils/language/startup";
 
 interface StartupProfileEditModalProps {
   isOpen: boolean;
@@ -134,6 +137,7 @@ const StartupProfileEditModal = ({
   startup,
   onUpdate,
 }: StartupProfileEditModalProps) => {
+  const { language } = useLanguage();
   const [formData, setFormData] = useState<StartupFormData>({
     founderName: "",
     phone: "",
@@ -312,24 +316,38 @@ const StartupProfileEditModal = ({
   const validateForm = (): string[] => {
     const errors: string[] = [];
 
-    if (!formData.founderName.trim()) errors.push("Founder name is required");
-    if (!formData.phone.trim()) errors.push("Phone is required");
-    if (!formData.startupName.trim()) errors.push("Startup name is required");
-    if (!formData.industry.trim()) errors.push("Industry is required");
-    if (!formData.stage.trim()) errors.push("Startup stage is required");
+    if (!formData.founderName.trim())
+      errors.push(signupTranslations.founderNameRequiredError[language]);
+    if (!formData.phone.trim())
+      errors.push(signupTranslations.phoneRequiredError[language]);
+    if (!formData.startupName.trim())
+      errors.push(signupTranslations.startupNameRequiredError[language]);
+    if (!formData.industry.trim())
+      errors.push(signupTranslations.industryRequiredError[language]);
+    if (!formData.stage.trim())
+      errors.push(signupTranslations.startupStageRequiredError[language]);
     if (!formData.problemSolving.trim())
-      errors.push("Problem description is required");
+      errors.push(signupTranslations.problemDescriptionRequiredError[language]);
     if (!formData.solutionDescription.trim())
-      errors.push("Solution description is required");
+      errors.push(
+        signupTranslations.solutionDescriptionRequiredError[language]
+      );
     if (!formData.uniqueValueProposition.trim())
-      errors.push("Unique value proposition is required");
+      errors.push(
+        signupTranslations.uniqueValuePropositionRequiredError[language]
+      );
     if (!formData.investmentInstrument.trim())
-      errors.push("Investment instrument is required");
+      errors.push(
+        signupTranslations.investmentInstrumentRequiredError[language]
+      );
     if (!formData.achievements.trim())
-      errors.push("Achievements description is required");
+      errors.push(
+        signupTranslations.achievementsDescriptionRequiredError[language]
+      );
     if (!formData.risksAndMitigation.trim())
-      errors.push("Risks and mitigation is required");
-    if (!formData.exitStrategy.trim()) errors.push("Exit strategy is required");
+      errors.push(signupTranslations.risksAndMitigationRequiredError[language]);
+    if (!formData.exitStrategy.trim())
+      errors.push(signupTranslations.exitStrategyRequiredError[language]);
 
     return errors;
   };
@@ -340,7 +358,7 @@ const StartupProfileEditModal = ({
     const errors = validateForm();
     if (errors.length > 0) {
       toast({
-        title: "Validation Error",
+        title: startupTranslations.validationErrorTitle[language],
         description: errors.join(", "),
         variant: "destructive",
       });
@@ -380,8 +398,10 @@ const StartupProfileEditModal = ({
 
         if (!uploadResult.success) {
           toast({
-            title: "Upload Error",
-            description: uploadResult.error || "Failed to upload pitch deck",
+            title: startupTranslations.uploadErrorTitle[language],
+            description:
+              uploadResult.error ||
+              startupTranslations.uploadErrorDescription[language],
             variant: "destructive",
           });
           setIsSubmitting(false);
@@ -450,16 +470,18 @@ const StartupProfileEditModal = ({
       if (data) {
         onUpdate(data);
         toast({
-          title: "Profile Updated",
-          description: "Your startup profile has been successfully updated.",
+          title: startupTranslations.profileUpdatedTitle[language],
+          description:
+            startupTranslations.startupProfileUpdatedDescription[language],
         });
         onClose();
       }
     } catch (error) {
       console.error("Error updating profile:", error);
       toast({
-        title: "Update Failed",
-        description: "Failed to update your startup profile. Please try again.",
+        title: startupTranslations.updateFailedTitle[language],
+        description:
+          startupTranslations.startupUpdateFailedDescription[language],
         variant: "destructive",
       });
     } finally {
@@ -472,11 +494,10 @@ const StartupProfileEditModal = ({
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold">
-            Edit Startup Profile
+            {startupTranslations.editStartupProfileTitle[language]}
           </DialogTitle>
           <DialogDescription>
-            Update your startup profile information. All fields marked with *
-            are required.
+            {startupTranslations.editStartupProfileDescription[language]}
           </DialogDescription>
         </DialogHeader>
 
@@ -484,11 +505,15 @@ const StartupProfileEditModal = ({
           {/* Basic Information */}
           <Card>
             <CardHeader>
-              <CardTitle>Basic Information</CardTitle>
+              <CardTitle>
+                {signupTranslations.basicInformation[language]}
+              </CardTitle>
             </CardHeader>
             <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <Label htmlFor="founderName">Founder Name *</Label>
+                <Label htmlFor="founderName">
+                  {signupTranslations.founderNameLabel[language]}
+                </Label>
                 <Input
                   id="founderName"
                   value={formData.founderName}
@@ -503,7 +528,9 @@ const StartupProfileEditModal = ({
                 />
               </div>
               <div>
-                <Label htmlFor="phone">Phone *</Label>
+                <Label htmlFor="phone">
+                  {signupTranslations.phoneLabel[language]}
+                </Label>
                 <Input
                   id="phone"
                   value={formData.phone}
@@ -515,7 +542,9 @@ const StartupProfileEditModal = ({
                 />
               </div>
               <div>
-                <Label htmlFor="startupName">Startup Name *</Label>
+                <Label htmlFor="startupName">
+                  {signupTranslations.startupNameLabel[language]}
+                </Label>
                 <Input
                   id="startupName"
                   value={formData.startupName}
@@ -530,7 +559,9 @@ const StartupProfileEditModal = ({
                 />
               </div>
               <div>
-                <Label htmlFor="website">Website</Label>
+                <Label htmlFor="website">
+                  {signupTranslations.websiteLabel[language]}
+                </Label>
                 <Input
                   id="website"
                   value={formData.website}
@@ -544,7 +575,9 @@ const StartupProfileEditModal = ({
                 />
               </div>
               <div>
-                <Label htmlFor="industry">Industry *</Label>
+                <Label htmlFor="industry">
+                  {signupTranslations.industryLabel[language]}
+                </Label>
                 <Select
                   value={formData.industry}
                   onValueChange={(value) =>
@@ -564,7 +597,9 @@ const StartupProfileEditModal = ({
                 </Select>
               </div>
               <div>
-                <Label htmlFor="stage">Startup Stage *</Label>
+                <Label htmlFor="stage">
+                  {signupTranslations.startupStageLabel[language]}
+                </Label>
                 <Select
                   value={formData.stage}
                   onValueChange={(value) =>
@@ -584,7 +619,9 @@ const StartupProfileEditModal = ({
                 </Select>
               </div>
               <div>
-                <Label htmlFor="logoUrl">Logo URL</Label>
+                <Label htmlFor="logoUrl">
+                  {signupTranslations.logoUrlLabel[language]}
+                </Label>
                 <Input
                   id="logoUrl"
                   value={formData.logoUrl}
@@ -598,7 +635,9 @@ const StartupProfileEditModal = ({
                 />
               </div>
               <div>
-                <Label htmlFor="teamSize">Team Size</Label>
+                <Label htmlFor="teamSize">
+                  {signupTranslations.teamSizeLabel[language]}
+                </Label>
                 <Input
                   id="teamSize"
                   type="number"
@@ -619,11 +658,15 @@ const StartupProfileEditModal = ({
           {/* Social Media */}
           <Card>
             <CardHeader>
-              <CardTitle>Social Media Accounts</CardTitle>
+              <CardTitle>
+                {signupTranslations.socialMediaAccounts[language]}
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between mb-4">
-                <Label>Social Media Profiles</Label>
+                <Label>
+                  {signupTranslations.socialMediaProfilesLabel[language]}
+                </Label>
                 <Button
                   type="button"
                   variant="outline"
@@ -631,20 +674,24 @@ const StartupProfileEditModal = ({
                   onClick={addSocialMedia}
                 >
                   <Plus className="h-4 w-4 mr-2" />
-                  Add Social Media
+                  {signupTranslations.addSocialMediaButton[language]}
                 </Button>
               </div>
               {formData.socialMediaAccounts.map((social, index) => (
                 <div key={index} className="flex gap-4 items-center mb-3">
                   <Input
-                    placeholder="Platform (Twitter, LinkedIn, etc.)"
+                    placeholder={
+                      signupTranslations.socialMediaProfilePlaceholder[language]
+                    }
                     value={social.platform}
                     onChange={(e) =>
                       updateSocialMedia(index, "platform", e.target.value)
                     }
                   />
                   <Input
-                    placeholder="Profile URL"
+                    placeholder={
+                      signupTranslations.profileUrlPlaceholder[language]
+                    }
                     value={social.url}
                     onChange={(e) =>
                       updateSocialMedia(index, "url", e.target.value)
@@ -666,12 +713,14 @@ const StartupProfileEditModal = ({
           {/* Business Description */}
           <Card>
             <CardHeader>
-              <CardTitle>Business Description</CardTitle>
+              <CardTitle>
+                {signupTranslations.businessDescription[language]}
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
               <div>
                 <Label htmlFor="problemSolving">
-                  What problem are you solving? *
+                  {signupTranslations.problemSolvingLabel[language]}
                 </Label>
                 <Textarea
                   id="problemSolving"
@@ -689,7 +738,7 @@ const StartupProfileEditModal = ({
               </div>
               <div>
                 <Label htmlFor="solutionDescription">
-                  What solution do you provide? *
+                  {signupTranslations.solutionDescriptionLabel[language]}
                 </Label>
                 <Textarea
                   id="solutionDescription"
@@ -707,7 +756,7 @@ const StartupProfileEditModal = ({
               </div>
               <div>
                 <Label htmlFor="uniqueValueProposition">
-                  What makes your startup unique? *
+                  {signupTranslations.uniqueValuePropositionLabel[language]}
                 </Label>
                 <Textarea
                   id="uniqueValueProposition"
@@ -729,12 +778,14 @@ const StartupProfileEditModal = ({
           {/* Financial Information */}
           <Card>
             <CardHeader>
-              <CardTitle>Financial Information</CardTitle>
+              <CardTitle>
+                {signupTranslations.financialInformation[language]}
+              </CardTitle>
             </CardHeader>
             <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <Label htmlFor="currentRevenue">
-                  Current Financial Year Revenue ($)
+                  {signupTranslations.currentRevenueLabel[language]}
                 </Label>
                 <Input
                   id="currentRevenue"
@@ -771,7 +822,9 @@ const StartupProfileEditModal = ({
                 />
               </div>
               <div>
-                <Label htmlFor="monthlyBurnRate">Monthly Burn Rate ($)</Label>
+                <Label htmlFor="monthlyBurnRate">
+                  {signupTranslations.monthlyBurnRateLabel[language]}
+                </Label>
                 <Input
                   id="monthlyBurnRate"
                   type="number"
@@ -788,7 +841,9 @@ const StartupProfileEditModal = ({
                 />
               </div>
               <div>
-                <Label htmlFor="capitalSeeking">Capital Seeking ($)</Label>
+                <Label htmlFor="capitalSeeking">
+                  {signupTranslations.capitalSeekingLabel[language]}
+                </Label>
                 <Input
                   id="capitalSeeking"
                   type="number"
@@ -806,7 +861,7 @@ const StartupProfileEditModal = ({
               </div>
               <div>
                 <Label htmlFor="preMoneyValuation">
-                  Pre-Money Valuation ($)
+                  {signupTranslations.preMoneyValuationLabel[language]}
                 </Label>
                 <Input
                   id="preMoneyValuation"
@@ -825,7 +880,7 @@ const StartupProfileEditModal = ({
               </div>
               <div>
                 <Label htmlFor="fundingAlreadyRaised">
-                  Funding Already Raised ($)
+                  {signupTranslations.fundingAlreadyRaisedLabel[language]}
                 </Label>
                 <Input
                   id="fundingAlreadyRaised"
@@ -844,7 +899,7 @@ const StartupProfileEditModal = ({
               </div>
               <div>
                 <Label htmlFor="investmentInstrument">
-                  Investment Instrument *
+                  {signupTranslations.investmentInstrumentLabel[language]}
                 </Label>
                 <Select
                   value={formData.investmentInstrument}
@@ -873,7 +928,9 @@ const StartupProfileEditModal = ({
           {/* Funding Status */}
           <Card>
             <CardHeader>
-              <CardTitle>Funding Status</CardTitle>
+              <CardTitle>
+                {signupTranslations.fundingStatus[language]}
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center space-x-2 mb-4">
@@ -888,7 +945,7 @@ const StartupProfileEditModal = ({
                   }
                 />
                 <Label htmlFor="hasReceivedFunding">
-                  Has the company received any funding or investments to date?
+                  {signupTranslations.hasReceivedFundingLabel[language]}
                 </Label>
               </div>
             </CardContent>
@@ -897,11 +954,11 @@ const StartupProfileEditModal = ({
           {/* Co-Founders */}
           <Card>
             <CardHeader>
-              <CardTitle>Co-Founders</CardTitle>
+              <CardTitle>{signupTranslations.coFounders[language]}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between mb-4">
-                <Label>Add Co-Founders</Label>
+                <Label>{signupTranslations.addCoFoundersLabel[language]}</Label>
                 <Button
                   type="button"
                   variant="outline"
@@ -909,28 +966,34 @@ const StartupProfileEditModal = ({
                   onClick={addCoFounder}
                 >
                   <Plus className="h-4 w-4 mr-2" />
-                  Add Co-Founder
+                  {signupTranslations.addCoFounderButton[language]}
                 </Button>
               </div>
               {formData.coFounders.map((coFounder, index) => (
                 <div key={index} className="border p-4 rounded-lg mb-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <Input
-                      placeholder="Co-Founder Name"
+                      placeholder={
+                        signupTranslations.coFounderNamePlaceholder[language]
+                      }
                       value={coFounder.name}
                       onChange={(e) =>
                         updateCoFounder(index, "name", e.target.value)
                       }
                     />
                     <Input
-                      placeholder="Role/Title"
+                      placeholder={
+                        signupTranslations.roleTitlePlaceholder[language]
+                      }
                       value={coFounder.role}
                       onChange={(e) =>
                         updateCoFounder(index, "role", e.target.value)
                       }
                     />
                     <Input
-                      placeholder="Email"
+                      placeholder={
+                        signupTranslations.emailPlaceholder[language]
+                      }
                       type="email"
                       value={coFounder.email}
                       onChange={(e) =>
@@ -938,7 +1001,11 @@ const StartupProfileEditModal = ({
                       }
                     />
                     <Input
-                      placeholder="LinkedIn Profile (optional)"
+                      placeholder={
+                        signupTranslations.linkedinProfileOptionalPlaceholder[
+                          language
+                        ]
+                      }
                       value={coFounder.linkedinProfile}
                       onChange={(e) =>
                         updateCoFounder(
@@ -956,7 +1023,7 @@ const StartupProfileEditModal = ({
                     onClick={() => removeCoFounder(index)}
                   >
                     <X className="h-4 w-4 mr-2" />
-                    Remove Co-Founder
+                    {signupTranslations.removeCoFounderButton[language]}
                   </Button>
                 </div>
               ))}
@@ -966,11 +1033,15 @@ const StartupProfileEditModal = ({
           {/* Resources & Links */}
           <Card>
             <CardHeader>
-              <CardTitle>Resources & Links</CardTitle>
+              <CardTitle>
+                {signupTranslations.resourcesAndLinks[language]}
+              </CardTitle>
             </CardHeader>
             <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <Label htmlFor="pitchDeckFile">Pitch Deck (PDF)</Label>
+                <Label htmlFor="pitchDeckFile">
+                  {signupTranslations.pitchDeckLabel[language]}
+                </Label>
                 <div className="space-y-2">
                   <div className="flex flex-col space-y-1">
                     <Input
@@ -995,25 +1066,26 @@ const StartupProfileEditModal = ({
                   )}
                   {formData.pitchDeckUrl && !pitchDeckFile && (
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <span>Current: </span>
+                      <span>{startupTranslations.currentPrefix[language]}</span>
                       <a
                         href={formData.pitchDeckUrl}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-primary hover:underline"
                       >
-                        View current pitch deck
+                        {startupTranslations.viewCurrentPitchDeck[language]}
                       </a>
                     </div>
                   )}
                   <p className="text-xs text-muted-foreground">
-                    Upload a new pitch deck as a PDF file (max 10MB) or keep the
-                    current one
+                    {startupTranslations.pitchDeckUploadHelp[language]}
                   </p>
                 </div>
               </div>
               <div>
-                <Label htmlFor="calendlyLink">Calendly Link</Label>
+                <Label htmlFor="calendlyLink">
+                  {signupTranslations.calendlyLinkLabel[language]}
+                </Label>
                 <Input
                   id="calendlyLink"
                   value={formData.calendlyLink}
@@ -1027,7 +1099,9 @@ const StartupProfileEditModal = ({
                 />
               </div>
               <div>
-                <Label htmlFor="videoLink">Video Link (optional)</Label>
+                <Label htmlFor="videoLink">
+                  {signupTranslations.videoLinkLabel[language]}
+                </Label>
                 <Input
                   id="videoLink"
                   value={formData.videoLink}
@@ -1042,7 +1116,7 @@ const StartupProfileEditModal = ({
               </div>
               <div>
                 <Label htmlFor="additionalVideoUrl">
-                  Additional Video Link (optional)
+                  {signupTranslations.additionalVideoLinkLabel[language]}
                 </Label>
                 <Input
                   id="additionalVideoUrl"
@@ -1062,13 +1136,14 @@ const StartupProfileEditModal = ({
           {/* Strategic Information */}
           <Card>
             <CardHeader>
-              <CardTitle>Strategic Information</CardTitle>
+              <CardTitle>
+                {signupTranslations.strategicInformation[language]}
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
               <div>
                 <Label htmlFor="achievements">
-                  What have you achieved so far? (revenue, traction, major
-                  investments) *
+                  {signupTranslations.achievementsLabel[language]}
                 </Label>
                 <Textarea
                   id="achievements"
@@ -1086,8 +1161,7 @@ const StartupProfileEditModal = ({
               </div>
               <div>
                 <Label htmlFor="risksAndMitigation">
-                  What are the risks? What steps will you take to mitigate them?
-                  *
+                  {signupTranslations.risksAndMitigationLabel[language]}
                 </Label>
                 <Textarea
                   id="risksAndMitigation"
@@ -1104,7 +1178,9 @@ const StartupProfileEditModal = ({
                 />
               </div>
               <div>
-                <Label htmlFor="exitStrategy">Exit Strategy *</Label>
+                <Label htmlFor="exitStrategy">
+                  {signupTranslations.exitStrategyLabel[language]}
+                </Label>
                 <Select
                   value={formData.exitStrategy}
                   onValueChange={(value) =>
@@ -1129,7 +1205,9 @@ const StartupProfileEditModal = ({
           {/* Accelerator Experience */}
           <Card>
             <CardHeader>
-              <CardTitle>Accelerator Experience</CardTitle>
+              <CardTitle>
+                {signupTranslations.acceleratorExperience[language]}
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center space-x-2">
@@ -1144,13 +1222,13 @@ const StartupProfileEditModal = ({
                   }
                 />
                 <Label htmlFor="participatedAccelerator">
-                  Have you participated in any accelerator or incubator program?
+                  {signupTranslations.participatedAcceleratorLabel[language]}
                 </Label>
               </div>
               {formData.participatedAccelerator && (
                 <div>
                   <Label htmlFor="acceleratorDetails">
-                    Accelerator/Incubator Details
+                    {signupTranslations.acceleratorDetailsLabel[language]}
                   </Label>
                   <Textarea
                     id="acceleratorDetails"
@@ -1177,18 +1255,20 @@ const StartupProfileEditModal = ({
               onClick={onClose}
               disabled={isSubmitting}
             >
-              Cancel
+              {startupTranslations.cancelButton[language]}
             </Button>
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? (
                 <>
                   <Loader className="mr-2 h-4 w-4 animate-spin" />
-                  {isUploadingFile ? "Uploading Pitch Deck..." : "Updating..."}
+                  {isUploadingFile
+                    ? startupTranslations.uploadingPitchDeckButton[language]
+                    : startupTranslations.updatingButton[language]}
                 </>
               ) : (
                 <>
                   <Save className="mr-2 h-4 w-4" />
-                  Update Profile
+                  {startupTranslations.updateProfileButton[language]}
                 </>
               )}
             </Button>

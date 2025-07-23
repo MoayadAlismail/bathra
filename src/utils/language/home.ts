@@ -127,4 +127,166 @@ export const homeTranslations = {
     English: " All rights reserved.",
     Arabic: " جميع الحقوق محفوظة.",
   },
+
+  // Articles Page
+  articlesTitle: {
+    English: "Latest News & Insights",
+    Arabic: "أحدث الأخبار والرؤى",
+  },
+  articlesSubtitle: {
+    English:
+      "Stay updated with the latest trends, insights, and news from the startup and investment world.",
+    Arabic:
+      "ابق على اطلاع بأحدث الاتجاهات والرؤى والأخبار من عالم الشركات الناشئة والاستثمار.",
+  },
+  articlesSearchPlaceholder: {
+    English: "Search articles...",
+    Arabic: "ابحث في المقالات...",
+  },
+  articlesCategoryLabel: {
+    English: "Category",
+    Arabic: "الفئة",
+  },
+  articlesAllCategories: {
+    English: "All Categories",
+    Arabic: "جميع الفئات",
+  },
+  articlesNoArticlesFound: {
+    English: "No articles found",
+    Arabic: "لم يتم العثور على مقالات",
+  },
+  articlesFoundSingular: {
+    English: "article found",
+    Arabic: "مقال واحد",
+  },
+  articlesFoundPlural: {
+    English: "articles found",
+    Arabic: "مقالات موجودة",
+  },
+  articlesLoadingText: {
+    English: "Loading articles...",
+    Arabic: "جاري تحميل المقالات...",
+  },
+  articlesFeaturedBadge: {
+    English: "Featured",
+    Arabic: "مميز",
+  },
+  articlesEmptyStateTitle: {
+    English: "No Articles Found",
+    Arabic: "لا توجد مقالات",
+  },
+  articlesEmptyStateFiltered: {
+    English: "Try adjusting your search criteria or filters.",
+    Arabic: "حاول تعديل معايير البحث أو المرشحات الخاصة بك.",
+  },
+  articlesEmptyStateNoPublished: {
+    English: "No articles have been published yet. Check back soon!",
+    Arabic: "لم يتم نشر أي مقالات بعد. تحقق مرة أخرى قريباً!",
+  },
+  articlesDraftStatus: {
+    English: "Draft",
+    Arabic: "مسودة",
+  },
+  articlesErrorTitle: {
+    English: "Error",
+    Arabic: "خطأ",
+  },
+  articlesLoadError: {
+    English: "Failed to load articles",
+    Arabic: "فشل في تحميل المقالات",
+  },
+
+  // Article Categories
+  categoryNews: {
+    English: "News",
+    Arabic: "الأخبار",
+  },
+  categoryIndustryInsights: {
+    English: "Industry Insights",
+    Arabic: "رؤى الصناعة",
+  },
+  categoryStartupTips: {
+    English: "Startup Tips",
+    Arabic: "نصائح للشركات الناشئة",
+  },
+  categoryInvestmentGuide: {
+    English: "Investment Guide",
+    Arabic: "دليل الاستثمار",
+  },
+  categoryCompanyUpdates: {
+    English: "Company Updates",
+    Arabic: "تحديثات الشركة",
+  },
+  categoryMarketAnalysis: {
+    English: "Market Analysis",
+    Arabic: "تحليل السوق",
+  },
+  categoryFounderStories: {
+    English: "Founder Stories",
+    Arabic: "قصص المؤسسين",
+  },
+  categoryInvestorSpotlight: {
+    English: "Investor Spotlight",
+    Arabic: "تسليط الضوء على المستثمرين",
+  },
+
+  // Article Status
+  statusDraft: {
+    English: "Draft",
+    Arabic: "مسودة",
+  },
+  statusPublished: {
+    English: "Published",
+    Arabic: "منشور",
+  },
+  statusArchived: {
+    English: "Archived",
+    Arabic: "مؤرشف",
+  },
+
+  // Article Detail Page
+  articleDetailLoadingText: {
+    English: "Loading article...",
+    Arabic: "جاري تحميل المقال...",
+  },
+  articleDetailNotFound: {
+    English: "Article not found",
+    Arabic: "المقال غير موجود",
+  },
+  articleDetailBackToArticles: {
+    English: "Back to Articles",
+    Arabic: "العودة إلى المقالات",
+  },
+  articleDetailViews: {
+    English: "views",
+    Arabic: "مشاهدة",
+  },
+  articleDetailMinRead: {
+    English: "min read",
+    Arabic: "دقائق قراءة",
+  },
+  articleDetailShare: {
+    English: "Share",
+    Arabic: "مشاركة",
+  },
+  articleDetailTags: {
+    English: "Tags",
+    Arabic: "العلامات",
+  },
+  articleDetailRelatedArticles: {
+    English: "Related Articles",
+    Arabic: "مقالات ذات صلة",
+  },
+  articleDetailLinkCopied: {
+    English: "Link copied",
+    Arabic: "تم نسخ الرابط",
+  },
+  articleDetailLinkCopiedDescription: {
+    English: "Article link copied to clipboard",
+    Arabic: "تم نسخ رابط المقال إلى الحافظة",
+  },
+  articleDetailLoadError: {
+    English: "Failed to load article",
+    Arabic: "فشل في تحميل المقال",
+  },
 };

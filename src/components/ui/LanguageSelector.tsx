@@ -16,11 +16,16 @@ const languageOptions: { value: Language; label: string; flag: string }[] = [
 ];
 
 export function LanguageSelector() {
-  const { language, setLanguage } = useLanguage();
+  const { language, setLanguage, canChangeLanguage } = useLanguage();
 
   const currentLanguage = languageOptions.find(
     (option) => option.value === language
   );
+
+  // Don't render for admin users who cannot change language
+  if (!canChangeLanguage) {
+    return null;
+  }
 
   return (
     <DropdownMenu>

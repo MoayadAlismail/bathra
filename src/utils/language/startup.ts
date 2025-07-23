@@ -222,4 +222,73 @@ export const startupTranslations = {
       "Matchmaking in progress. We're actively looking for a startup that deserves you.",
     Arabic: "جاري التوفيق. نحن نبحث بنشاط عن شركة ناشئة تستحقك.",
   },
+
+  // Profile Edit Modal
+  editStartupProfileTitle: {
+    English: "Edit Startup Profile",
+    Arabic: "تعديل ملف الشركة الناشئة",
+  },
+  editStartupProfileDescription: {
+    English:
+      "Update your startup profile information. All fields marked with * are required.",
+    Arabic: "حدث معلومات ملف شركتك الناشئة. جميع الحقول المحددة بـ * مطلوبة.",
+  },
+  cancelButton: {
+    English: "Cancel",
+    Arabic: "إلغاء",
+  },
+  updateProfileButton: {
+    English: "Update Profile",
+    Arabic: "تحديث الملف الشخصي",
+  },
+  updatingButton: {
+    English: "Updating...",
+    Arabic: "جاري التحديث...",
+  },
+  uploadingPitchDeckButton: {
+    English: "Uploading Pitch Deck...",
+    Arabic: "جاري تحميل ملف العرض...",
+  },
+  profileUpdatedTitle: {
+    English: "Profile Updated",
+    Arabic: "تم تحديث الملف الشخصي",
+  },
+  startupProfileUpdatedDescription: {
+    English: "Your startup profile has been successfully updated.",
+    Arabic: "تم تحديث ملف شركتك الناشئة بنجاح.",
+  },
+  updateFailedTitle: {
+    English: "Update Failed",
+    Arabic: "فشل التحديث",
+  },
+  startupUpdateFailedDescription: {
+    English: "Failed to update your startup profile. Please try again.",
+    Arabic: "فشل في تحديث ملف شركتك الناشئة. يرجى المحاولة مرة أخرى.",
+  },
+  uploadErrorTitle: {
+    English: "Upload Error",
+    Arabic: "خطأ في التحميل",
+  },
+  uploadErrorDescription: {
+    English: "Failed to upload pitch deck",
+    Arabic: "فشل في تحميل ملف العرض",
+  },
+  validationErrorTitle: {
+    English: "Validation Error",
+    Arabic: "خطأ في التحقق",
+  },
+  pitchDeckUploadHelp: {
+    English:
+      "Upload a new pitch deck as a PDF file (max 10MB) or keep the current one",
+    Arabic:
+      "ارفع ملف عرض جديد بتنسيق PDF (بحد أقصى 10 ميجابايت) أو احتفظ بالملف الحالي",
+  },
+  viewCurrentPitchDeck: {
+    English: "View current pitch deck",
+    Arabic: "عرض ملف العرض الحالي",
+  },
+  currentPrefix: {
+    English: "Current: ",
+    Arabic: "الحالي: ",
+  },
 };

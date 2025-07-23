@@ -1,7 +1,76 @@
 export type Language = "English" | "Arabic";
 
 export const signupTranslations = {
-  // Common
+  // Login Page
+  signInTitle: { English: "Sign in", Arabic: "تسجيل الدخول" },
+  signInDescription: {
+    English: "Sign in to your account to access the Bathra platform",
+    Arabic: "سجل دخولك إلى حسابك للوصول إلى منصة Bathra",
+  },
+  signingIn: { English: "Signing In...", Arabic: "جاري تسجيل الدخول..." },
+  signInButton: { English: "Sign In", Arabic: "تسجيل الدخول" },
+  noAccountText: {
+    English: "Don't have an account?",
+    Arabic: "ليس لديك حساب؟",
+  },
+  registerHereLink: { English: "Register here", Arabic: "سجل هنا" },
+  loginFailedError: {
+    English: "Login failed. Please check your credentials and try again.",
+    Arabic: "فشل تسجيل الدخول. يرجى التحقق من بياناتك والمحاولة مرة أخرى.",
+  },
+  unexpectedLoginError: {
+    English: "An unexpected error occurred during login",
+    Arabic: "حدث خطأ غير متوقع أثناء تسجيل الدخول",
+  },
+  loginInvalidEmailError: {
+    English: "Invalid email format",
+    Arabic: "تنسيق البريد الإلكتروني غير صحيح",
+  },
+
+  // Signup Account Type Selection
+  joinBathra: { English: "Join Bathra", Arabic: "انضم إلى Bathra" },
+  chooseAccountType: {
+    English: "Choose your account type to get started",
+    Arabic: "اختر نوع حسابك للبدء",
+  },
+  selectAccountType: {
+    English: "Select Account Type",
+    Arabic: "اختر نوع الحساب",
+  },
+  imAnInvestor: { English: "I'm an Investor", Arabic: "أنا مستثمر" },
+  investorDescription: {
+    English: "Looking to invest in promising startups",
+    Arabic: "أبحث عن الاستثمار في الشركات الناشئة الواعدة",
+  },
+  imAStartup: { English: "I'm a Startup", Arabic: "أنا شركة ناشئة" },
+  startupDescription: {
+    English: "Seeking investment and connections",
+    Arabic: "أبحث عن الاستثمار والعلاقات",
+  },
+  continueButton: { English: "Continue", Arabic: "متابعة" },
+  alreadyHaveAccount: {
+    English: "Already have an account?",
+    Arabic: "لديك حساب بالفعل؟",
+  },
+  signInLink: { English: "Sign in", Arabic: "تسجيل الدخول" },
+  backToAccountType: {
+    English: "← Back to Account Type",
+    Arabic: "← العودة إلى نوع الحساب",
+  },
+  investorRegistration: {
+    English: "Investor Registration",
+    Arabic: "تسجيل مستثمر",
+  },
+  startupRegistration: {
+    English: "Startup Registration",
+    Arabic: "تسجيل شركة ناشئة",
+  },
+  completeProfile: {
+    English: "Complete your profile to get started",
+    Arabic: "أكمل ملفك الشخصي للبدء",
+  },
+
+  // Common Form Elements
   accountInformation: {
     English: "Account Information",
     Arabic: "معلومات الحساب",
@@ -245,7 +314,7 @@ export const signupTranslations = {
   },
   whyStrongCandidateLabel: {
     English: "What makes you a strong candidate for Bathra? *",
-    Arabic: "ما الذي يجعلك مرشحًا قويًا لبذرة *",
+    Arabic: "ما الذي يجعلك مرشحًا قويًا لـ Bathra؟ *",
   },
   createInvestorAccountButton: {
     English: "Create Investor Account",

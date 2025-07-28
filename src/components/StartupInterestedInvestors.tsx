@@ -420,7 +420,7 @@ const StartupInterestedInvestors = ({
   }
 
   return (
-    <div className={`${isDashboard ? "" : "py-20"}`}>
+    <div className={`${isDashboard ? "" : "py-28"}`}>
       <div className="container mx-auto px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -442,10 +442,6 @@ const StartupInterestedInvestors = ({
               <h3 className="text-xl font-medium mb-2">
                 No interested investors yet
               </h3>
-              <p className="text-muted-foreground">
-                When investors show interest in your startup, they'll appear
-                here with their contact details.
-              </p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

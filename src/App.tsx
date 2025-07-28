@@ -32,6 +32,7 @@ import MatchmakingInvestors from "./pages/MatchmakingInvestors";
 import MatchmakingInvestorDetails from "./pages/MatchmakingInvestorDetails";
 import MatchmakingStartupSelection from "./pages/MatchmakingStartupSelection";
 import "./App.css";
+import InterestedInvestors from "./pages/InterestedInvestors";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -129,7 +130,7 @@ const ProtectedRoute = ({
       <div className="flex h-screen items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading authentication...</p>
+          <p className="text-muted-foreground">Loading...</p>
         </div>
       </div>
     );
@@ -214,7 +215,18 @@ const AppRoutes = () => {
             </ProtectedRoute>
           }
         />
-
+        <Route
+          path="/interested-investors"
+          element={
+            <ProtectedRoute requiredAccountType="startup">
+              <StatusGuard>
+                <ErrorBoundary>
+                  <InterestedInvestors />
+                </ErrorBoundary>
+              </StatusGuard>
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/admin"
           element={

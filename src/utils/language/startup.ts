@@ -222,6 +222,28 @@ export const startupTranslations = {
       "Matchmaking in progress. We're actively looking for a startup that deserves you.",
     Arabic: "جاري التوفيق. نحن نبحث بنشاط عن شركة ناشئة تستحقك.",
   },
+  noMatchFoundTitle: {
+    English: "No Matches Found Yet",
+    Arabic: "لم يتم العثور على مطابقات بعد",
+  },
+  noMatchFoundMessage: {
+    English:
+      "We haven't found any investors for your startup. Please consider updating your profile",
+    Arabic:
+      "لم نعثر حتى الآن على مستثمرين لشركتك الناشئة. يُرجى التفكير في تحديث ملفك الشخصي لزيادة فرصك في الحصول على مطابقة.",
+  },
+  greatNews: {
+    English: "Great News!",
+    Arabic: "أخبار رائعة!",
+  },
+  viewInterestedInvestors: {
+    English: "View Interested Investors",
+    Arabic: "عرض المستثمرين المهتمين",
+  },
+  updateProfile: {
+    English: "Update Profile",
+    Arabic: "تحديث الملف الشخصي",
+  },
 
   // Profile Edit Modal
   editStartupProfileTitle: {

@@ -5,11 +5,13 @@ import { supabase, Investor } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
-import { User, ArrowRight } from "lucide-react";
+import { User, ArrowRight, Building, Eye } from "lucide-react";
 import MatchmakingOrb from "@/components/MatchmakingOrb";
 import Footer from "@/components/Footer";
 import { useLanguage } from "@/context/LanguageContext";
 import { TranslationKey } from "@/context/LanguageContext";
+import { MatchmakingService } from "@/lib/matchmaking-service";
+import InvestorBrowseStartups from "@/components/InvestorBrowseStartups";
 
 const InvestorDashboard = () => {
   const { user, profile } = useAuth();
@@ -17,25 +19,51 @@ const InvestorDashboard = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
   const [investorDetails, setInvestorDetails] = useState<Investor | null>(null);
+  const [hasMatchedStartups, setHasMatchedStartups] = useState(false);
+  const [matchedStartupsCount, setMatchedStartupsCount] = useState(0);
 
   useEffect(() => {
-    const fetchInvestorDetails = async () => {
+    const fetchInvestorData = async () => {
       try {
         if (!user?.id) return;
 
-        const { data, error } = await supabase
-          .from("investors")
-          .select("*")
-          .eq("id", user.id)
-          .single();
+        // Fetch investor details and matchmakings in parallel
+        const [investorResult, matchmakingsResult] = await Promise.all([
+          supabase.from("investors").select("*").eq("id", user.id).single(),
+          MatchmakingService.getMatchmakingsByInvestor(user.id),
+        ]);
 
-        if (error) throw error;
+        if (investorResult.error) throw investorResult.error;
 
-        if (data) {
-          setInvestorDetails(data);
+        if (investorResult.data) {
+          setInvestorDetails(investorResult.data);
+        }
+
+        // Check for active matchmakings
+        if (matchmakingsResult.data) {
+          // Get current date and date from 7 days ago
+          const currentDate = new Date();
+          const sevenDaysAgo = new Date();
+          sevenDaysAgo.setDate(currentDate.getDate() - 7);
+
+          // Filter out archived matchmakings and those older than 7 days
+          const activeMatchmakings = matchmakingsResult.data.filter((m) => {
+            // Check if not archived
+            if (m.is_archived) return false;
+
+            // Check if created within last 7 days
+            const createdDate = new Date(m.created_at);
+            return createdDate >= sevenDaysAgo;
+          });
+
+          const uniqueStartupIds = [
+            ...new Set(activeMatchmakings.map((m) => m.startup_id)),
+          ];
+          setHasMatchedStartups(uniqueStartupIds.length > 0);
+          setMatchedStartupsCount(uniqueStartupIds.length);
         }
       } catch (error) {
-        console.error("Error fetching investor details:", error);
+        console.error("Error fetching investor data:", error);
       } finally {
         setIsLoading(false);
       }
@@ -44,7 +72,7 @@ const InvestorDashboard = () => {
     if (!user) {
       navigate("/login");
     } else {
-      fetchInvestorDetails();
+      fetchInvestorData();
     }
   }, [user, navigate]);
 
@@ -107,7 +135,54 @@ const InvestorDashboard = () => {
 
             {/* Matchmaking Section */}
             <div className="neo-blur rounded-2xl shadow-lg p-8">
-              <MatchmakingOrb userType="investor" />
+              {hasMatchedStartups ? (
+                <div className="space-y-6">
+                  {/* Matched Startups Header */}
+                  <div className="text-center mb-8">
+                    <h2 className="text-2xl font-bold text-gradient mb-4">
+                      Your Matched Startups
+                    </h2>
+                    <p className="text-muted-foreground text-lg">
+                      {matchedStartupsCount} startup
+                      {matchedStartupsCount !== 1 ? "s" : ""} carefully selected
+                      for you
+                    </p>
+                  </div>
+
+                  {/* Preview of Matched Startups */}
+                  <div className="mb-6">
+                    <InvestorBrowseStartups
+                      isDashboard={true}
+                      maxStartups={3}
+                    />
+                  </div>
+
+                  {/* View All Button */}
+                  <div className="text-center">
+                    <Button
+                      onClick={() => navigate("/startups")}
+                      size="lg"
+                      className="gap-2"
+                    >
+                      View All Matched Startups
+                      <ArrowRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div>
+                  <div className="text-center mb-6">
+                    <h2 className="text-2xl font-bold text-gradient mb-4">
+                      Finding Your Perfect Matches
+                    </h2>
+                    <p className="text-muted-foreground text-lg">
+                      Our team is working to find startups that align with your
+                      investment preferences
+                    </p>
+                  </div>
+                  <MatchmakingOrb userType="investor" />
+                </div>
+              )}
             </div>
           </motion.div>
         </div>

@@ -24,6 +24,8 @@ import {
 } from "@/lib/startup-types";
 import { Pagination } from "@/components/ui/pagination";
 import { InvestorStartupConnectionService } from "@/lib/investor-startup-connection-service";
+import { MatchmakingService } from "@/lib/matchmaking-service";
+import Navbar from "./Navbar";
 
 interface InvestorBrowseStartupsProps {
   isDashboard?: boolean;
@@ -58,7 +60,7 @@ const InvestorBrowseStartups = ({
 
   useEffect(() => {
     fetchStartups();
-    if (!isDashboard) {
+    if (!isDashboard && user?.id) {
       fetchFilterOptions();
     }
     if (user?.id) {
@@ -76,51 +78,119 @@ const InvestorBrowseStartups = ({
     try {
       setIsLoading(true);
 
-      const filters: StartupFilters = {
-        searchTerm: searchTerm || undefined,
-        industry:
-          selectedIndustry && selectedIndustry !== "all-industries"
-            ? selectedIndustry
-            : undefined,
-        stage:
-          selectedStage && selectedStage !== "all-stages"
-            ? selectedStage
-            : undefined,
-      };
+      if (!user?.id) {
+        setStartups([]);
+        setTotalPages(1);
+        setTotal(0);
+        return;
+      }
 
-      const { data, error } = isDashboard
-        ? await StartupService.getDashboardStartups(maxStartups || 6)
-        : await StartupService.getVettedStartups({
-            ...filters,
-            limit: ITEMS_PER_PAGE,
-            offset: (currentPage - 1) * ITEMS_PER_PAGE,
-          });
+      // Get matchmade startups for this investor
+      const { data: matchmakings, error: matchmakingError } =
+        await MatchmakingService.getMatchmakingsByInvestor(user.id);
 
-      if (error) {
+      if (matchmakingError) {
         toast({
           title: "Error",
-          description: error,
+          description: matchmakingError,
           variant: "destructive",
         });
         return;
       }
 
-      // Handle both paginated and non-paginated responses
-      if (isDashboard || Array.isArray(data)) {
-        setStartups(data as StartupBasicInfo[]);
+      if (!matchmakings || matchmakings.length === 0) {
+        setStartups([]);
         setTotalPages(1);
-        setTotal(Array.isArray(data) ? data.length : 0);
+        setTotal(0);
+        return;
+      }
+
+      // Get current date and date from 7 days ago
+      const currentDate = new Date();
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(currentDate.getDate() - 7);
+
+      // Filter out archived matchmakings and those older than 7 days
+      const activeMatchmakings = matchmakings.filter((m) => {
+        // Check if not archived
+        if (m.is_archived) return false;
+
+        // Check if created within last 7 days
+        const createdDate = new Date(m.created_at);
+        return createdDate >= sevenDaysAgo;
+      });
+
+      const startupIds = [
+        ...new Set(activeMatchmakings.map((m) => m.startup_id)),
+      ];
+
+      if (startupIds.length === 0) {
+        setStartups([]);
+        setTotalPages(1);
+        setTotal(0);
+        return;
+      }
+
+      // Fetch full startup details for the matchmade startups
+      const { data: allStartups, error: startupsError } =
+        await StartupService.getStartupsByIds(startupIds);
+
+      if (startupsError) {
+        toast({
+          title: "Error",
+          description: startupsError,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      let filteredStartups = allStartups || [];
+
+      // Apply search and filter criteria to matchmade startups
+      if (searchTerm) {
+        const searchLower = searchTerm.toLowerCase();
+        filteredStartups = filteredStartups.filter(
+          (startup) =>
+            startup.name.toLowerCase().includes(searchLower) ||
+            startup.industry.toLowerCase().includes(searchLower) ||
+            (startup.description &&
+              startup.description.toLowerCase().includes(searchLower))
+        );
+      }
+
+      if (selectedIndustry && selectedIndustry !== "all-industries") {
+        filteredStartups = filteredStartups.filter(
+          (startup) => startup.industry === selectedIndustry
+        );
+      }
+
+      if (selectedStage && selectedStage !== "all-stages") {
+        filteredStartups = filteredStartups.filter(
+          (startup) => startup.stage === selectedStage
+        );
+      }
+
+      // Handle pagination for dashboard vs full view
+      if (isDashboard) {
+        const limitedStartups = filteredStartups.slice(0, maxStartups || 6);
+        setStartups(limitedStartups);
+        setTotalPages(1);
+        setTotal(limitedStartups.length);
       } else {
-        const paginatedData = data as PaginatedStartups;
-        setStartups(paginatedData.startups);
-        setTotalPages(paginatedData.totalPages);
-        setTotal(paginatedData.total);
+        // Implement client-side pagination for filtered results
+        const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+        const endIndex = startIndex + ITEMS_PER_PAGE;
+        const paginatedStartups = filteredStartups.slice(startIndex, endIndex);
+
+        setStartups(paginatedStartups);
+        setTotalPages(Math.ceil(filteredStartups.length / ITEMS_PER_PAGE));
+        setTotal(filteredStartups.length);
       }
     } catch (error) {
-      console.error("Error fetching startups:", error);
+      console.error("Error fetching matchmade startups:", error);
       toast({
         title: "Error",
-        description: "Failed to load startups",
+        description: "Failed to load matchmade startups",
         variant: "destructive",
       });
     } finally {
@@ -130,17 +200,58 @@ const InvestorBrowseStartups = ({
 
   const fetchFilterOptions = async () => {
     try {
-      const [industriesResult, stagesResult] = await Promise.all([
-        StartupService.getIndustries(),
-        StartupService.getStages(),
-      ]);
+      if (!user?.id) return;
 
-      if (industriesResult.data) {
-        setIndustries(industriesResult.data);
+      // Get matchmade startups to extract filter options from them
+      const { data: matchmakings } =
+        await MatchmakingService.getMatchmakingsByInvestor(user.id);
+
+      if (!matchmakings || matchmakings.length === 0) {
+        setIndustries([]);
+        setStages([]);
+        return;
       }
 
-      if (stagesResult.data) {
-        setStages(stagesResult.data);
+      // Get current date and date from 7 days ago
+      const currentDate = new Date();
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(currentDate.getDate() - 7);
+
+      // Filter out archived matchmakings and those older than 7 days
+      const activeMatchmakings = matchmakings.filter((m) => {
+        // Check if not archived
+        if (m.is_archived) return false;
+
+        // Check if created within last 7 days
+        const createdDate = new Date(m.created_at);
+        return createdDate >= sevenDaysAgo;
+      });
+
+      const startupIds = [
+        ...new Set(activeMatchmakings.map((m) => m.startup_id)),
+      ];
+
+      if (startupIds.length === 0) {
+        setIndustries([]);
+        setStages([]);
+        return;
+      }
+
+      const { data: matchedStartups } = await StartupService.getStartupsByIds(
+        startupIds
+      );
+
+      if (matchedStartups) {
+        // Extract unique industries and stages from matched startups
+        const uniqueIndustries = [
+          ...new Set(matchedStartups.map((s) => s.industry)),
+        ].filter(Boolean);
+        const uniqueStages = [
+          ...new Set(matchedStartups.map((s) => s.stage)),
+        ].filter(Boolean);
+
+        setIndustries(uniqueIndustries);
+        setStages(uniqueStages);
       }
     } catch (error) {
       console.error("Error fetching filter options:", error);
@@ -295,7 +406,9 @@ const InvestorBrowseStartups = ({
   );
 
   return (
-    <div className={`${isDashboard ? "" : "py-20"}`}>
+    <div>
+      <Navbar />
+      <div className={`${isDashboard ? "" : "py-24"}`}>
       <div className="container mx-auto px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -304,9 +417,9 @@ const InvestorBrowseStartups = ({
         >
           {!isDashboard && (
             <div className="max-w-4xl mx-auto text-center mb-12">
-              <h1 className="text-4xl font-bold mb-4">Browse Startups</h1>
+              <h1 className="text-4xl font-bold mb-4">Your Matched Startups</h1>
               <p className="text-xl text-muted-foreground">
-                Discover verified startups with high growth potential
+                Explore startups carefully selected for you by our team
               </p>
             </div>
           )}
@@ -318,7 +431,7 @@ const InvestorBrowseStartups = ({
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
                   <Input
                     type="text"
-                    placeholder="Search by name, industry, or description"
+                    placeholder="Search your matched startups"
                     className="pl-10"
                     value={searchTerm}
                     onChange={(e) => handleSearchTermChange(e.target.value)}
@@ -420,29 +533,28 @@ const InvestorBrowseStartups = ({
                 <motion.div
                   key={startup.id}
                   whileHover={{ y: -5 }}
-                  className="bg-card border rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all duration-300"
+                  className="bg-card border rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 flex flex-col h-full"
                 >
                   <div
-                    className="h-40 bg-center bg-cover"
+                    className="h-40 bg-center bg-cover flex-shrink-0"
                     style={{
-                      backgroundImage: `url(${
-                        startup.image ||
-                        "https://images.unsplash.com/photo-1551434678-e076c223a692?w=800&auto=format&fit=crop"
-                      })`,
+                      backgroundImage: `url(${startup.image || ""})`,
                     }}
                   />
-                  <div className="p-6">
-                    <div className="flex justify-between items-start mb-2">
-                      <h3 className="text-xl font-bold">{startup.name}</h3>
-                      <div className="flex space-x-2">
+                  <div className="p-6 flex flex-col flex-grow">
+                    <div className="mb-2">
+                      <h3 className="text-xl font-bold mb-2 break-words">
+                        {startup.name}
+                      </h3>
+                      <div className="flex flex-wrap gap-2">
                         <Badge variant="outline">{startup.stage}</Badge>
                         <Badge variant="secondary">{startup.industry}</Badge>
                       </div>
                     </div>
-                    <p className="text-muted-foreground mb-4 line-clamp-3">
+                    <p className="text-muted-foreground mb-4 line-clamp-3 flex-grow">
                       {startup.description}
                     </p>
-                    <div className="mt-4 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+                    <div className="mt-auto flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
                       <div className="flex-shrink-0">
                         <span className="text-sm font-medium">Valuation:</span>
                         <span className="ml-1 text-sm">
@@ -467,11 +579,11 @@ const InvestorBrowseStartups = ({
 
           {/* Results count */}
           {!isDashboard && !isLoading && (
-            <div className="text-center mb-8">
+            <div className="text-center mb-8 mt-8">
               <p className="text-muted-foreground">
                 {total === 0
-                  ? "No startups found"
-                  : `${total} startup${total !== 1 ? "s" : ""} found`}
+                  ? "No matched startups found"
+                  : `${total} matched startup${total !== 1 ? "s" : ""} found`}
               </p>
             </div>
           )}
@@ -479,11 +591,13 @@ const InvestorBrowseStartups = ({
           {startups.length === 0 && !isLoading && (
             <div className="text-center py-12">
               <Building className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-              <h3 className="text-xl font-medium mb-2">No startups found</h3>
+              <h3 className="text-xl font-medium mb-2">
+                No matched startups found
+              </h3>
               <p className="text-muted-foreground">
                 {searchTerm || selectedIndustry || selectedStage
                   ? "Try adjusting your search criteria or filters."
-                  : "No verified startups available at the moment. Check back later!"}
+                  : "No startups have been matched to you yet. Our team will notify you when new matches are available!"}
               </p>
             </div>
           )}
@@ -519,6 +633,7 @@ const InvestorBrowseStartups = ({
           isInterested={interestedStartups.includes(selectedStartup.id)}
         />
       )}
+    </div>
     </div>
   );
 };

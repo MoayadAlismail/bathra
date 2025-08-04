@@ -73,8 +73,9 @@ const AdminNavbar = () => {
   // Admin navigation items
   const adminNavItems = [
     { label: "Dashboard", path: "/admin", icon: BarChart3 },
-    { label: "Startups", path: "/admin?tab=startups", icon: Building },
-    { label: "Investors", path: "/admin?tab=investors", icon: Users },
+    // { label: "Startups", path: "/admin?tab=startups", icon: Building },
+    // { label: "Investors", path: "/admin?tab=investors", icon: Users },
+    { label: "Scoring", path: "/admin/startup-scoring", icon: BarChart3 },
     { label: "Matchmaking", path: "/admin/matchmaking", icon: Unplug },
     { label: "Sign-Out", action: handleSignOutClick, icon: LogOut },
   ];

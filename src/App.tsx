@@ -20,6 +20,7 @@ import InviteSignup from "./pages/InviteSignup";
 import InviteVerify from "./pages/InviteVerify";
 import NotFound from "./pages/NotFound";
 import Admin from "./pages/Admin";
+import StartupScoring from "./pages/StartupScoring";
 import Articles from "./pages/Articles";
 import ArticleDetail from "./pages/ArticleDetail";
 import PendingVerification from "./pages/PendingVerification";
@@ -299,6 +300,16 @@ const AppRoutes = () => {
             <ProtectedRoute requiredAccountType="admin">
               <ErrorBoundary>
                 <Admin />
+              </ErrorBoundary>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/startup-scoring"
+          element={
+            <ProtectedRoute requiredAccountType="admin">
+              <ErrorBoundary>
+                <StartupScoring />
               </ErrorBoundary>
             </ProtectedRoute>
           }

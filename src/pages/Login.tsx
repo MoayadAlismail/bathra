@@ -35,7 +35,11 @@ const Login = () => {
   const [loginError, setLoginError] = useState("");
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [showUserTypeModal, setShowUserTypeModal] = useState(false);
-  const { signIn } = useAuth();
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [forgotPasswordEmail, setForgotPasswordEmail] = useState("");
+  const [isSendingReset, setIsSendingReset] = useState(false);
+  const [resetEmailSent, setResetEmailSent] = useState(false);
+  const { signIn, resetPassword } = useAuth();
   const { language } = useLanguage();
   const navigate = useNavigate();
 
@@ -93,6 +97,30 @@ const Login = () => {
     } finally {
       setIsLoggingIn(false);
     }
+  };
+
+  const handleForgotPassword = async () => {
+    if (!forgotPasswordEmail) {
+      return;
+    }
+
+    try {
+      setIsSendingReset(true);
+      const success = await resetPassword({ email: forgotPasswordEmail });
+      if (success) {
+        setResetEmailSent(true);
+      }
+    } catch (error) {
+      console.error("Password reset error:", error);
+    } finally {
+      setIsSendingReset(false);
+    }
+  };
+
+  const resetForgotPasswordModal = () => {
+    setShowForgotPassword(false);
+    setForgotPasswordEmail("");
+    setResetEmailSent(false);
   };
 
   return (
@@ -153,7 +181,7 @@ const Login = () => {
                             {t("passwordLabel").replace(" *", "")}
                           </FormLabel>
                           <FormControl>
-                                                          <Input
+                            <Input
                               type="password"
                               placeholder="••••••••"
                               {...field}
@@ -164,6 +192,17 @@ const Login = () => {
                         </FormItem>
                       )}
                     />
+
+                    <div className="text-right">
+                      <button
+                        type="button"
+                        onClick={() => setShowForgotPassword(true)}
+                        className="text-sm text-primary hover:underline bg-transparent border-none cursor-pointer"
+                      >
+                        {t("forgotPasswordLink")}
+                      </button>
+                    </div>
+
                     <Button
                       type="submit"
                       className="w-full"
@@ -201,6 +240,82 @@ const Login = () => {
         open={showUserTypeModal}
         onOpenChange={setShowUserTypeModal}
       />
+
+      {/* Forgot Password Modal */}
+      {showForgotPassword && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-background rounded-lg shadow-lg w-full max-w-md p-6"
+          >
+            {!resetEmailSent ? (
+              <>
+                <h2 className="text-xl font-semibold mb-2">
+                  {t("forgotPasswordTitle")}
+                </h2>
+                <p className="text-sm text-muted-foreground mb-4">
+                  {t("forgotPasswordDescription")}
+                </p>
+                <div className="space-y-4">
+                  <div>
+                    <label
+                      htmlFor="reset-email"
+                      className="block text-sm font-medium mb-1"
+                    >
+                      {t("emailLabel").replace(" *", "")}
+                    </label>
+                    <Input
+                      id="reset-email"
+                      type="email"
+                      placeholder="your@email.com"
+                      value={forgotPasswordEmail}
+                      onChange={(e) => setForgotPasswordEmail(e.target.value)}
+                      disabled={isSendingReset}
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      onClick={resetForgotPasswordModal}
+                      disabled={isSendingReset}
+                      className="flex-1"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      onClick={handleForgotPassword}
+                      disabled={isSendingReset || !forgotPasswordEmail}
+                      className="flex-1"
+                    >
+                      {isSendingReset ? (
+                        <>
+                          <Loader className="mr-2 h-4 w-4 animate-spin" />
+                          {t("sendingResetLink")}
+                        </>
+                      ) : (
+                        t("sendResetLinkButton")
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <>
+                <h2 className="text-xl font-semibold mb-2">
+                  {t("resetLinkSentTitle")}
+                </h2>
+                <p className="text-sm text-muted-foreground mb-4">
+                  {t("resetLinkSentDescription")}
+                </p>
+                <Button onClick={resetForgotPasswordModal} className="w-full">
+                  {t("backToLogin")}
+                </Button>
+              </>
+            )}
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 };

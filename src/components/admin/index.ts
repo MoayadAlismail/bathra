@@ -10,6 +10,7 @@ export { default as AdminStartupEditModal } from "./AdminStartupEditModal";
 export { default as AdminInvestorEditModal } from "./AdminInvestorEditModal";
 export { default as AdminManagement } from "./AdminManagement";
 export { default as AddAdminModal } from "./AddAdminModal";
+export { default as StartupScoringSystem } from "./StartupScoringSystem";
 export { default as AdminDetailModal } from "./AdminDetailModal";
 export { default as UserInvitesManagement } from "./UserInvitesManagement";
 export { default as UserInviteModal } from "./UserInviteModal";

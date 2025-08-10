@@ -173,6 +173,9 @@ export const getAuthErrorMessage = (error: any): string => {
     email_already_in_use: "An account with this email already exists",
     session_not_found: "Your session has expired. Please sign in again",
     network_error: "Network error. Please check your connection and try again",
+    "Current password is incorrect": "Current password is incorrect",
+    "No authenticated user found":
+      "No authenticated user found. Please log in again.",
   };
 
   if (typeof error === "string") {

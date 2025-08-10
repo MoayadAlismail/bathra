@@ -2,7 +2,13 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+  useNavigate,
+} from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { LanguageProvider } from "./context/LanguageContext";
@@ -10,6 +16,7 @@ import { useEffect, useState, Suspense, Component, ReactNode } from "react";
 import { Analytics } from "@vercel/analytics/react";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
+import ResetPassword from "./pages/ResetPassword";
 import InvestorDashboard from "./pages/InvestorDashboard";
 import StartupDashboard from "./pages/StartupDashboard";
 import Signup from "./pages/Signup";
@@ -20,6 +27,7 @@ import InviteSignup from "./pages/InviteSignup";
 import InviteVerify from "./pages/InviteVerify";
 import NotFound from "./pages/NotFound";
 import Admin from "./pages/Admin";
+import StartupScoring from "./pages/StartupScoring";
 import Articles from "./pages/Articles";
 import ArticleDetail from "./pages/ArticleDetail";
 import PendingVerification from "./pages/PendingVerification";
@@ -157,8 +165,33 @@ const ProtectedRoute = ({
 };
 
 const AppRoutes = () => {
+  // Handles Supabase recovery links that may land on any route
+  const AuthLinkHandler = () => {
+    const navigate = useNavigate();
+    useEffect(() => {
+      try {
+        const hash = window.location.hash.startsWith("#")
+          ? window.location.hash.slice(1)
+          : "";
+        const params = new URLSearchParams(hash);
+        const type = params.get("type");
+        const access = params.get("access_token");
+        const refresh = params.get("refresh_token");
+        if (type === "recovery" && access && refresh) {
+          if (window.location.pathname !== "/reset-password") {
+            // Preserve tokens in hash during redirect
+            window.location.replace(`/reset-password${window.location.hash}`);
+          }
+        }
+      } catch (_) {
+        // ignore
+      }
+    }, [navigate]);
+    return null;
+  };
   return (
     <BrowserRouter>
+      <AuthLinkHandler />
       <Routes>
         <Route path="/" element={<Index />} />
         <Route path="/signup" element={<Signup />} />
@@ -168,6 +201,7 @@ const AppRoutes = () => {
         <Route path="/invite-signup" element={<InviteSignup />} />
         <Route path="/invite-verify" element={<InviteVerify />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/pending-verification" element={<PendingVerification />} />
         <Route
           path="/startup-profile"
@@ -299,6 +333,16 @@ const AppRoutes = () => {
             <ProtectedRoute requiredAccountType="admin">
               <ErrorBoundary>
                 <Admin />
+              </ErrorBoundary>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/startup-scoring"
+          element={
+            <ProtectedRoute requiredAccountType="admin">
+              <ErrorBoundary>
+                <StartupScoring />
               </ErrorBoundary>
             </ProtectedRoute>
           }

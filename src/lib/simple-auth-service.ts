@@ -146,6 +146,69 @@ class SimpleAuthService {
     return this.mapSupabaseUserToUser(data.user);
   }
 
+  async resetPassword(email: string): Promise<void> {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    if (error) throw error;
+  }
+
+  async updatePassword(
+    currentPassword: string,
+    newPassword: string
+  ): Promise<void> {
+    // Get current user
+    const { data: currentUser } = await supabase.auth.getUser();
+    if (!currentUser.user) {
+      throw new Error("No authenticated user found");
+    }
+
+    const userEmail = currentUser.user.email!;
+
+    // Store current session
+    const { data: currentSession } = await supabase.auth.getSession();
+
+    // Validate current password by attempting to sign in
+    // We'll use a separate client instance to avoid affecting the current session
+    const { error: signInError, data: signInData } =
+      await supabase.auth.signInWithPassword({
+        email: userEmail,
+        password: currentPassword,
+      });
+
+    if (signInError) {
+      throw new Error("Current password is incorrect");
+    }
+
+    // Now update the password using the validated session
+    const { error: updateError } = await supabase.auth.updateUser({
+      password: newPassword,
+    });
+
+    if (updateError) {
+      throw new Error(`Failed to update password: ${updateError.message}`);
+    }
+
+    // Ensure session tokens are properly maintained
+    if (signInData.session) {
+      // Update stored tokens
+      if (signInData.session.access_token) {
+        localStorage.setItem("authToken", signInData.session.access_token);
+      }
+      if (signInData.session.refresh_token) {
+        localStorage.setItem("refreshToken", signInData.session.refresh_token);
+      }
+    }
+  }
+
+  async setPassword(newPassword: string): Promise<void> {
+    // For password reset flow - sets new password after email verification
+    const { error } = await supabase.auth.updateUser({
+      password: newPassword,
+    });
+    if (error) throw error;
+  }
+
   async getInvestorProfile(userId: string) {
     const { data, error } = await supabase
       .from("investors")
@@ -363,6 +426,10 @@ export const useSimpleAuth = () => {
     login: simpleAuthService.login.bind(simpleAuthService),
     logout: simpleAuthService.logout.bind(simpleAuthService),
     getCurrentUser: simpleAuthService.getCurrentUser.bind(simpleAuthService),
+    resetPassword: simpleAuthService.resetPassword.bind(simpleAuthService),
+    updatePassword: (currentPassword: string, newPassword: string) =>
+      simpleAuthService.updatePassword(currentPassword, newPassword),
+    setPassword: simpleAuthService.setPassword.bind(simpleAuthService),
     getInvestorProfile:
       simpleAuthService.getInvestorProfile.bind(simpleAuthService),
     getStartupProfile:

@@ -6,14 +6,23 @@ import { useAuth } from "@/context/AuthContext";
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
   Edit,
   ArrowLeft,
   Building2,
   DollarSign,
   ExternalLink,
   Calendar,
+  Key,
+  MoreVertical,
 } from "lucide-react";
 import InvestorProfileEditModal from "@/components/InvestorProfileEditModal";
+import ChangePasswordModal from "@/components/auth/ChangePasswordModal";
 import Footer from "@/components/Footer";
 import { useLanguage } from "@/context/LanguageContext";
 import { TranslationKey } from "@/context/LanguageContext";
@@ -30,6 +39,8 @@ const InvestorProfile = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [investorDetails, setInvestorDetails] = useState<Investor | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] =
+    useState(false);
 
   useEffect(() => {
     const fetchInvestorDetails = async () => {
@@ -104,14 +115,52 @@ const InvestorProfile = () => {
                 <ArrowLeft className="h-4 w-4" />
                 {t("backToDashboard" as TranslationKey)}
               </Button>
-              <Button
-                onClick={() => setIsEditModalOpen(true)}
-                disabled={!investorDetails}
-                className="ml-auto"
-              >
-                <Edit className="mr-2 h-4 w-4" />
-                {t("editProfile" as TranslationKey)}
-              </Button>
+
+              {/* Desktop buttons */}
+              <div className="ml-auto hidden sm:flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setIsChangePasswordModalOpen(true)}
+                  className="flex items-center gap-2"
+                >
+                  <Key className="h-4 w-4" />
+                  {t("changePasswordButton")}
+                </Button>
+                <Button
+                  onClick={() => setIsEditModalOpen(true)}
+                  disabled={!investorDetails}
+                >
+                  <Edit className="mr-2 h-4 w-4" />
+                  {t("editProfile" as TranslationKey)}
+                </Button>
+              </div>
+
+              {/* Mobile dropdown */}
+              <div className="ml-auto sm:hidden">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="sm">
+                      <MoreVertical className="h-4 w-4" />
+                      <span className="sr-only">Open menu</span>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem
+                      onClick={() => setIsEditModalOpen(true)}
+                      disabled={!investorDetails}
+                    >
+                      <Edit className="mr-2 h-4 w-4" />
+                      {t("editProfile" as TranslationKey)}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => setIsChangePasswordModalOpen(true)}
+                    >
+                      <Key className="mr-2 h-4 w-4" />
+                      {t("changePasswordButton")}
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
             </div>
             <h1 className="text-3xl font-bold text-gradient mb-4">
               {t("investorProfileTitle" as TranslationKey)}
@@ -385,6 +434,12 @@ const InvestorProfile = () => {
           onUpdate={handleProfileUpdate}
         />
       )}
+
+      {/* Change Password Modal */}
+      <ChangePasswordModal
+        open={isChangePasswordModalOpen}
+        onOpenChange={setIsChangePasswordModalOpen}
+      />
 
       <Footer />
     </div>

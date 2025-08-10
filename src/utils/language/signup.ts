@@ -460,4 +460,155 @@ export const signupTranslations = {
     English: "Please explain why you're a strong candidate",
     Arabic: "يرجى توضيح سبب كونك مرشحًا قويًا",
   },
+
+  // Password Reset and Change
+  forgotPasswordLink: {
+    English: "Forgot password?",
+    Arabic: "نسيت كلمة المرور؟",
+  },
+  forgotPasswordTitle: {
+    English: "Reset Password",
+    Arabic: "إعادة تعيين كلمة المرور",
+  },
+  forgotPasswordDescription: {
+    English:
+      "Enter your email address and we'll send you a link to reset your password.",
+    Arabic:
+      "أدخل عنوان بريدك الإلكتروني وسنرسل لك رابطًا لإعادة تعيين كلمة المرور.",
+  },
+  sendResetLinkButton: {
+    English: "Send Reset Link",
+    Arabic: "إرسال رابط الإعادة",
+  },
+  sendingResetLink: {
+    English: "Sending...",
+    Arabic: "جاري الإرسال...",
+  },
+  resetLinkSentTitle: {
+    English: "Reset Link Sent",
+    Arabic: "تم إرسال رابط الإعادة",
+  },
+  resetLinkSentDescription: {
+    English: "Check your email for a link to reset your password.",
+    Arabic: "تحقق من بريدك الإلكتروني للحصول على رابط إعادة تعيين كلمة المرور.",
+  },
+  backToLogin: {
+    English: "Back to Login",
+    Arabic: "العودة إلى تسجيل الدخول",
+  },
+  changePasswordTitle: {
+    English: "Change Password",
+    Arabic: "تغيير كلمة المرور",
+  },
+  changePasswordDescription: {
+    English:
+      "Enter your current password and a new password to update your account.",
+    Arabic: "أدخل كلمة المرور الحالية وكلمة مرور جديدة لتحديث حسابك.",
+  },
+  currentPasswordLabel: {
+    English: "Current Password *",
+    Arabic: "كلمة المرور الحالية *",
+  },
+  newPasswordLabel: {
+    English: "New Password *",
+    Arabic: "كلمة المرور الجديدة *",
+  },
+  confirmNewPasswordLabel: {
+    English: "Confirm New Password *",
+    Arabic: "تأكيد كلمة المرور الجديدة *",
+  },
+  updatePasswordButton: {
+    English: "Update Password",
+    Arabic: "تحديث كلمة المرور",
+  },
+  updatingPassword: {
+    English: "Updating...",
+    Arabic: "جاري التحديث...",
+  },
+  resetPasswordTitle: {
+    English: "Set New Password",
+    Arabic: "تعيين كلمة مرور جديدة",
+  },
+  resetPasswordDescription: {
+    English: "Enter your new password below.",
+    Arabic: "أدخل كلمة المرور الجديدة أدناه.",
+  },
+  resetPasswordButton: {
+    English: "Reset Password",
+    Arabic: "إعادة تعيين كلمة المرور",
+  },
+  resettingPassword: {
+    English: "Resetting...",
+    Arabic: "جاري الإعادة...",
+  },
+  currentPasswordRequired: {
+    English: "Current password is required",
+    Arabic: "كلمة المرور الحالية مطلوبة",
+  },
+  newPasswordRequired: {
+    English: "New password is required",
+    Arabic: "كلمة المرور الجديدة مطلوبة",
+  },
+  passwordMinLength: {
+    English: "Password must be at least 6 characters",
+    Arabic: "يجب أن تكون كلمة المرور 6 أحرف على الأقل",
+  },
+  passwordsDoNotMatch: {
+    English: "Passwords do not match",
+    Arabic: "كلمات المرور غير متطابقة",
+  },
+  passwordResetSuccessTitle: {
+    English: "Password Reset Successful",
+    Arabic: "تم إعادة تعيين كلمة المرور بنجاح",
+  },
+  passwordResetSuccessDescription: {
+    English:
+      "Your password has been successfully reset. You can now sign in with your new password.",
+    Arabic:
+      "تم إعادة تعيين كلمة المرور بنجاح. يمكنك الآن تسجيل الدخول بكلمة المرور الجديدة.",
+  },
+  passwordChangeSuccessTitle: {
+    English: "Password Changed",
+    Arabic: "تم تغيير كلمة المرور",
+  },
+  passwordChangeSuccessDescription: {
+    English: "Your password has been successfully changed.",
+    Arabic: "تم تغيير كلمة المرور بنجاح.",
+  },
+  passwordResetFailedTitle: {
+    English: "Password Reset Failed",
+    Arabic: "فشل إعادة تعيين كلمة المرور",
+  },
+  passwordChangeFailedTitle: {
+    English: "Password Change Failed",
+    Arabic: "فشل تغيير كلمة المرور",
+  },
+  invalidEmailError: {
+    English: "Please enter a valid email address",
+    Arabic: "يرجى إدخال عنوان بريد إلكتروني صحيح",
+  },
+  emailRequiredError: {
+    English: "Email is required",
+    Arabic: "البريد الإلكتروني مطلوب",
+  },
+  incorrectCurrentPassword: {
+    English: "Current password is incorrect",
+    Arabic: "كلمة المرور الحالية غير صحيحة",
+  },
+  passwordUpdateFailed: {
+    English: "Failed to update password. Please try again.",
+    Arabic: "فشل في تحديث كلمة المرور. يرجى المحاولة مرة أخرى.",
+  },
+  noAuthenticatedUser: {
+    English: "No authenticated user found. Please log in again.",
+    Arabic: "لم يتم العثور على مستخدم مصادق عليه. يرجى تسجيل الدخول مرة أخرى.",
+  },
+  changePasswordButton: {
+    English: "Change Password",
+    Arabic: "تغيير كلمة المرور",
+  },
+  editButton: {
+    English: "Edit",
+    Arabic: "تعديل",
+  },
 };

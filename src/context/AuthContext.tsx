@@ -336,10 +336,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       setIsLoading(true);
 
-      // This is a placeholder since simpleAuthService doesn't have resetPassword
-      // You would need to implement this in the simple-auth-service.ts file
-      toast.error("Password reset is not implemented yet");
-      return false;
+      await simpleAuthService.resetPassword(data.email);
+      toast.success("Password reset email sent. Check your inbox.");
+      return true;
     } catch (error) {
       console.error("Password reset error:", error);
       toast.error(getAuthErrorMessage(error));
@@ -351,12 +350,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const updatePassword = async (data: PasswordUpdateData): Promise<boolean> => {
     try {
+      if (!user) {
+        toast.error("No authenticated user");
+        return false;
+      }
+
       setIsLoading(true);
 
-      // This is a placeholder since simpleAuthService doesn't have updatePassword
-      // You would need to implement this in the simple-auth-service.ts file
-      toast.error("Password update is not implemented yet");
-      return false;
+      // Validate current password and update to new password
+      await simpleAuthService.updatePassword(
+        data.currentPassword,
+        data.newPassword
+      );
+      toast.success("Password updated successfully");
+      return true;
     } catch (error) {
       console.error("Password update error:", error);
       toast.error(getAuthErrorMessage(error));
